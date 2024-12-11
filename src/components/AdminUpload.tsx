@@ -45,6 +45,7 @@ export function AdminUpload() {
         title: "Access Denied",
         description: "You don't have admin privileges."
       });
+      navigate('/login');
     }
   };
 
@@ -71,22 +72,20 @@ export function AdminUpload() {
       if (uploadError) throw uploadError;
 
       // Save translation metadata to database
-      if (fileType === 'translation') {
-        const { error: dbError } = await supabase
-          .from('translations')
-          .insert({
-            title,
-            tibetan_title: tibetanTitle,
-            source_file_path: fileType === 'source' ? filePath : null,
-            translation_file_path: fileType === 'translation' ? filePath : null,
-            metadata: {
-              uploadedAt: new Date().toISOString(),
-              fileType: file.type
-            }
-          });
+      const { error: dbError } = await supabase
+        .from('translations')
+        .insert({
+          title,
+          tibetan_title: tibetanTitle,
+          source_file_path: fileType === 'source' ? filePath : null,
+          translation_file_path: fileType === 'translation' ? filePath : null,
+          metadata: {
+            uploadedAt: new Date().toISOString(),
+            fileType: file.type
+          }
+        });
 
-        if (dbError) throw dbError;
-      }
+      if (dbError) throw dbError;
 
       setProgress(100);
       toast({
