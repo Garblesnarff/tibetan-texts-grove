@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 type FileType = 'source' | 'translation';
 
@@ -15,6 +15,7 @@ export function AdminUpload() {
   const [progress, setProgress] = useState(0);
   const [title, setTitle] = useState("");
   const [tibetanTitle, setTibetanTitle] = useState("");
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -24,15 +25,26 @@ export function AdminUpload() {
 
   const checkAdminStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user || user.email !== 'your-admin-email@example.com') { // Replace with your admin email
-      navigate('/');
+    if (!user) {
       toast({
         variant: "destructive",
         title: "Access Denied",
-        description: "You don't have permission to access this area."
+        description: "Please log in first."
       });
-    } else {
-      setIsAdmin(true);
+      navigate('/login');
+      return;
+    }
+    
+    // Set admin status based on email
+    const isAdminUser = user.email === 'your-admin-email@example.com'; // Replace with your admin email
+    setIsAdmin(isAdminUser);
+    
+    if (!isAdminUser) {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "You don't have admin privileges."
+      });
     }
   };
 
@@ -97,7 +109,10 @@ export function AdminUpload() {
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">Upload Translation</Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Upload Translation</DialogTitle>
