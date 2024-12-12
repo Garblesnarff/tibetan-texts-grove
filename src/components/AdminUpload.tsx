@@ -36,7 +36,7 @@ export function AdminUpload() {
     }
     
     // Set admin status based on email
-    const isAdminUser = user.email === 'your-admin-email@example.com'; // Replace with your admin email
+    const isAdminUser = user.email === 'wonky.coin@gmail.com';
     setIsAdmin(isAdminUser);
     
     if (!isAdminUser) {
