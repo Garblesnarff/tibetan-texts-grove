@@ -41,8 +41,21 @@ export const useFileUpload = () => {
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${fileType}/${fileName}`;
 
-      // Create database record first
-      const { data: dbData, error: dbError } = await supabase
+      // First upload file to storage
+      const { error: uploadError } = await supabase.storage
+        .from('admin_translations')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      // Then create database record
+      const { error: dbError } = await supabase
         .from('translations')
         .insert({
           title,
@@ -55,30 +68,14 @@ export const useFileUpload = () => {
             fileType: file.type,
             originalName: file.name
           }
-        })
-        .select()
-        .single();
-
-      if (dbError) {
-        console.error('Database error:', dbError);
-        throw dbError;
-      }
-
-      // Then upload file to storage
-      const { error: uploadError } = await supabase.storage
-        .from('admin_translations')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
         });
 
-      if (uploadError) {
-        // If upload fails, delete the database record
-        await supabase
-          .from('translations')
-          .delete()
-          .eq('id', dbData.id);
-        throw uploadError;
+      if (dbError) {
+        // If database insert fails, delete the uploaded file
+        await supabase.storage
+          .from('admin_translations')
+          .remove([filePath]);
+        throw dbError;
       }
 
       setProgress(100);
