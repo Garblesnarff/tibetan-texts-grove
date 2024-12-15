@@ -20,26 +20,54 @@ serve(async (req) => {
     )
 
     const formData = await req.formData()
+    
+    // Log received data for debugging
+    console.log('Received form data:', {
+      file: formData.get('file')?.name,
+      fileType: formData.get('fileType'),
+      title: formData.get('title'),
+      tibetanTitle: formData.get('tibetanTitle')
+    })
+
+    // Validate required fields
     const file = formData.get('file') as File
     const fileType = formData.get('fileType') as string
     const title = formData.get('title') as string
     const tibetanTitle = formData.get('tibetanTitle') as string
 
-    if (!file || !fileType || !title) {
+    if (!file) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ error: 'Missing file' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
 
-    console.log(`Processing ${fileType} file upload for translation: ${title}`)
+    if (!fileType || !['source', 'translation'].includes(fileType)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid file type' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      )
+    }
+
+    if (!title || !tibetanTitle) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Missing required fields',
+          details: {
+            title: !title ? 'Missing title' : undefined,
+            tibetanTitle: !tibetanTitle ? 'Missing tibetan title' : undefined
+          }
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      )
+    }
 
     // Create or update translation record
     const { data: translation, error: dbError } = await supabase
       .from('translations')
       .upsert({
-        title,
-        tibetan_title: tibetanTitle,
+        title: title.trim(),
+        tibetan_title: tibetanTitle.trim(),
         created_at: new Date().toISOString(),
       })
       .select()
