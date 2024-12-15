@@ -45,15 +45,25 @@ export const useFileUpload = () => {
       await verifyAdminStatus();
       
       const file = event.target.files[0];
+      let currentTitle = title;
+      let currentTibetanTitle = tibetanTitle;
       
-      // Set the appropriate title based on file type
+      // Extract and set titles from filenames
       if (fileType === 'translation') {
-        const extractedTitle = extractTitleFromFileName(file.name);
-        setTitle(extractedTitle);
+        currentTitle = extractTitleFromFileName(file.name);
+        setTitle(currentTitle);
       } else if (fileType === 'source') {
-        const extractedTitle = extractTitleFromFileName(file.name);
-        setTibetanTitle(extractedTitle);
+        currentTibetanTitle = extractTitleFromFileName(file.name);
+        setTibetanTitle(currentTibetanTitle);
       }
+
+      // Log the current state for debugging
+      console.log('Uploading file with data:', {
+        fileType,
+        title: currentTitle,
+        tibetanTitle: currentTibetanTitle,
+        fileName: file.name
+      });
 
       setUploading(true);
       setProgress(0);
@@ -61,15 +71,8 @@ export const useFileUpload = () => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('fileType', fileType);
-      formData.append('title', title.trim());
-      formData.append('tibetanTitle', tibetanTitle.trim());
-      
-      console.log('Uploading file with data:', {
-        fileType,
-        title: title.trim(),
-        tibetanTitle: tibetanTitle.trim(),
-        fileName: file.name
-      });
+      formData.append('title', currentTitle.trim());
+      formData.append('tibetanTitle', currentTibetanTitle.trim());
 
       const { data, error } = await supabase.functions.invoke('upload-translation', {
         body: formData,
