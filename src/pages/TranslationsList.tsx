@@ -1,11 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { AdminUpload } from "@/components/AdminUpload";
+import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function TranslationsList() {
+  const queryClient = useQueryClient();
+  
   const { data: translations, isLoading } = useQuery({
     queryKey: ['translations'],
     queryFn: async () => {
@@ -18,6 +22,23 @@ export default function TranslationsList() {
       return data;
     }
   });
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('translations')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success("Translation deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ['translations'] });
+    } catch (error) {
+      console.error('Error deleting translation:', error);
+      toast.error("Failed to delete translation");
+    }
+  };
 
   if (isLoading) {
     return <div className="container mx-auto p-4">Loading...</div>;
@@ -46,31 +67,44 @@ export default function TranslationsList() {
         {translations?.map((translation) => (
           <Card key={translation.id} className="flex flex-col">
             <CardHeader>
-              <div className="space-y-2">
-                <h2 className="text-2xl font-semibold mb-2">{translation.title}</h2>
-                {translation.tibetan_title && (
-                  <p className="font-tibetan text-lg mb-4">{translation.tibetan_title}</p>
-                )}
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  {translation.source_file_path && (
-                    <div className="flex items-center">
-                      <span className="mr-2">✓</span>
-                      <span>Tibetan Source Available</span>
-                    </div>
-                  )}
-                  {translation.translation_file_path && (
-                    <div className="flex items-center">
-                      <span className="mr-2">✓</span>
-                      <span>English Translation Available</span>
-                    </div>
+              <div className="flex justify-between items-start">
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-semibold">{translation.title}</h2>
+                  {translation.tibetan_title && (
+                    <p className="font-tibetan text-lg">{translation.tibetan_title}</p>
                   )}
                 </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="text-destructive hover:text-destructive/90"
+                  onClick={() => handleDelete(translation.id)}
+                >
+                  <Trash2 className="h-5 w-5" />
+                </Button>
               </div>
             </CardHeader>
-            <CardContent className="flex-grow flex items-end">
-              <Button asChild variant="outline" className="w-full">
-                <Link to={`/translations/${translation.id}`}>View Translation</Link>
-              </Button>
+            <CardContent className="space-y-4">
+              {translation.source_file_path && translation.translation_file_path && (
+                <div className="space-y-3">
+                  <div className="p-3 rounded-md bg-secondary">
+                    <h3 className="font-medium mb-2">Available Files:</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center">
+                        <span className="mr-2">📄</span>
+                        <span>Tibetan Source</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="mr-2">📄</span>
+                        <span>English Translation</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to={`/translations/${translation.id}`}>View Translation</Link>
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
