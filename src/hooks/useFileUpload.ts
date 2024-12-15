@@ -24,18 +24,22 @@ export const useFileUpload = () => {
    */
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, fileType: FileType) => {
     try {
-      const file = event.target.files?.[0];
-      if (!file) return;
+      if (!event.target.files || event.target.files.length === 0) {
+        throw new Error('You must select a file to upload.');
+      }
 
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "You must be logged in to upload files"
-        });
-        return;
+      const file = event.target.files[0];
+      
+      // Get current user session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        throw new Error('You must be logged in to upload files.');
+      }
+
+      // Verify admin status
+      if (session.user.email !== 'wonky.coin@gmail.com') {
+        throw new Error('Only admin users can upload files.');
       }
 
       setUploading(true);
@@ -63,10 +67,11 @@ export const useFileUpload = () => {
           tibetan_title: tibetanTitle,
           source_file_path: fileType === 'source' ? filePath : null,
           translation_file_path: fileType === 'translation' ? filePath : null,
-          created_by: user.id,
+          created_by: session.user.id,
           metadata: {
             uploadedAt: new Date().toISOString(),
-            fileType: file.type
+            fileType: file.type,
+            originalName: file.name
           }
         });
 
@@ -77,14 +82,20 @@ export const useFileUpload = () => {
         title: "Success",
         description: `${fileType} file uploaded successfully`
       });
+      
+      // Close the dialog after successful upload
+      setOpen(false);
+      
     } catch (error: any) {
+      console.error('Upload error:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message
+        description: error.message || 'An error occurred during upload'
       });
     } finally {
       setUploading(false);
+      setProgress(0);
     }
   };
 
