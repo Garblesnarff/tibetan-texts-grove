@@ -39,12 +39,51 @@ export const useFileUpload = () => {
       setUploading(true);
       setProgress(0);
 
+      // First create or get the translation record
+      let translationId: string;
+      const { data: existingTranslation, error: fetchError } = await supabase
+        .from('translations')
+        .select('id')
+        .eq('title', title)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "not found" error
+        throw fetchError;
+      }
+
+      if (existingTranslation) {
+        translationId = existingTranslation.id;
+      } else {
+        const { data: newTranslation, error: insertError } = await supabase
+          .from('translations')
+          .insert({
+            title,
+            tibetan_title: tibetanTitle,
+            created_by: session.user.id,
+            metadata: {
+              uploadedAt: new Date().toISOString()
+            }
+          })
+          .select('id')
+          .single();
+
+        if (insertError) {
+          throw insertError;
+        }
+        
+        if (!newTranslation) {
+          throw new Error('Failed to create translation record');
+        }
+
+        translationId = newTranslation.id;
+      }
+
       // Generate file path
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${fileType}/${fileName}`;
 
-      // Upload file to storage first
+      // Upload file to storage
       const { error: uploadError } = await supabase.storage
         .from('admin_translations')
         .upload(filePath, file, {
@@ -56,57 +95,25 @@ export const useFileUpload = () => {
         throw uploadError;
       }
 
-      // Then update or create the database record
+      // Update the translation record with the file path
       const updateData = fileType === 'source' 
         ? { source_file_path: filePath }
         : { translation_file_path: filePath };
 
-      const { data: existingTranslation } = await supabase
+      const { error: updateError } = await supabase
         .from('translations')
-        .select()
-        .eq('title', title)
-        .single();
+        .update({
+          ...updateData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', translationId);
 
-      if (existingTranslation) {
-        // Update existing translation
-        const { error: updateError } = await supabase
-          .from('translations')
-          .update({
-            ...updateData,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingTranslation.id);
-
-        if (updateError) {
-          // If update fails, delete the uploaded file
-          await supabase.storage
-            .from('admin_translations')
-            .remove([filePath]);
-          throw updateError;
-        }
-      } else {
-        // Create new translation record
-        const { error: insertError } = await supabase
-          .from('translations')
-          .insert({
-            title,
-            tibetan_title: tibetanTitle,
-            created_by: session.user.id,
-            ...updateData,
-            metadata: {
-              uploadedAt: new Date().toISOString(),
-              fileType: file.type,
-              originalName: file.name
-            }
-          });
-
-        if (insertError) {
-          // If insert fails, delete the uploaded file
-          await supabase.storage
-            .from('admin_translations')
-            .remove([filePath]);
-          throw insertError;
-        }
+      if (updateError) {
+        // If update fails, delete the uploaded file
+        await supabase.storage
+          .from('admin_translations')
+          .remove([filePath]);
+        throw updateError;
       }
 
       setProgress(100);
