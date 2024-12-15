@@ -39,48 +39,29 @@ export const useFileUpload = () => {
       setUploading(true);
       setProgress(0);
 
-      // First create or get the translation record
-      let translationId: string;
-      const { data: existingTranslation, error: fetchError } = await supabase
+      // Create a new translation record
+      const { data: newTranslation, error: insertError } = await supabase
         .from('translations')
+        .insert({
+          title,
+          tibetan_title: tibetanTitle,
+          created_by: session.user.id,
+          metadata: {
+            uploadedAt: new Date().toISOString(),
+            fileType: file.type,
+            originalName: file.name
+          }
+        })
         .select('id')
-        .eq('title', title)
         .single();
 
-      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "not found" error
-        throw fetchError;
+      if (insertError || !newTranslation) {
+        throw new Error('Failed to create translation record');
       }
 
-      if (existingTranslation) {
-        translationId = existingTranslation.id;
-      } else {
-        const { data: newTranslation, error: insertError } = await supabase
-          .from('translations')
-          .insert({
-            title,
-            tibetan_title: tibetanTitle,
-            created_by: session.user.id,
-            metadata: {
-              uploadedAt: new Date().toISOString()
-            }
-          })
-          .select('id')
-          .single();
-
-        if (insertError) {
-          throw insertError;
-        }
-        
-        if (!newTranslation) {
-          throw new Error('Failed to create translation record');
-        }
-
-        translationId = newTranslation.id;
-      }
-
-      // Generate file path
+      // Generate file path using the new translation ID
       const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const fileName = `${newTranslation.id}-${fileType}.${fileExt}`;
       const filePath = `${fileType}/${fileName}`;
 
       // Upload file to storage
@@ -92,6 +73,11 @@ export const useFileUpload = () => {
         });
 
       if (uploadError) {
+        // If upload fails, delete the translation record
+        await supabase
+          .from('translations')
+          .delete()
+          .eq('id', newTranslation.id);
         throw uploadError;
       }
 
@@ -102,17 +88,18 @@ export const useFileUpload = () => {
 
       const { error: updateError } = await supabase
         .from('translations')
-        .update({
-          ...updateData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', translationId);
+        .update(updateData)
+        .eq('id', newTranslation.id);
 
       if (updateError) {
-        // If update fails, delete the uploaded file
+        // If update fails, clean up
         await supabase.storage
           .from('admin_translations')
           .remove([filePath]);
+        await supabase
+          .from('translations')
+          .delete()
+          .eq('id', newTranslation.id);
         throw updateError;
       }
 
