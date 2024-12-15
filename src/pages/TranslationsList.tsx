@@ -19,7 +19,24 @@ export default function TranslationsList() {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      
+      // Group translations by their base name (removing any file extensions)
+      const groupedTranslations = data?.reduce((acc, translation) => {
+        const baseTitle = translation.title.split('_')[0]; // Assuming titles are in format "GRAM001_source" or "GRAM001_translation"
+        if (!acc[baseTitle]) {
+          acc[baseTitle] = translation;
+        } else {
+          // Merge the files into the existing translation object
+          acc[baseTitle] = {
+            ...acc[baseTitle],
+            source_file_path: acc[baseTitle].source_file_path || translation.source_file_path,
+            translation_file_path: acc[baseTitle].translation_file_path || translation.translation_file_path,
+          };
+        }
+        return acc;
+      }, {});
+
+      return Object.values(groupedTranslations);
     }
   });
 
@@ -69,7 +86,9 @@ export default function TranslationsList() {
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div className="space-y-2">
-                  <h2 className="text-2xl font-semibold">{translation.title}</h2>
+                  <h2 className="text-2xl font-semibold">
+                    {translation.title.split('_')[0]} Translation
+                  </h2>
                   {translation.tibetan_title && (
                     <p className="font-tibetan text-lg">{translation.tibetan_title}</p>
                   )}
