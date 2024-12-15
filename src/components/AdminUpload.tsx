@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { UploadDialog } from "./upload/UploadDialog";
 
 type FileType = 'source' | 'translation';
@@ -120,10 +120,12 @@ export function AdminUpload() {
   }
 
   return (
-    <DialogTrigger asChild>
-      <Button variant="outline" onClick={() => setOpen(true)}>
-        Upload Translation
-      </Button>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">
+          Upload Translation
+        </Button>
+      </DialogTrigger>
       <UploadDialog
         open={open}
         onOpenChange={setOpen}
@@ -135,6 +137,6 @@ export function AdminUpload() {
         tibetanTitle={tibetanTitle}
         setTibetanTitle={setTibetanTitle}
       />
-    </DialogTrigger>
+    </Dialog>
   );
 }
