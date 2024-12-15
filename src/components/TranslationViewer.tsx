@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import * as pdfjs from 'pdfjs-dist';
 
 // Configure PDF.js worker
+/* @vite-ignore */
 const pdfjsWorker = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url);
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker.toString();
 
