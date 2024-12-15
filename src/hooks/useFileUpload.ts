@@ -27,6 +27,17 @@ export const useFileUpload = () => {
       const file = event.target.files?.[0];
       if (!file) return;
 
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "You must be logged in to upload files"
+        });
+        return;
+      }
+
       setUploading(true);
       setProgress(0);
 
@@ -52,6 +63,7 @@ export const useFileUpload = () => {
           tibetan_title: tibetanTitle,
           source_file_path: fileType === 'source' ? filePath : null,
           translation_file_path: fileType === 'translation' ? filePath : null,
+          created_by: user.id,
           metadata: {
             uploadedAt: new Date().toISOString(),
             fileType: file.type
