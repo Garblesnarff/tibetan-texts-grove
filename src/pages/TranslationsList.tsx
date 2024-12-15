@@ -85,26 +85,36 @@ export default function TranslationsList() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {translation.source_file_path && translation.translation_file_path && (
-                <div className="space-y-3">
-                  <div className="p-3 rounded-md bg-secondary">
-                    <h3 className="font-medium mb-2">Available Files:</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center">
-                        <span className="mr-2">📄</span>
-                        <span>Tibetan Source</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="mr-2">📄</span>
-                        <span>English Translation</span>
-                      </div>
+              <div className="p-3 rounded-md bg-secondary">
+                <h3 className="font-medium mb-2">Files:</h3>
+                <div className="space-y-2 text-sm">
+                  {translation.source_file_path ? (
+                    <div className="flex items-center">
+                      <span className="mr-2">📄</span>
+                      <span>Tibetan Source</span>
                     </div>
-                  </div>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link to={`/translations/${translation.id}`}>View Translation</Link>
-                  </Button>
+                  ) : (
+                    <div className="flex items-center text-muted-foreground">
+                      <span className="mr-2">❌</span>
+                      <span>No Tibetan Source</span>
+                    </div>
+                  )}
+                  {translation.translation_file_path ? (
+                    <div className="flex items-center">
+                      <span className="mr-2">📄</span>
+                      <span>English Translation</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center text-muted-foreground">
+                      <span className="mr-2">❌</span>
+                      <span>No English Translation</span>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
+              <Button asChild variant="outline" className="w-full">
+                <Link to={`/translations/${translation.id}`}>View Translation</Link>
+              </Button>
             </CardContent>
           </Card>
         ))}
