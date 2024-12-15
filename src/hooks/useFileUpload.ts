@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { FileType } from "@/types/upload";
 
 /**
@@ -45,21 +45,12 @@ export const useFileUpload = () => {
       setUploading(true);
       setProgress(0);
 
-      // Upload file to Supabase Storage
+      // First create the database record
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${fileType}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('admin_translations')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Save translation metadata to database
+      // Save translation metadata to database first
       const { error: dbError } = await supabase
         .from('translations')
         .insert({
@@ -76,6 +67,16 @@ export const useFileUpload = () => {
         });
 
       if (dbError) throw dbError;
+
+      // Then upload file to storage
+      const { error: uploadError } = await supabase.storage
+        .from('admin_translations')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
 
       setProgress(100);
       toast({
