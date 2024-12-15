@@ -2,10 +2,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { AdminUpload } from "@/components/AdminUpload";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 
 type Translation = Database['public']['Tables']['translations']['Row'];
@@ -88,62 +88,65 @@ export default function TranslationsList() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {translations?.map((translation) => (
-          <Card key={translation.id} className="flex flex-col">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <h2 className="text-2xl font-semibold">
-                    {translation.title.split('_')[0]} Translation
-                  </h2>
-                  {translation.tibetan_title && (
-                    <p className="font-tibetan text-lg">{translation.tibetan_title}</p>
-                  )}
+        {translations?.map((translation) => {
+          const baseTitle = translation.title.split('_')[0];
+          return (
+            <Card key={translation.id} className="flex flex-col">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <h2 className="text-2xl font-semibold">
+                      {baseTitle}
+                    </h2>
+                    {translation.tibetan_title && (
+                      <p className="font-tibetan text-lg">{translation.tibetan_title}</p>
+                    )}
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="text-destructive hover:text-destructive/90"
+                    onClick={() => handleDelete(translation.id)}
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="text-destructive hover:text-destructive/90"
-                  onClick={() => handleDelete(translation.id)}
-                >
-                  <Trash2 className="h-5 w-5" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-3 rounded-md bg-secondary">
+                  <h3 className="font-medium mb-2">Files:</h3>
+                  <div className="space-y-2 text-sm">
+                    {translation.source_file_path ? (
+                      <div className="flex items-center">
+                        <span className="mr-2">📄</span>
+                        <span>Tibetan Source</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-muted-foreground">
+                        <span className="mr-2">❌</span>
+                        <span>No Tibetan Source</span>
+                      </div>
+                    )}
+                    {translation.translation_file_path ? (
+                      <div className="flex items-center">
+                        <span className="mr-2">📄</span>
+                        <span>English Translation</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-muted-foreground">
+                        <span className="mr-2">❌</span>
+                        <span>No English Translation</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <Button asChild variant="outline" className="w-full">
+                  <Link to={`/translations/${translation.id}`}>View Text</Link>
                 </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-3 rounded-md bg-secondary">
-                <h3 className="font-medium mb-2">Files:</h3>
-                <div className="space-y-2 text-sm">
-                  {translation.source_file_path ? (
-                    <div className="flex items-center">
-                      <span className="mr-2">📄</span>
-                      <span>Tibetan Source</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center text-muted-foreground">
-                      <span className="mr-2">❌</span>
-                      <span>No Tibetan Source</span>
-                    </div>
-                  )}
-                  {translation.translation_file_path ? (
-                    <div className="flex items-center">
-                      <span className="mr-2">📄</span>
-                      <span>English Translation</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center text-muted-foreground">
-                      <span className="mr-2">❌</span>
-                      <span>No English Translation</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <Button asChild variant="outline" className="w-full">
-                <Link to={`/translations/${translation.id}`}>View Translation</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

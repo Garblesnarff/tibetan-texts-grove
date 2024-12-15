@@ -1,31 +1,48 @@
 import { Card } from "@/components/ui/card";
 
-const TranslationViewer = () => {
-  // Sample translation data
-  const translation = {
-    title: "The Heart Sutra",
-    tibetanTitle: "བཅོམ་ལྡན་འདས་མ་ཤེས་རབ་ཀྱི་ཕ་རོལ་ཏུ་ཕྱིན་པའི་སྙིང་པོ",
-    sourceText: "རྒྱ་གར་སྐད་དུ། བྷ་ག་ཝ་ཏི་པྲཛྙཱ་པཱ་ར་མི་ཏཱ་ཧྲྀ་ད་ཡ།",
-    translatedText: "Thus I have heard. At one time the Blessed One was dwelling in Rajagriha at Vulture Peak mountain, together with a great gathering of the sangha of monks and a great gathering of the sangha of bodhisattvas.",
-  };
+const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
 
+interface TranslationViewerProps {
+  translation: {
+    title: string;
+    tibetan_title: string | null;
+    source_file_path: string | null;
+    translation_file_path: string | null;
+  };
+}
+
+const TranslationViewer = ({ translation }: TranslationViewerProps) => {
   return (
     <Card className="p-6">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">{translation.title}</h3>
-        <p className="tibetan-text text-tibetan-maroon">{translation.tibetanTitle}</p>
+        <h3 className="text-xl font-semibold mb-2">{translation.title.split('_')[0]}</h3>
+        {translation.tibetan_title && (
+          <p className="text-tibetan-maroon font-tibetan">{translation.tibetan_title}</p>
+        )}
       </div>
       
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <h4 className="font-semibold text-tibetan-brown">Tibetan</h4>
-          <p className="tibetan-text">{translation.sourceText}</p>
-        </div>
+      <div className="grid md:grid-cols-2 gap-6 h-[800px]">
+        {translation.source_file_path && (
+          <div className="space-y-4">
+            <h4 className="font-semibold text-tibetan-brown">Tibetan Source</h4>
+            <iframe
+              src={`${STORAGE_URL}/${translation.source_file_path}`}
+              className="w-full h-full border rounded-lg"
+              title="Tibetan Source"
+            />
+          </div>
+        )}
         
-        <div className="space-y-4">
-          <h4 className="font-semibold text-tibetan-brown">English</h4>
-          <p className="leading-relaxed">{translation.translatedText}</p>
-        </div>
+        {translation.translation_file_path && (
+          <div className="space-y-4">
+            <h4 className="font-semibold text-tibetan-brown">English Translation</h4>
+            <iframe
+              src={`${STORAGE_URL}/${translation.translation_file_path}`}
+              className="w-full h-full border rounded-lg"
+              title="English Translation"
+            />
+          </div>
+        )}
       </div>
     </Card>
   );
