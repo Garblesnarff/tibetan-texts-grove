@@ -64,7 +64,7 @@ export const useFileUpload = () => {
       const fileName = `${newTranslation.id}-${fileType}.${fileExt}`;
       const filePath = `${fileType}/${fileName}`;
 
-      // Upload file to storage
+      // Upload file to storage using authenticated client
       const { error: uploadError } = await supabase.storage
         .from('admin_translations')
         .upload(filePath, file, {
@@ -73,6 +73,7 @@ export const useFileUpload = () => {
         });
 
       if (uploadError) {
+        console.error('Upload error:', uploadError);
         // If upload fails, delete the translation record
         await supabase
           .from('translations')
@@ -92,6 +93,7 @@ export const useFileUpload = () => {
         .eq('id', newTranslation.id);
 
       if (updateError) {
+        console.error('Update error:', updateError);
         // If update fails, clean up
         await supabase.storage
           .from('admin_translations')
