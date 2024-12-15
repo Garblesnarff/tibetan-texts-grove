@@ -4,10 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 
 // Initialize PDF.js worker
-GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url,
-).toString();
+GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${getDocument.version}/pdf.worker.min.js`;
 
 const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
 
@@ -28,6 +25,7 @@ const TranslationViewer = ({ translation }: TranslationViewerProps) => {
   useEffect(() => {
     const extractTextFromPDF = async (filePath: string) => {
       try {
+        console.log("Fetching PDF from:", `${STORAGE_URL}/${filePath}`);
         // Fetch the PDF as ArrayBuffer
         const response = await fetch(`${STORAGE_URL}/${filePath}`);
         const arrayBuffer = await response.arrayBuffer();
