@@ -1,30 +1,35 @@
 import { Card } from "@/components/ui/card";
 
-const TranslationViewer = () => {
-  // Sample translation data
-  const translation = {
-    title: "The Heart Sutra",
-    tibetanTitle: "བཅོམ་ལྡན་འདས་མ་ཤེས་རབ་ཀྱི་ཕ་རོལ་ཏུ་ཕྱིན་པའི་སྙིང་པོ",
-    sourceText: "རྒྱ་གར་སྐད་དུ། བྷ་ག་ཝ་ཏི་པྲཛྙཱ་པཱ་ར་མི་ཏཱ་ཧྲྀ་ད་ཡ།",
-    translatedText: "Thus I have heard. At one time the Blessed One was dwelling in Rajagriha at Vulture Peak mountain, together with a great gathering of the sangha of monks and a great gathering of the sangha of bodhisattvas.",
-  };
-
+/**
+ * TranslationViewer Component
+ * Displays a Tibetan text and its English translation side by side
+ * @param {Object} translation - Contains the translation data including title and text
+ */
+const TranslationViewer = ({ translation }: { translation: any }) => {
   return (
     <Card className="p-6">
       <div className="mb-6">
         <h3 className="text-xl font-semibold mb-2">{translation.title}</h3>
-        <p className="tibetan-text text-tibetan-maroon">{translation.tibetanTitle}</p>
+        {translation.tibetan_title && (
+          <p className="text-tibetan-maroon font-tibetan text-xl">
+            {translation.tibetan_title}
+          </p>
+        )}
       </div>
       
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <h4 className="font-semibold text-tibetan-brown">Tibetan</h4>
-          <p className="tibetan-text">{translation.sourceText}</p>
-        </div>
-        
-        <div className="space-y-4">
-          <h4 className="font-semibold text-tibetan-brown">English</h4>
-          <p className="leading-relaxed">{translation.translatedText}</p>
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4">
+          <div className="space-y-2">
+            <h4 className="font-semibold text-tibetan-brown">Source Text & Translation</h4>
+            <div className="border rounded-lg p-4 bg-white">
+              <div className="mb-4">
+                <p className="font-tibetan text-lg">{translation.sourceText}</p>
+              </div>
+              <div className="border-t pt-4">
+                <p className="text-lg">{translation.translatedText}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Card>
