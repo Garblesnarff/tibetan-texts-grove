@@ -35,7 +35,7 @@ export const useFileUpload = () => {
 
       const file = event.target.files[0];
       
-      // Verify admin status first
+      // Verify admin status and get session
       const session = await verifyAdminStatus();
       
       setUploading(true);
@@ -46,7 +46,7 @@ export const useFileUpload = () => {
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${fileType}/${fileName}`;
 
-      // Upload file to storage
+      // Upload file to storage using admin session
       const { error: uploadError } = await supabase.storage
         .from('admin_translations')
         .upload(filePath, file, {
@@ -59,7 +59,7 @@ export const useFileUpload = () => {
         throw uploadError;
       }
 
-      // Create database record with the correct user ID
+      // Create database record with admin user ID
       const { error: dbError } = await supabase
         .from('translations')
         .insert({
