@@ -12,6 +12,8 @@ export default function TranslationsList() {
       const { data, error } = await supabase
         .from('translations')
         .select('*')
+        .not('source_file_path', 'is', null)
+        .not('translation_file_path', 'is', null)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -35,14 +37,19 @@ export default function TranslationsList() {
           <Card key={translation.id} className="flex flex-col">
             <CardHeader>
               <div className="space-y-2">
-                <h2 className="text-xl font-semibold">English Translation</h2>
-                <h3 className="text-lg">{translation.title}</h3>
-                {translation.tibetan_title && (
-                  <div className="mt-4">
-                    <h2 className="text-xl font-semibold text-tibetan-maroon">Tibetan Source</h2>
-                    <p className="font-tibetan text-lg">{translation.tibetan_title}</p>
+                <h2 className="text-2xl font-semibold mb-4">{translation.title}</h2>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-medium">English Translation</h3>
+                    <p className="text-muted-foreground">Translation PDF</p>
                   </div>
-                )}
+                  {translation.tibetan_title && (
+                    <div>
+                      <h3 className="text-lg font-medium text-tibetan-maroon">Tibetan Source</h3>
+                      <p className="font-tibetan">{translation.tibetan_title}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent className="flex-grow flex items-end">
