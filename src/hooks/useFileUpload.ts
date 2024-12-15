@@ -39,70 +39,29 @@ export const useFileUpload = () => {
       setUploading(true);
       setProgress(0);
 
-      // Create a new translation record
-      const { data: newTranslation, error: insertError } = await supabase
-        .from('translations')
-        .insert({
-          title,
-          tibetan_title: tibetanTitle,
-          created_by: session.user.id,
-          metadata: {
-            uploadedAt: new Date().toISOString(),
-            fileType: file.type,
-            originalName: file.name
-          }
-        })
-        .select('id')
-        .single();
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileType', fileType);
+      formData.append('title', title);
+      formData.append('tibetanTitle', tibetanTitle);
+      formData.append('userId', session.user.id);
 
-      if (insertError || !newTranslation) {
-        throw new Error('Failed to create translation record');
-      }
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-translation`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentSession?.access_token}`
+          },
+          body: formData
+        }
+      );
 
-      // Generate file path using the new translation ID
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${newTranslation.id}-${fileType}.${fileExt}`;
-      const filePath = `${fileType}/${fileName}`;
+      const result = await response.json();
 
-      // Upload file to storage using authenticated client
-      const { error: uploadError } = await supabase.storage
-        .from('admin_translations')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        // If upload fails, delete the translation record
-        await supabase
-          .from('translations')
-          .delete()
-          .eq('id', newTranslation.id);
-        throw uploadError;
-      }
-
-      // Update the translation record with the file path
-      const updateData = fileType === 'source' 
-        ? { source_file_path: filePath }
-        : { translation_file_path: filePath };
-
-      const { error: updateError } = await supabase
-        .from('translations')
-        .update(updateData)
-        .eq('id', newTranslation.id);
-
-      if (updateError) {
-        console.error('Update error:', updateError);
-        // If update fails, clean up
-        await supabase.storage
-          .from('admin_translations')
-          .remove([filePath]);
-        await supabase
-          .from('translations')
-          .delete()
-          .eq('id', newTranslation.id);
-        throw updateError;
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to upload file');
       }
 
       setProgress(100);
