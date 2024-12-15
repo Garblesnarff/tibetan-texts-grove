@@ -19,11 +19,14 @@ export interface FileUploadFieldProps {
 export interface UploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>, fileType: FileType) => Promise<void>;
+  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>, fileType: FileType) => void;
   uploading: boolean;
   progress: number;
   title: string;
   setTitle: (title: string) => void;
   tibetanTitle: string;
   setTibetanTitle: (title: string) => void;
+  handleSubmit: () => Promise<void>;
+  sourceFile: File | null;
+  translationFile: File | null;
 }

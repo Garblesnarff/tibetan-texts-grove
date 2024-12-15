@@ -1,6 +1,7 @@
 import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { FileUploadField } from "./FileUploadField";
 import { UploadDialogProps } from "@/types/upload";
 
@@ -17,7 +18,10 @@ export function UploadDialog({
   title,
   setTitle,
   tibetanTitle,
-  setTibetanTitle
+  setTibetanTitle,
+  handleSubmit,
+  sourceFile,
+  translationFile
 }: UploadDialogProps) {
   return (
     <DialogContent className="sm:max-w-[425px]">
@@ -72,6 +76,13 @@ export function UploadDialog({
             </p>
           </div>
         )}
+
+        <Button 
+          onClick={handleSubmit}
+          disabled={uploading || !sourceFile || !translationFile}
+        >
+          Upload Files
+        </Button>
       </div>
     </DialogContent>
   );

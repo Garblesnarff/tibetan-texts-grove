@@ -10,6 +10,8 @@ export const useFileUpload = () => {
   const [title, setTitle] = useState("");
   const [tibetanTitle, setTibetanTitle] = useState("");
   const [open, setOpen] = useState(false);
+  const [sourceFile, setSourceFile] = useState<File | null>(null);
+  const [translationFile, setTranslationFile] = useState<File | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -47,49 +49,82 @@ export const useFileUpload = () => {
       const file = event.target.files[0];
       const extractedTitle = extractTitleFromFileName(file.name);
       
-      // Set titles based on file type
+      // Set file and title based on type
       if (fileType === 'translation') {
+        setTranslationFile(file);
         setTitle(extractedTitle);
       } else if (fileType === 'source') {
+        setSourceFile(file);
         setTibetanTitle(extractedTitle);
       }
-
-      // Create FormData with current values
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileType', fileType);
-      formData.append('title', fileType === 'translation' ? extractedTitle : title);
-      formData.append('tibetanTitle', fileType === 'source' ? extractedTitle : tibetanTitle);
-
-      // Log the data being sent
-      console.log('Uploading file with data:', {
-        fileType,
-        title: formData.get('title'),
-        tibetanTitle: formData.get('tibetanTitle'),
-        fileName: file.name
+    } catch (error: any) {
+      console.error('File selection error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || 'An error occurred during file selection'
       });
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (!sourceFile || !translationFile) {
+        throw new Error('Both source and translation files are required.');
+      }
 
       setUploading(true);
       setProgress(0);
 
-      const { data, error } = await supabase.functions.invoke('upload-translation', {
-        body: formData,
+      // Upload source file
+      const sourceFormData = new FormData();
+      sourceFormData.append('file', sourceFile);
+      sourceFormData.append('fileType', 'source');
+      sourceFormData.append('title', title);
+      sourceFormData.append('tibetanTitle', tibetanTitle);
+
+      console.log('Uploading source file with data:', {
+        fileType: 'source',
+        title,
+        tibetanTitle,
+        fileName: sourceFile.name
       });
 
-      if (error) {
-        console.error('Upload error:', error);
-        throw error;
-      }
+      const sourceResult = await supabase.functions.invoke('upload-translation', {
+        body: sourceFormData,
+      });
+
+      if (sourceResult.error) throw sourceResult.error;
+
+      setProgress(50);
+
+      // Upload translation file
+      const translationFormData = new FormData();
+      translationFormData.append('file', translationFile);
+      translationFormData.append('fileType', 'translation');
+      translationFormData.append('title', title);
+      translationFormData.append('tibetanTitle', tibetanTitle);
+
+      console.log('Uploading translation file with data:', {
+        fileType: 'translation',
+        title,
+        tibetanTitle,
+        fileName: translationFile.name
+      });
+
+      const translationResult = await supabase.functions.invoke('upload-translation', {
+        body: translationFormData,
+      });
+
+      if (translationResult.error) throw translationResult.error;
 
       setProgress(100);
       toast({
         title: "Success",
-        description: `${fileType} file uploaded successfully`
+        description: "Files uploaded successfully"
       });
       
-      if (fileType === 'translation') {
-        setOpen(false);
-      }
+      setOpen(false);
       
     } catch (error: any) {
       console.error('Upload error:', error);
@@ -114,6 +149,9 @@ export const useFileUpload = () => {
     open,
     setOpen,
     handleFileUpload,
+    handleSubmit,
+    sourceFile,
+    translationFile,
     navigate,
     toast
   };
