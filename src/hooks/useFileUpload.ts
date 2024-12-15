@@ -59,7 +59,7 @@ export const useFileUpload = () => {
         throw uploadError;
       }
 
-      // Create database record
+      // Create database record with the correct user ID
       const { error: dbError } = await supabase
         .from('translations')
         .insert({
