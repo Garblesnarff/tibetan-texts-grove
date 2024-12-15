@@ -1,4 +1,6 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
 
@@ -12,6 +14,29 @@ interface TranslationViewerProps {
 }
 
 const TranslationViewer = ({ translation }: TranslationViewerProps) => {
+  const [sourceText, setSourceText] = useState<string>("");
+  const [translationText, setTranslationText] = useState<string>("");
+
+  useEffect(() => {
+    const fetchPDFText = async (filePath: string) => {
+      try {
+        const response = await fetch(`${STORAGE_URL}/${filePath}`);
+        const text = await response.text();
+        return text;
+      } catch (error) {
+        console.error("Error fetching PDF text:", error);
+        return "";
+      }
+    };
+
+    if (translation.source_file_path) {
+      fetchPDFText(translation.source_file_path).then(setSourceText);
+    }
+    if (translation.translation_file_path) {
+      fetchPDFText(translation.translation_file_path).then(setTranslationText);
+    }
+  }, [translation]);
+
   return (
     <Card className="p-6">
       <div className="mb-6">
@@ -25,22 +50,22 @@ const TranslationViewer = ({ translation }: TranslationViewerProps) => {
         {translation.source_file_path && (
           <div className="h-[800px]">
             <h4 className="font-semibold text-tibetan-brown mb-4">Tibetan Source</h4>
-            <iframe
-              src={`${STORAGE_URL}/${translation.source_file_path}`}
-              className="w-full h-full border rounded-lg bg-white"
-              title="Tibetan Source"
-            />
+            <ScrollArea className="h-full border rounded-lg bg-white p-4">
+              <div className="font-tibetan text-lg whitespace-pre-wrap">
+                {sourceText}
+              </div>
+            </ScrollArea>
           </div>
         )}
         
         {translation.translation_file_path && (
           <div className="h-[800px]">
             <h4 className="font-semibold text-tibetan-brown mb-4">English Translation</h4>
-            <iframe
-              src={`${STORAGE_URL}/${translation.translation_file_path}`}
-              className="w-full h-full border rounded-lg bg-white"
-              title="English Translation"
-            />
+            <ScrollArea className="h-full border rounded-lg bg-white p-4">
+              <div className="text-lg whitespace-pre-wrap">
+                {translationText}
+              </div>
+            </ScrollArea>
           </div>
         )}
       </div>
