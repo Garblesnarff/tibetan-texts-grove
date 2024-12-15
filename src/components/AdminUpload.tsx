@@ -21,6 +21,9 @@ export function AdminUpload() {
     open,
     setOpen,
     handleFileUpload,
+    handleSubmit,
+    sourceFile,
+    translationFile,
     navigate,
     toast
   } = useFileUpload();
@@ -80,6 +83,9 @@ export function AdminUpload() {
         setTitle={setTitle}
         tibetanTitle={tibetanTitle}
         setTibetanTitle={setTibetanTitle}
+        handleSubmit={handleSubmit}
+        sourceFile={sourceFile}
+        translationFile={translationFile}
       />
     </Dialog>
   );
