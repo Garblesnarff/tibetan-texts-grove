@@ -14,9 +14,9 @@ export const useFileUpload = () => {
   const { toast } = useToast();
 
   const verifyAdminStatus = async () => {
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
     
-    if (sessionError || !session) {
+    if (!session) {
       throw new Error('You must be logged in to upload files.');
     }
 
@@ -33,35 +33,24 @@ export const useFileUpload = () => {
         throw new Error('You must select a file to upload.');
       }
 
-      const file = event.target.files[0];
-      const session = await verifyAdminStatus();
+      await verifyAdminStatus();
       
       setUploading(true);
       setProgress(0);
 
+      const file = event.target.files[0];
       const formData = new FormData();
       formData.append('file', file);
       formData.append('fileType', fileType);
       formData.append('title', title);
       formData.append('tibetanTitle', tibetanTitle);
-      formData.append('userId', session.user.id);
 
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-translation`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${currentSession?.access_token}`
-          },
-          body: formData
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('upload-translation', {
+        body: formData,
+      });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to upload file');
+      if (error) {
+        throw error;
       }
 
       setProgress(100);
