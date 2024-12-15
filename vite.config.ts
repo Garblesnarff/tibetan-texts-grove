@@ -37,6 +37,11 @@ export default defineConfig(({ mode }) => ({
         /node_modules\/react/,
         /node_modules\/@supabase/
       ]
+    },
+    rollupOptions: {
+      external: [
+        'pdfjs-dist/build/pdf.worker.entry'
+      ]
     }
   }
 }));
