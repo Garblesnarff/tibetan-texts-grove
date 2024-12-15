@@ -34,19 +34,38 @@ export const useFileUpload = () => {
       }
 
       const file = event.target.files[0];
-      
-      // Verify admin status and get session
       const session = await verifyAdminStatus();
       
       setUploading(true);
       setProgress(0);
+
+      // First create the database record
+      const { data: translation, error: dbError } = await supabase
+        .from('translations')
+        .insert({
+          title,
+          tibetan_title: tibetanTitle,
+          created_by: session.user.id,
+          metadata: {
+            uploadedAt: new Date().toISOString(),
+            fileType: file.type,
+            originalName: file.name
+          }
+        })
+        .select()
+        .single();
+
+      if (dbError) {
+        console.error('Database error:', dbError);
+        throw dbError;
+      }
 
       // Generate file path
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${fileType}/${fileName}`;
 
-      // Upload file to storage using admin session
+      // Upload file to storage
       const { error: uploadError } = await supabase.storage
         .from('admin_translations')
         .upload(filePath, file, {
@@ -55,32 +74,33 @@ export const useFileUpload = () => {
         });
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
+        // If upload fails, delete the database record
+        await supabase
+          .from('translations')
+          .delete()
+          .eq('id', translation.id);
         throw uploadError;
       }
 
-      // Create database record with admin user ID
-      const { error: dbError } = await supabase
+      // Update the translation record with the file path
+      const { error: updateError } = await supabase
         .from('translations')
-        .insert({
-          title,
-          tibetan_title: tibetanTitle,
+        .update({
           source_file_path: fileType === 'source' ? filePath : null,
           translation_file_path: fileType === 'translation' ? filePath : null,
-          created_by: session.user.id,
-          metadata: {
-            uploadedAt: new Date().toISOString(),
-            fileType: file.type,
-            originalName: file.name
-          }
-        });
+        })
+        .eq('id', translation.id);
 
-      if (dbError) {
-        // If database insert fails, delete the uploaded file
+      if (updateError) {
+        // If update fails, delete both the file and the record
         await supabase.storage
           .from('admin_translations')
           .remove([filePath]);
-        throw dbError;
+        await supabase
+          .from('translations')
+          .delete()
+          .eq('id', translation.id);
+        throw updateError;
       }
 
       setProgress(100);
@@ -89,7 +109,6 @@ export const useFileUpload = () => {
         description: `${fileType} file uploaded successfully`
       });
       
-      // Close the dialog after successful upload
       setOpen(false);
       
     } catch (error: any) {
