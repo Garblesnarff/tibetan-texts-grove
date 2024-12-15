@@ -13,6 +13,20 @@ export const useFileUpload = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const verifyAdminStatus = async () => {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      throw new Error('You must be logged in to upload files.');
+    }
+
+    if (session.user.email !== 'wonky.coin@gmail.com') {
+      throw new Error('Only admin users can upload files.');
+    }
+
+    return session;
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, fileType: FileType) => {
     try {
       if (!event.target.files || event.target.files.length === 0) {
@@ -21,18 +35,9 @@ export const useFileUpload = () => {
 
       const file = event.target.files[0];
       
-      // Get current user session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      // Verify admin status first
+      const session = await verifyAdminStatus();
       
-      if (sessionError || !session) {
-        throw new Error('You must be logged in to upload files.');
-      }
-
-      // Verify admin status
-      if (session.user.email !== 'wonky.coin@gmail.com') {
-        throw new Error('Only admin users can upload files.');
-      }
-
       setUploading(true);
       setProgress(0);
 
@@ -41,7 +46,7 @@ export const useFileUpload = () => {
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${fileType}/${fileName}`;
 
-      // First upload file to storage
+      // Upload file to storage
       const { error: uploadError } = await supabase.storage
         .from('admin_translations')
         .upload(filePath, file, {
@@ -54,7 +59,7 @@ export const useFileUpload = () => {
         throw uploadError;
       }
 
-      // Then create database record
+      // Create database record
       const { error: dbError } = await supabase
         .from('translations')
         .insert({
