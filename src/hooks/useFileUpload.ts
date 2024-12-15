@@ -33,6 +33,10 @@ export const useFileUpload = () => {
         throw new Error('You must select a file to upload.');
       }
 
+      if (!title.trim()) {
+        throw new Error('English title is required.');
+      }
+
       await verifyAdminStatus();
       
       setUploading(true);
@@ -40,16 +44,26 @@ export const useFileUpload = () => {
 
       const file = event.target.files[0];
       const formData = new FormData();
+      
+      // Add all required fields to FormData
       formData.append('file', file);
       formData.append('fileType', fileType);
-      formData.append('title', title);
-      formData.append('tibetanTitle', tibetanTitle);
+      formData.append('title', title.trim());
+      formData.append('tibetanTitle', tibetanTitle.trim());
+      
+      console.log('Uploading file with data:', {
+        fileType,
+        title: title.trim(),
+        tibetanTitle: tibetanTitle.trim(),
+        fileName: file.name
+      });
 
       const { data, error } = await supabase.functions.invoke('upload-translation', {
         body: formData,
       });
 
       if (error) {
+        console.error('Upload error:', error);
         throw error;
       }
 
