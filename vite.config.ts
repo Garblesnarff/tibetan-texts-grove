@@ -10,10 +10,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react({
-      jsxImportSource: "@emotion/react",
-      babel: {
-        plugins: ["@emotion/babel-plugin"]
-      }
+      jsxImportSource: 'react'
     }),
     mode === 'development' &&
     componentTagger(),
@@ -30,9 +27,5 @@ export default defineConfig(({ mode }) => ({
     commonjsOptions: {
       include: [/pdfjs-dist/, /node_modules\/react/]
     }
-  },
-  esbuild: {
-    jsxFactory: 'React.createElement',
-    jsxFragment: 'React.Fragment'
   }
 }));

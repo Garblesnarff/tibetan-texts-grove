@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
     "@fontsource/crimson-pro": "^5.1.0",
     "@fontsource/inter": "^5.1.0",
     "@hookform/resolvers": "^3.9.0",
