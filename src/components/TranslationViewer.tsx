@@ -4,9 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import * as pdfjs from 'pdfjs-dist';
 
 // Configure PDF.js worker
-/* @vite-ignore */
-const pdfjsWorker = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url);
-pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker.toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
 

@@ -26,5 +26,8 @@ export default defineConfig(({ mode }) => ({
     commonjsOptions: {
       include: [/pdfjs-dist/]
     }
+  },
+  esbuild: {
+    jsxInject: `import React from 'react'`
   }
 }));
