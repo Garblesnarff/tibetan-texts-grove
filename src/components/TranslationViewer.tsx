@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import * as pdfjs from 'pdfjs-dist';
+import { getDocument, GlobalWorkerOptions, version } from 'pdfjs-dist';
 
 // Initialize PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.js`;
 
 const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
 
@@ -30,7 +30,7 @@ const TranslationViewer = ({ translation }: TranslationViewerProps) => {
         const arrayBuffer = await response.arrayBuffer();
 
         // Load the PDF document
-        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+        const loadingTask = getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
 
         // Extract text from all pages
