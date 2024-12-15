@@ -27,25 +27,38 @@ export const useFileUpload = () => {
     return session;
   };
 
+  const extractTitleFromFileName = (fileName: string) => {
+    // Remove file extension
+    const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
+    // Convert dashes/underscores to spaces and capitalize words
+    return nameWithoutExt
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, fileType: FileType) => {
     try {
       if (!event.target.files || event.target.files.length === 0) {
         throw new Error('You must select a file to upload.');
       }
 
-      if (!title.trim()) {
-        throw new Error('English title is required.');
-      }
-
       await verifyAdminStatus();
       
+      const file = event.target.files[0];
+      
+      // Set the appropriate title based on file type
+      if (fileType === 'translation') {
+        const extractedTitle = extractTitleFromFileName(file.name);
+        setTitle(extractedTitle);
+      } else if (fileType === 'source') {
+        const extractedTitle = extractTitleFromFileName(file.name);
+        setTibetanTitle(extractedTitle);
+      }
+
       setUploading(true);
       setProgress(0);
 
-      const file = event.target.files[0];
       const formData = new FormData();
-      
-      // Add all required fields to FormData
       formData.append('file', file);
       formData.append('fileType', fileType);
       formData.append('title', title.trim());
