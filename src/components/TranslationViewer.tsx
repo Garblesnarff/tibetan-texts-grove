@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import * as pdfjs from 'pdfjs-dist';
-import { version } from 'pdfjs-dist/package.json';
 
-// Initialize PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.js`;
+// Import worker directly from the package
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
+
+// Set worker path
+pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
 
