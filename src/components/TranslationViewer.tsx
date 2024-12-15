@@ -3,11 +3,9 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import * as pdfjs from 'pdfjs-dist';
 
-// Import worker directly from the package
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
-
-// Set worker path
-pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+// Configure PDF.js worker
+const pdfjsWorker = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url);
+pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker.toString();
 
 const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
 
