@@ -4,10 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { FileType } from "@/types/upload";
 
-/**
- * Custom hook to handle file upload functionality
- * Manages upload state, progress, and database interactions
- */
 export const useFileUpload = () => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -17,11 +13,6 @@ export const useFileUpload = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  /**
-   * Handles file upload process including storage and database updates
-   * @param event - File input change event
-   * @param fileType - Type of file being uploaded (source or translation)
-   */
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, fileType: FileType) => {
     try {
       if (!event.target.files || event.target.files.length === 0) {
@@ -45,13 +36,13 @@ export const useFileUpload = () => {
       setUploading(true);
       setProgress(0);
 
-      // First create the database record
+      // Generate file path
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${fileType}/${fileName}`;
 
-      // Save translation metadata to database first
-      const { error: dbError } = await supabase
+      // Create database record first
+      const { data: dbData, error: dbError } = await supabase
         .from('translations')
         .insert({
           title,
@@ -64,9 +55,14 @@ export const useFileUpload = () => {
             fileType: file.type,
             originalName: file.name
           }
-        });
+        })
+        .select()
+        .single();
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Database error:', dbError);
+        throw dbError;
+      }
 
       // Then upload file to storage
       const { error: uploadError } = await supabase.storage
@@ -76,7 +72,14 @@ export const useFileUpload = () => {
           upsert: false
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        // If upload fails, delete the database record
+        await supabase
+          .from('translations')
+          .delete()
+          .eq('id', dbData.id);
+        throw uploadError;
+      }
 
       setProgress(100);
       toast({
