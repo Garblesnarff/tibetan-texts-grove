@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { AdminUpload } from "@/components/AdminUpload";
@@ -30,16 +30,26 @@ export default function TranslationsList() {
         <AdminUpload />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2">
         {translations?.map((translation) => (
-          <Card key={translation.id} className="p-4">
-            <h2 className="text-xl font-semibold mb-2">{translation.title}</h2>
-            {translation.tibetan_title && (
-              <p className="text-gray-600 mb-4">{translation.tibetan_title}</p>
-            )}
-            <Button asChild>
-              <Link to={`/translations/${translation.id}`}>View Translation</Link>
-            </Button>
+          <Card key={translation.id} className="flex flex-col">
+            <CardHeader>
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold">English Translation</h2>
+                <h3 className="text-lg">{translation.title}</h3>
+                {translation.tibetan_title && (
+                  <div className="mt-4">
+                    <h2 className="text-xl font-semibold text-tibetan-maroon">Tibetan Source</h2>
+                    <p className="font-tibetan text-lg">{translation.tibetan_title}</p>
+                  </div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="flex-grow flex items-end">
+              <Button asChild variant="outline" className="w-full">
+                <Link to={`/translations/${translation.id}`}>View Translation</Link>
+              </Button>
+            </CardContent>
           </Card>
         ))}
       </div>
