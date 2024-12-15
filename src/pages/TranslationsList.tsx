@@ -6,6 +6,13 @@ import { Link } from "react-router-dom";
 import { AdminUpload } from "@/components/AdminUpload";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import type { Database } from "@/integrations/supabase/types";
+
+type Translation = Database['public']['Tables']['translations']['Row'];
+type GroupedTranslation = Translation & {
+  source_file_path: string | null;
+  translation_file_path: string | null;
+};
 
 export default function TranslationsList() {
   const queryClient = useQueryClient();
@@ -21,7 +28,7 @@ export default function TranslationsList() {
       if (error) throw error;
       
       // Group translations by their base name (removing any file extensions)
-      const groupedTranslations = data?.reduce((acc, translation) => {
+      const groupedTranslations = data?.reduce<Record<string, GroupedTranslation>>((acc, translation) => {
         const baseTitle = translation.title.split('_')[0]; // Assuming titles are in format "GRAM001_source" or "GRAM001_translation"
         if (!acc[baseTitle]) {
           acc[baseTitle] = translation;
