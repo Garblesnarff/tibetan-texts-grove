@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DialogTrigger } from "@/components/ui/dialog";
+import { UploadDialog } from "./upload/UploadDialog";
 
 type FileType = 'source' | 'translation';
 
+/**
+ * AdminUpload component handles the file upload functionality for administrators
+ * Includes authentication checks and file upload management
+ */
 export function AdminUpload() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -19,10 +22,10 @@ export function AdminUpload() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    checkAdminStatus();
-  }, []);
-
+  /**
+   * Verifies if the current user has admin privileges
+   * Redirects to login if not authenticated or lacks admin rights
+   */
   const checkAdminStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -49,6 +52,15 @@ export function AdminUpload() {
     }
   };
 
+  useEffect(() => {
+    checkAdminStatus();
+  }, []);
+
+  /**
+   * Handles file upload process including storage and database updates
+   * @param event - File input change event
+   * @param fileType - Type of file being uploaded (source or translation)
+   */
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, fileType: FileType) => {
     try {
       const file = event.target.files?.[0];
@@ -108,66 +120,21 @@ export function AdminUpload() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">Upload Translation</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Upload Translation</DialogTitle>
-        </DialogHeader>
-        
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <label htmlFor="title">English Title</label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter English title"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <label htmlFor="tibetanTitle">Tibetan Title</label>
-            <Input
-              id="tibetanTitle"
-              value={tibetanTitle}
-              onChange={(e) => setTibetanTitle(e.target.value)}
-              placeholder="Enter Tibetan title"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <label htmlFor="sourceFile">Tibetan Source PDF</label>
-            <Input
-              id="sourceFile"
-              type="file"
-              accept=".pdf"
-              onChange={(e) => handleFileUpload(e, 'source')}
-              disabled={uploading}
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <label htmlFor="translationFile">English Translation PDF</label>
-            <Input
-              id="translationFile"
-              type="file"
-              accept=".pdf"
-              onChange={(e) => handleFileUpload(e, 'translation')}
-              disabled={uploading}
-            />
-          </div>
-
-          {uploading && (
-            <div className="space-y-2">
-              <Progress value={progress} />
-              <p className="text-sm text-gray-500">Uploading... {progress}%</p>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+    <DialogTrigger asChild>
+      <Button variant="outline" onClick={() => setOpen(true)}>
+        Upload Translation
+      </Button>
+      <UploadDialog
+        open={open}
+        onOpenChange={setOpen}
+        onFileUpload={handleFileUpload}
+        uploading={uploading}
+        progress={progress}
+        title={title}
+        setTitle={setTitle}
+        tibetanTitle={tibetanTitle}
+        setTibetanTitle={setTibetanTitle}
+      />
+    </DialogTrigger>
   );
 }
