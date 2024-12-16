@@ -7,29 +7,12 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    // Initialize Supabase client with service role key for admin access
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
-
     const formData = await req.formData()
-    
-    // Log received data for debugging
-    console.log('Received form data:', {
-      file: formData.get('file')?.name,
-      fileType: formData.get('fileType'),
-      title: formData.get('title'),
-      tibetanTitle: formData.get('tibetanTitle')
-    })
-
-    // Validate required fields
     const file = formData.get('file') as File
     const fileType = formData.get('fileType') as string
     const title = formData.get('title') as string
@@ -37,28 +20,48 @@ serve(async (req) => {
 
     if (!file) {
       return new Response(
-        JSON.stringify({ error: 'Missing file' }),
+        JSON.stringify({ error: 'No file uploaded' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
 
-    if (!fileType || !['source', 'translation'].includes(fileType)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid file type' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      )
-    }
+    console.log('Received form data:', {
+      file: file.name,
+      fileType,
+      title,
+      tibetanTitle
+    })
 
-    if (!title || !tibetanTitle) {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    // Extract the original filename and extension
+    const originalName = file.name
+    const fileExt = originalName.split('.').pop()
+    
+    // Create a sanitized base filename from the title
+    const baseFileName = title.replace(/[^a-zA-Z0-9-_]/g, '_')
+    
+    // Create a unique filename that includes the original name
+    const uniqueId = crypto.randomUUID().slice(0, 8)
+    const filePath = `${fileType}/${baseFileName}-${uniqueId}-${fileType}.${fileExt}`
+
+    console.log('Uploading file with path:', filePath)
+
+    const { data, error: uploadError } = await supabase.storage
+      .from('admin_translations')
+      .upload(filePath, file, {
+        contentType: file.type,
+        upsert: true
+      })
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError)
       return new Response(
-        JSON.stringify({ 
-          error: 'Missing required fields',
-          details: {
-            title: !title ? 'Missing title' : undefined,
-            tibetanTitle: !tibetanTitle ? 'Missing tibetan title' : undefined
-          }
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        JSON.stringify({ error: 'Failed to upload file', details: uploadError }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
 
@@ -69,6 +72,7 @@ serve(async (req) => {
         title: title.trim(),
         tibetan_title: tibetanTitle.trim(),
         created_at: new Date().toISOString(),
+        [fileType === 'source' ? 'source_file_path' : 'translation_file_path']: filePath
       })
       .select()
       .single()
@@ -81,48 +85,11 @@ serve(async (req) => {
       )
     }
 
-    // Generate unique file path
-    const fileExt = file.name.split('.').pop()
-    const filePath = `${fileType}/${translation.id}-${fileType}.${fileExt}`
-
-    // Upload file to storage
-    const { error: uploadError } = await supabase.storage
-      .from('admin_translations')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: true
-      })
-
-    if (uploadError) {
-      console.error('Upload error:', uploadError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to upload file', details: uploadError }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
-    }
-
-    // Update translation record with file path
-    const updateData = fileType === 'source' 
-      ? { source_file_path: filePath }
-      : { translation_file_path: filePath }
-
-    const { error: updateError } = await supabase
-      .from('translations')
-      .update(updateData)
-      .eq('id', translation.id)
-
-    if (updateError) {
-      console.error('Update error:', updateError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to update translation record', details: updateError }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
-    }
-
     return new Response(
       JSON.stringify({ 
         message: 'Upload successful',
-        translation: translation
+        translation: translation,
+        filePath
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
