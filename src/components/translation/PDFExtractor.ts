@@ -1,7 +1,12 @@
 import * as pdfjs from 'pdfjs-dist';
 
 // Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+const workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.js',
+  import.meta.url
+).toString();
+
+pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
 
 /**
  * Extracts text content from a PDF file
