@@ -21,22 +21,11 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: [
-      'pdfjs-dist', 
-      'react', 
-      'react-dom', 
-      'react/jsx-runtime',
-      '@supabase/supabase-js',
-      '@supabase/postgrest-js'
-    ]
+    include: ['pdfjs-dist']
   },
   build: {
     commonjsOptions: {
-      include: [
-        /pdfjs-dist/, 
-        /node_modules\/react/,
-        /node_modules\/@supabase/
-      ]
+      include: [/pdfjs-dist/]
     },
     rollupOptions: {
       external: [
