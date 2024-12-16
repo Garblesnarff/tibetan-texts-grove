@@ -41,7 +41,7 @@ export default function Index() {
 
       if (error) throw error;
       
-      const groupedData = groupTranslations(data || []);
+      const groupedData = groupTranslations(data as Translation[]);
       setTranslations(groupedData);
     } catch (error: any) {
       console.error('Error fetching translations:', error);

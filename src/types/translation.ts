@@ -14,7 +14,7 @@ export interface Translation {
     originalFileName?: string;
     originalTibetanFileName?: string;
     [key: string]: any;
-  } | null;
+  } | Json | null;
   created_at?: string | null;
   updated_at?: string | null;
   created_by?: string | null;

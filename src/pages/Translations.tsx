@@ -24,7 +24,7 @@ export default function Translations() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTranslations(data || []);
+      setTranslations(data as Translation[]);
     } catch (error: any) {
       toast({
         variant: "destructive",
