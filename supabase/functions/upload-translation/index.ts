@@ -6,6 +6,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+function generateStorageSafeName(fileName: string): string {
+  // Create a storage-safe name while preserving the original structure
+  const timestamp = new Date().getTime();
+  const fileExt = fileName.split('.').pop();
+  // Use base64 encoding to safely handle Unicode characters
+  const encodedName = btoa(fileName.slice(0, -(fileExt?.length ?? 0) - 1));
+  return `${encodedName}_${timestamp}.${fileExt}`;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -34,8 +43,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Use the original filename, just prepend the type (source/ or translation/)
-    const filePath = `${fileType}/${file.name}`
+    // Generate a storage-safe filename while preserving the original name in metadata
+    const storageSafeName = generateStorageSafeName(file.name)
+    const filePath = `${fileType}/${storageSafeName}`
 
     console.log('Uploading file to path:', filePath)
 
@@ -43,7 +53,8 @@ serve(async (req) => {
       .from('admin_translations')
       .upload(filePath, file, {
         contentType: file.type,
-        upsert: true // Use upsert to handle duplicate filenames
+        upsert: true,
+        duplex: 'half'
       })
 
     if (uploadError) {
@@ -65,6 +76,10 @@ serve(async (req) => {
       title: title.trim(),
       tibetan_title: tibetanTitle.trim(),
       [fileType === 'source' ? 'source_file_path' : 'translation_file_path']: filePath,
+      metadata: {
+        ...((existingTranslation?.metadata as any) || {}),
+        originalFileName: file.name
+      },
       updated_at: new Date().toISOString()
     }
 
