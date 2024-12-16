@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import TranslationViewer from "@/components/TranslationViewer";
+import TranslationViewer from "@/components/translation/TranslationViewer";
 import { useToast } from "@/hooks/use-toast";
+import { Translation } from "@/types/translation";
 
 /**
  * Translations Page Component
  * Displays a list of all uploaded translations
  */
 export default function Translations() {
-  const [translations, setTranslations] = useState<any[]>([]);
+  const [translations, setTranslations] = useState<Translation[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -57,7 +58,7 @@ export default function Translations() {
           translations.map((translation) => (
             <TranslationViewer 
               key={translation.id} 
-              translation={translation} 
+              translations={[translation]} 
             />
           ))
         )}
