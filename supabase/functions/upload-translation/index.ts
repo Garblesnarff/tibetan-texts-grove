@@ -6,16 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-function sanitizeFileName(fileName: string): string {
-  // Keep alphanumeric characters, dots, and underscores
-  // Replace spaces with underscores
-  // Remove other special characters
-  return fileName
-    .replace(/[^a-zA-Z0-9._]/g, '_')
-    .replace(/_{2,}/g, '_') // Replace multiple consecutive underscores with a single one
-    .toLowerCase();
-}
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -44,11 +34,8 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Sanitize the filename while preserving the extension
-    const fileExt = file.name.split('.').pop()
-    const baseFileName = file.name.slice(0, -(fileExt?.length ?? 0) - 1)
-    const sanitizedFileName = `${sanitizeFileName(baseFileName)}.${fileExt}`
-    const filePath = `${fileType}/${sanitizedFileName}`
+    // Use the original filename, just prepend the type (source/ or translation/)
+    const filePath = `${fileType}/${file.name}`
 
     console.log('Uploading file to path:', filePath)
 
@@ -56,7 +43,7 @@ serve(async (req) => {
       .from('admin_translations')
       .upload(filePath, file, {
         contentType: file.type,
-        upsert: true
+        upsert: true // Use upsert to handle duplicate filenames
       })
 
     if (uploadError) {
@@ -66,19 +53,33 @@ serve(async (req) => {
 
     console.log('File uploaded successfully:', uploadData)
 
-    // Update or create translation record
-    const { data: translation, error: dbError } = await supabase
+    // Find existing translation with the same title
+    const { data: existingTranslation } = await supabase
       .from('translations')
-      .upsert({
-        title: title.trim(),
-        tibetan_title: tibetanTitle.trim(),
-        [fileType === 'source' ? 'source_file_path' : 'translation_file_path']: filePath,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'title'
-      })
-      .select()
-      .single()
+      .select('id')
+      .eq('title', title)
+      .maybeSingle()
+
+    // Update or insert translation record
+    const translationData = {
+      title: title.trim(),
+      tibetan_title: tibetanTitle.trim(),
+      [fileType === 'source' ? 'source_file_path' : 'translation_file_path']: filePath,
+      updated_at: new Date().toISOString()
+    }
+
+    const { data: translation, error: dbError } = existingTranslation?.id 
+      ? await supabase
+          .from('translations')
+          .update(translationData)
+          .eq('id', existingTranslation.id)
+          .select()
+          .single()
+      : await supabase
+          .from('translations')
+          .insert(translationData)
+          .select()
+          .single()
 
     if (dbError) {
       console.error('Database error:', dbError)
