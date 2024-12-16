@@ -6,6 +6,16 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+function sanitizeFileName(fileName: string): string {
+  // Keep alphanumeric characters, dots, and underscores
+  // Replace spaces with underscores
+  // Remove other special characters
+  return fileName
+    .replace(/[^a-zA-Z0-9._]/g, '_')
+    .replace(/_{2,}/g, '_') // Replace multiple consecutive underscores with a single one
+    .toLowerCase();
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -23,7 +33,7 @@ serve(async (req) => {
     }
 
     console.log('Received file upload request:', {
-      fileName: file.name,
+      originalFileName: file.name,
       fileType,
       title,
       tibetanTitle
@@ -34,8 +44,11 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Use the original filename for storage
-    const filePath = `${fileType}/${file.name}`
+    // Sanitize the filename while preserving the extension
+    const fileExt = file.name.split('.').pop()
+    const baseFileName = file.name.slice(0, -(fileExt?.length ?? 0) - 1)
+    const sanitizedFileName = `${sanitizeFileName(baseFileName)}.${fileExt}`
+    const filePath = `${fileType}/${sanitizedFileName}`
 
     console.log('Uploading file to path:', filePath)
 
