@@ -19,7 +19,6 @@ export default function Index() {
     const groups: { [key: string]: Translation[] } = {};
     
     data.forEach(translation => {
-      // Extract the code (GRAM001, GRAM010, etc.) from the title
       const code = translation.title.split(' ')[0];
       if (!groups[code]) {
         groups[code] = [];
@@ -61,9 +60,9 @@ export default function Index() {
   }, []);
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Tibetan Translation Hub</h1>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-tibetan-maroon">Tibetan Translation Hub</h1>
         <AdminUpload />
       </div>
 
@@ -72,9 +71,9 @@ export default function Index() {
           <p>Loading translations...</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {translations.length === 0 ? (
-            <p>No translations found. Use the upload button to add some!</p>
+            <p className="col-span-full text-center">No translations found. Use the upload button to add some!</p>
           ) : (
             translations.map((group) => (
               <TranslationViewer 
