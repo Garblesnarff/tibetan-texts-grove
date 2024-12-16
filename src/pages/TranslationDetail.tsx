@@ -65,12 +65,13 @@ export default function TranslationDetail() {
                 >
                   View Tibetan Source PDF
                 </a>
-                <iframe
-                  src={`${STORAGE_URL}/${translation.source_file_path}`}
-                  className="w-full h-full border-0"
-                  title="Tibetan Source PDF"
-                  sandbox="allow-same-origin allow-scripts allow-forms"
-                />
+                <object
+                  data={`${STORAGE_URL}/${translation.source_file_path}`}
+                  type="application/pdf"
+                  className="w-full h-full"
+                >
+                  <p>Unable to display PDF. <a href={`${STORAGE_URL}/${translation.source_file_path}`} target="_blank" rel="noopener noreferrer">Download PDF</a> instead.</p>
+                </object>
               </div>
             </div>
           )}
@@ -87,12 +88,13 @@ export default function TranslationDetail() {
                 >
                   View English Translation PDF
                 </a>
-                <iframe
-                  src={`${STORAGE_URL}/${translation.translation_file_path}`}
-                  className="w-full h-full border-0"
-                  title="English Translation PDF"
-                  sandbox="allow-same-origin allow-scripts allow-forms"
-                />
+                <object
+                  data={`${STORAGE_URL}/${translation.translation_file_path}`}
+                  type="application/pdf"
+                  className="w-full h-full"
+                >
+                  <p>Unable to display PDF. <a href={`${STORAGE_URL}/${translation.translation_file_path}`} target="_blank" rel="noopener noreferrer">Download PDF</a> instead.</p>
+                </object>
               </div>
             </div>
           )}
