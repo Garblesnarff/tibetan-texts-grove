@@ -1,7 +1,8 @@
 import * as pdfjs from 'pdfjs-dist';
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+// Configure PDF.js worker to use a local worker bundle
+const pdfjsWorker = await import('pdfjs-dist/build/pdf.worker.entry');
+pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 /**
  * Extracts text content from a PDF file
