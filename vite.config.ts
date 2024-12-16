@@ -21,7 +21,12 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: ['pdfjs-dist']
+    include: [
+      'pdfjs-dist',
+      'react',
+      'react-dom',
+      'react/jsx-runtime'
+    ]
   },
   build: {
     commonjsOptions: {

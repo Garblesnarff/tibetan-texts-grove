@@ -1,12 +1,10 @@
 import * as pdfjs from 'pdfjs-dist';
 
 // Configure PDF.js worker
-const pdfjsWorkerUrl = new URL(
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.js',
   import.meta.url
 ).toString();
-
-pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 /**
  * Extracts text content from a PDF file
