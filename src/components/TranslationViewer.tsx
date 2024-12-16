@@ -21,6 +21,9 @@ const TranslationViewer = ({ translations }: TranslationViewerProps) => {
   const englishTranslation = translations.find(t => !t.tibetan_title);
   const tibetanTranslation = translations.find(t => t.tibetan_title);
 
+  // Get the original Tibetan filename from metadata if available
+  const originalTibetanTitle = tibetanTranslation?.metadata?.originalTibetanFileName;
+
   return (
     <Card 
       className="p-6 hover:shadow-lg transition-shadow cursor-pointer" 
@@ -33,9 +36,9 @@ const TranslationViewer = ({ translations }: TranslationViewerProps) => {
             {englishTranslation.title}
           </p>
         )}
-        {tibetanTranslation?.tibetan_title && (
+        {(originalTibetanTitle || tibetanTranslation?.tibetan_title) && (
           <p className="text-tibetan-maroon font-tibetan text-xl">
-            {tibetanTranslation.tibetan_title}
+            {originalTibetanTitle || tibetanTranslation?.tibetan_title}
           </p>
         )}
       </div>

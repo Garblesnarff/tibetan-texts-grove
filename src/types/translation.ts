@@ -10,7 +10,11 @@ export interface Translation {
   tibetan_title?: string | null;
   source_file_path?: string | null;
   translation_file_path?: string | null;
-  metadata?: Json | null;
+  metadata?: {
+    originalFileName?: string;
+    originalTibetanFileName?: string;
+    [key: string]: any;
+  } | null;
   created_at?: string | null;
   updated_at?: string | null;
   created_by?: string | null;
