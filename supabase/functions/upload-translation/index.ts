@@ -37,16 +37,8 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Extract the original filename and extension
-    const originalName = file.name
-    const fileExt = originalName.split('.').pop()
-    
-    // Create a sanitized base filename from the title
-    const baseFileName = title.replace(/[^a-zA-Z0-9-_]/g, '_')
-    
-    // Create a unique filename that includes the original name
-    const uniqueId = crypto.randomUUID().slice(0, 8)
-    const filePath = `${fileType}/${baseFileName}-${uniqueId}-${fileType}.${fileExt}`
+    // Use the original filename
+    const filePath = `${fileType}/${file.name}`
 
     console.log('Uploading file with path:', filePath)
 
@@ -54,7 +46,7 @@ serve(async (req) => {
       .from('admin_translations')
       .upload(filePath, file, {
         contentType: file.type,
-        upsert: true
+        upsert: true // Allow overwriting if file exists
       })
 
     if (uploadError) {
@@ -87,7 +79,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        message: 'Upload successful',
+        message: 'File uploaded successfully',
         translation: translation,
         filePath
       }),
