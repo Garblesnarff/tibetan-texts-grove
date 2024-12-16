@@ -6,13 +6,17 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-function generateStorageSafeName(fileName: string): string {
-  // Create a storage-safe name while preserving the original structure
+function generateStorageSafeName(fileName: string, fileType: string): string {
+  // Extract the code prefix (e.g., "SALO001" or "GRAM010")
+  const codeMatch = fileName.match(/^([A-Z]+\d+)/);
+  const code = codeMatch ? codeMatch[1] : 'DOC';
+  
+  // Create a timestamp-based unique identifier
   const timestamp = new Date().getTime();
   const fileExt = fileName.split('.').pop();
-  // Use base64 encoding to safely handle Unicode characters
-  const encodedName = btoa(fileName.slice(0, -(fileExt?.length ?? 0) - 1));
-  return `${encodedName}_${timestamp}.${fileExt}`;
+  
+  // Create a safe filename using the code and timestamp
+  return `${fileType}/${code}_${timestamp}.${fileExt}`;
 }
 
 serve(async (req) => {
@@ -44,14 +48,13 @@ serve(async (req) => {
     )
 
     // Generate a storage-safe filename while preserving the original name in metadata
-    const storageSafeName = generateStorageSafeName(file.name)
-    const filePath = `${fileType}/${storageSafeName}`
+    const storageSafeName = generateStorageSafeName(file.name, fileType)
 
-    console.log('Uploading file to path:', filePath)
+    console.log('Uploading file to path:', storageSafeName)
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('admin_translations')
-      .upload(filePath, file, {
+      .upload(storageSafeName, file, {
         contentType: file.type,
         upsert: true,
         duplex: 'half'
@@ -67,7 +70,7 @@ serve(async (req) => {
     // Find existing translation with the same title
     const { data: existingTranslation } = await supabase
       .from('translations')
-      .select('id')
+      .select('id, metadata')
       .eq('title', title)
       .maybeSingle()
 
@@ -75,10 +78,11 @@ serve(async (req) => {
     const translationData = {
       title: title.trim(),
       tibetan_title: tibetanTitle.trim(),
-      [fileType === 'source' ? 'source_file_path' : 'translation_file_path']: filePath,
+      [fileType === 'source' ? 'source_file_path' : 'translation_file_path']: storageSafeName,
       metadata: {
         ...((existingTranslation?.metadata as any) || {}),
-        originalFileName: file.name
+        originalFileName: file.name,
+        originalTibetanFileName: file.name // Store the original Tibetan filename
       },
       updated_at: new Date().toISOString()
     }
@@ -105,7 +109,7 @@ serve(async (req) => {
       JSON.stringify({ 
         message: 'File uploaded successfully',
         translation,
-        filePath
+        filePath: storageSafeName
       }),
       { 
         headers: { 
