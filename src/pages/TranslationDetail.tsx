@@ -2,7 +2,6 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { PDFTextViewer } from "@/components/translation/PDFTextViewer";
 
 const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
 
@@ -70,6 +69,7 @@ export default function TranslationDetail() {
                   src={`${STORAGE_URL}/${translation.source_file_path}`}
                   className="w-full h-full border-0"
                   title="Tibetan Source PDF"
+                  sandbox="allow-same-origin allow-scripts allow-forms"
                 />
               </div>
             </div>
@@ -91,6 +91,7 @@ export default function TranslationDetail() {
                   src={`${STORAGE_URL}/${translation.translation_file_path}`}
                   className="w-full h-full border-0"
                   title="English Translation PDF"
+                  sandbox="allow-same-origin allow-scripts allow-forms"
                 />
               </div>
             </div>
