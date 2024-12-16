@@ -1,15 +1,37 @@
 import { useEffect, useState } from "react";
 import { AdminUpload } from "@/components/AdminUpload";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import TranslationViewer from "@/components/TranslationViewer";
 import { useToast } from "@/hooks/use-toast";
+import { Translation } from "@/types/translation";
+
+interface GroupedTranslation {
+  code: string;
+  translations: Translation[];
+}
 
 export default function Index() {
-  const [translations, setTranslations] = useState<any[]>([]);
+  const [translations, setTranslations] = useState<GroupedTranslation[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  const groupTranslations = (data: Translation[]): GroupedTranslation[] => {
+    const groups: { [key: string]: Translation[] } = {};
+    
+    data.forEach(translation => {
+      // Extract the code (GRAM001, GRAM010, etc.) from the title
+      const code = translation.title.split(' ')[0];
+      if (!groups[code]) {
+        groups[code] = [];
+      }
+      groups[code].push(translation);
+    });
+
+    return Object.entries(groups).map(([code, translations]) => ({
+      code,
+      translations
+    }));
+  };
 
   const fetchTranslations = async () => {
     try {
@@ -19,7 +41,9 @@ export default function Index() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTranslations(data || []);
+      
+      const groupedData = groupTranslations(data || []);
+      setTranslations(groupedData);
     } catch (error: any) {
       console.error('Error fetching translations:', error);
       toast({
@@ -52,10 +76,10 @@ export default function Index() {
           {translations.length === 0 ? (
             <p>No translations found. Use the upload button to add some!</p>
           ) : (
-            translations.map((translation) => (
+            translations.map((group) => (
               <TranslationViewer 
-                key={translation.id} 
-                translation={translation} 
+                key={group.code} 
+                translations={group.translations} 
               />
             ))
           )}
