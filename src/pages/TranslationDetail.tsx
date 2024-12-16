@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
+
 export default function TranslationDetail() {
   const { id } = useParams();
 
@@ -55,7 +57,7 @@ export default function TranslationDetail() {
               <h4 className="font-semibold text-tibetan-brown mb-4">Tibetan Source</h4>
               <ScrollArea className="h-full border rounded-lg bg-white p-4">
                 <a 
-                  href={`https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations/${translation.source_file_path}`}
+                  href={`${STORAGE_URL}/${translation.source_file_path}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline"
@@ -71,7 +73,7 @@ export default function TranslationDetail() {
               <h4 className="font-semibold text-tibetan-brown mb-4">English Translation</h4>
               <ScrollArea className="h-full border rounded-lg bg-white p-4">
                 <a 
-                  href={`https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations/${translation.translation_file_path}`}
+                  href={`${STORAGE_URL}/${translation.translation_file_path}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline"

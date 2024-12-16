@@ -19,25 +19,5 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  },
-  optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      'react/jsx-runtime',
-      'pdfjs-dist'
-    ]
-  },
-  build: {
-    commonjsOptions: {
-      include: [/node_modules/]
-    },
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          pdfjs: ['pdfjs-dist']
-        }
-      }
-    }
   }
 }));
