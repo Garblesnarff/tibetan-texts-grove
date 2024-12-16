@@ -19,14 +19,11 @@ serve(async (req) => {
     const tibetanTitle = formData.get('tibetanTitle') as string
 
     if (!file) {
-      return new Response(
-        JSON.stringify({ error: 'No file uploaded' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      )
+      throw new Error('No file uploaded')
     }
 
-    console.log('Received form data:', {
-      file: file.name,
+    console.log('Received file upload request:', {
+      fileName: file.name,
       fileType,
       title,
       tibetanTitle
@@ -37,60 +34,72 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Use the original filename
+    // Use the original filename for storage
     const filePath = `${fileType}/${file.name}`
 
-    console.log('Uploading file with path:', filePath)
+    console.log('Uploading file to path:', filePath)
 
-    const { data, error: uploadError } = await supabase.storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from('admin_translations')
       .upload(filePath, file, {
         contentType: file.type,
-        upsert: true // Allow overwriting if file exists
+        upsert: true
       })
 
     if (uploadError) {
-      console.error('Upload error:', uploadError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to upload file', details: uploadError }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
+      console.error('Storage upload error:', uploadError)
+      throw new Error(`Failed to upload file: ${uploadError.message}`)
     }
 
-    // Create or update translation record
+    console.log('File uploaded successfully:', uploadData)
+
+    // Update or create translation record
     const { data: translation, error: dbError } = await supabase
       .from('translations')
       .upsert({
         title: title.trim(),
         tibetan_title: tibetanTitle.trim(),
-        created_at: new Date().toISOString(),
-        [fileType === 'source' ? 'source_file_path' : 'translation_file_path']: filePath
+        [fileType === 'source' ? 'source_file_path' : 'translation_file_path']: filePath,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'title'
       })
       .select()
       .single()
 
     if (dbError) {
       console.error('Database error:', dbError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to create translation record', details: dbError }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
+      throw new Error(`Failed to update translation record: ${dbError.message}`)
     }
 
     return new Response(
       JSON.stringify({ 
         message: 'File uploaded successfully',
-        translation: translation,
+        translation,
         filePath
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        },
+        status: 200
+      }
     )
 
   } catch (error) {
-    console.error('Unexpected error:', error)
+    console.error('Upload error:', error)
     return new Response(
-      JSON.stringify({ error: 'An unexpected error occurred', details: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      JSON.stringify({ 
+        error: error.message || 'An unexpected error occurred during upload'
+      }),
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        },
+        status: 400
+      }
     )
   }
 })
