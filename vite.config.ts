@@ -10,9 +10,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react({
-      jsxImportSource: 'react',
-      // Force React refresh to work correctly
-      include: "**/*.{jsx,tsx}",
+      jsxImportSource: 'react'
     }),
     mode === 'development' &&
     componentTagger(),
@@ -28,17 +26,13 @@ export default defineConfig(({ mode }) => ({
       'react-dom',
       'react/jsx-runtime',
       'pdfjs-dist'
-    ],
-    exclude: ['pdfjs-dist/build/pdf.worker.entry']
+    ]
   },
   build: {
     commonjsOptions: {
       include: [/node_modules/]
     },
     rollupOptions: {
-      external: [
-        'pdfjs-dist/build/pdf.worker.entry'
-      ],
       output: {
         manualChunks: {
           pdfjs: ['pdfjs-dist']
