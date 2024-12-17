@@ -9,6 +9,7 @@ interface DisplayTitleProps {
 /**
  * DisplayTitle Component
  * Renders the English and Tibetan titles in display mode
+ * Ensures full titles are displayed without truncation
  * 
  * @component
  * @param {Object} props - Component properties
@@ -22,18 +23,18 @@ const DisplayTitle = ({
   originalTibetanFileName 
 }: DisplayTitleProps) => {
   return (
-    <>
+    <div className="break-words">
       {englishTitle && (
-        <p className="text-gray-700 mb-2">
+        <p className="text-gray-700 mb-2 whitespace-normal">
           {englishTitle}
         </p>
       )}
       {(originalTibetanFileName || tibetanTitle) && (
-        <p className="text-tibetan-maroon font-tibetan text-xl">
+        <p className="text-tibetan-maroon font-tibetan text-xl whitespace-normal">
           {originalTibetanFileName || tibetanTitle}
         </p>
       )}
-    </>
+    </div>
   );
 };
 
