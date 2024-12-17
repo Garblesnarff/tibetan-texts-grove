@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import TranslationViewer from "@/components/translation/TranslationViewer";
+import TranslationViewer from "@/components/TranslationViewer";
 import { useToast } from "@/hooks/use-toast";
 import { Translation } from "@/types/translation";
 
@@ -59,6 +59,7 @@ export default function Translations() {
             <TranslationViewer 
               key={translation.id} 
               translations={[translation]} 
+              onUpdate={fetchTranslations}
             />
           ))
         )}
