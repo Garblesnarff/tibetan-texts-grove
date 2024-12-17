@@ -100,7 +100,7 @@ const TranslationCard = ({
   };
 
   return (
-    <div className="mb-6 relative">
+    <div className={`mb-6 relative ${isEditing ? 'bg-gray-50 p-4 rounded-lg border' : ''}`}>
       {isEditing && (
         <TitleEditControls
           onSave={handleSave}

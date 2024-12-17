@@ -1,6 +1,11 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TitleEditControlsProps {
   onSave: () => void;
@@ -9,7 +14,7 @@ interface TitleEditControlsProps {
 
 /**
  * TitleEditControls Component
- * Renders save and cancel buttons for edit mode
+ * Renders save and cancel buttons for edit mode with tooltips
  * 
  * @component
  * @param {Object} props - Component properties
@@ -18,23 +23,39 @@ interface TitleEditControlsProps {
  */
 const TitleEditControls = ({ onSave, onCancel }: TitleEditControlsProps) => {
   return (
-    <div className="absolute top-0 right-0 space-x-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onSave}
-        className="h-8 w-8"
-      >
-        <Check className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onCancel}
-        className="h-8 w-8"
-      >
-        <X className="h-4 w-4" />
-      </Button>
+    <div className="absolute top-0 right-0 space-x-2 bg-white p-2 rounded-md shadow-sm">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={onSave}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <Check className="h-4 w-4" />
+            <span className="ml-2">Save</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Save changes</p>
+        </TooltipContent>
+      </Tooltip>
+      
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onCancel}
+          >
+            <X className="h-4 w-4" />
+            <span className="ml-2">Cancel</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Cancel editing</p>
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 };
