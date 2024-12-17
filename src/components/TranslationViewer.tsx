@@ -36,8 +36,8 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
    * @param {React.MouseEvent} e - The click event object
    */
   const handleClick = (e: React.MouseEvent) => {
-    // Prevent click event from bubbling up when clicking delete button
-    if ((e.target as HTMLElement).closest('.delete-button')) {
+    // Prevent click event from bubbling up when clicking delete or edit buttons
+    if ((e.target as HTMLElement).closest('.delete-button, button')) {
       e.stopPropagation();
       return;
     }
@@ -71,6 +71,8 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
         englishTitle={englishTranslation?.title}
         tibetanTitle={tibetanTranslation?.tibetan_title}
         originalTibetanFileName={originalTibetanTitle}
+        translationId={translations[0].id}
+        onUpdate={() => window.location.reload()}
       />
     </Card>
   );
