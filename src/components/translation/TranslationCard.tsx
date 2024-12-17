@@ -23,14 +23,6 @@ interface TranslationCardProps {
  * 
  * @component
  * @param {Object} props - Component properties
- * @param {string} props.code - Translation code identifier
- * @param {string} [props.englishTitle] - English title of the translation
- * @param {string} [props.tibetanTitle] - Tibetan title of the translation
- * @param {string} [props.originalTibetanFileName] - Original Tibetan filename
- * @param {string} props.translationId - Unique identifier for the translation
- * @param {Function} [props.onUpdate] - Callback triggered after successful update
- * @param {boolean} props.isEditing - Controls edit mode state
- * @param {Function} props.onEditingChange - Callback to update edit mode state
  */
 const TranslationCard = ({ 
   code, 
@@ -54,7 +46,6 @@ const TranslationCard = ({
   /**
    * Handles saving the edited translation titles
    * Updates both English and Tibetan titles in the database
-   * and refreshes the page to show updated content
    */
   const handleSave = async () => {
     try {
@@ -75,7 +66,6 @@ const TranslationCard = ({
       
       onEditingChange(false);
       
-      // Ensure the page refreshes to show updated content
       if (onUpdate) {
         onUpdate();
       } else {
@@ -98,6 +88,9 @@ const TranslationCard = ({
     resetTitles();
     onEditingChange(false);
   };
+
+  // Extract the full English title by removing the code prefix
+  const fullEnglishTitle = englishTitle?.replace(`${code} `, '') || '';
 
   return (
     <div className={`mb-6 relative ${isEditing ? 'bg-gray-50 p-4 rounded-lg border' : ''}`}>
@@ -127,7 +120,7 @@ const TranslationCard = ({
         </div>
       ) : (
         <DisplayTitle
-          englishTitle={englishTitle}
+          englishTitle={fullEnglishTitle}
           tibetanTitle={tibetanTitle}
           originalTibetanFileName={originalTibetanFileName}
         />
