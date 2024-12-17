@@ -32,6 +32,38 @@ export default function Index() {
     }));
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('translations')
+        .delete()
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          throw new Error('Translation not found');
+        }
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "Translation deleted successfully",
+      });
+
+      // Refresh translations after successful deletion
+      fetchTranslations();
+    } catch (error: any) {
+      console.error('Error deleting translation:', error);
+      toast({
+        variant: "destructive",
+        title: "Error deleting translation",
+        description: error.message || "An error occurred while deleting the translation"
+      });
+    }
+  };
+
   const fetchTranslations = async () => {
     try {
       const { data, error } = await supabase
@@ -78,7 +110,8 @@ export default function Index() {
             translations.map((group) => (
               <TranslationViewer 
                 key={group.code} 
-                translations={group.translations} 
+                translations={group.translations}
+                onDelete={handleDelete}
               />
             ))
           )}
