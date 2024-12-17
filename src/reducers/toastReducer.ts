@@ -1,5 +1,5 @@
 import { Action, ToastState } from "@/types/toast";
-import { TOAST_REMOVE_DELAY } from "@/constants/toast";
+import { TOAST_REMOVE_DELAY, TOAST_LIMIT } from "@/constants/toast";
 import { dispatch } from "@/hooks/use-toast";
 
 /**
