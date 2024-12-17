@@ -5,11 +5,15 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { UploadDialog } from "./upload/UploadDialog";
 import { useFileUpload } from "@/hooks/useFileUpload";
 
+interface AdminUploadProps {
+  onUploadComplete?: () => void;
+}
+
 /**
  * AdminUpload component handles the file upload functionality for administrators
  * Includes authentication checks and file upload management
  */
-export function AdminUpload() {
+export function AdminUpload({ onUploadComplete }: AdminUploadProps) {
   const [isAdmin, setIsAdmin] = useState(false);
   const {
     uploading,
@@ -21,7 +25,7 @@ export function AdminUpload() {
     open,
     setOpen,
     handleFileUpload,
-    handleSubmit,
+    handleSubmit: originalHandleSubmit,
     sourceFile,
     translationFile,
     navigate,
@@ -56,6 +60,12 @@ export function AdminUpload() {
       });
       navigate('/login');
     }
+  };
+
+  // Wrap the original handleSubmit to call onUploadComplete after successful upload
+  const handleSubmit = async () => {
+    await originalHandleSubmit();
+    onUploadComplete?.();
   };
 
   useEffect(() => {
