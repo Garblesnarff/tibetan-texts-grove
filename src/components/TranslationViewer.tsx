@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Translation } from "@/types/translation";
-import { Json } from "@/integrations/supabase/types";
 import { EditTranslationDialog } from "./translation/EditTranslationDialog";
 
 interface TranslationViewerProps {
@@ -51,7 +50,7 @@ const TranslationViewer = ({ translations, onUpdate }: TranslationViewerProps) =
       </div>
 
       {/* Card content */}
-      <div className="mb-6" onClick={handleClick}>
+      <div onClick={handleClick}>
         <h3 className="text-xl font-semibold mb-2">{code}</h3>
         {englishTranslation && (
           <p className="text-gray-700 mb-2">
