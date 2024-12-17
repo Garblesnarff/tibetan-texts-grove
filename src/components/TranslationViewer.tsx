@@ -39,7 +39,7 @@ const TranslationViewer = ({ translations, onUpdate }: TranslationViewerProps) =
       {/* Edit buttons container */}
       {englishTranslation && onUpdate && (
         <div 
-          className="absolute top-2 right-2 flex gap-2 bg-white shadow-sm rounded-md p-1"
+          className="absolute top-2 right-2 z-10 bg-white shadow-sm rounded-md p-1"
           onClick={(e) => e.stopPropagation()}
         >
           <EditTranslationDialog 
