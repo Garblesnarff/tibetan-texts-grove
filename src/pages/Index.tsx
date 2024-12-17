@@ -5,16 +5,33 @@ import TranslationViewer from "@/components/TranslationViewer";
 import { useToast } from "@/hooks/use-toast";
 import { Translation } from "@/types/translation";
 
+/**
+ * Interface representing a group of translations sharing the same code
+ * @interface GroupedTranslation
+ * @property {string} code - The unique code identifier for the group
+ * @property {Translation[]} translations - Array of translations in this group
+ */
 interface GroupedTranslation {
   code: string;
   translations: Translation[];
 }
 
+/**
+ * Index Page Component
+ * Main page displaying all translations grouped by their codes
+ * Includes functionality for viewing, managing, and deleting translations
+ */
 export default function Index() {
+  // State management for translations and loading status
   const [translations, setTranslations] = useState<GroupedTranslation[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  /**
+   * Groups translations by their code (first word of the title)
+   * @param {Translation[]} data - Array of translations to be grouped
+   * @returns {GroupedTranslation[]} Array of grouped translations
+   */
   const groupTranslations = (data: Translation[]): GroupedTranslation[] => {
     const groups: { [key: string]: Translation[] } = {};
     
@@ -32,6 +49,11 @@ export default function Index() {
     }));
   };
 
+  /**
+   * Handles the deletion of a translation
+   * @param {string} id - ID of the translation to be deleted
+   * @returns {Promise<void>}
+   */
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
@@ -64,6 +86,10 @@ export default function Index() {
     }
   };
 
+  /**
+   * Fetches all translations from the database and groups them
+   * @returns {Promise<void>}
+   */
   const fetchTranslations = async () => {
     try {
       const { data, error } = await supabase
@@ -87,6 +113,7 @@ export default function Index() {
     }
   };
 
+  // Fetch translations on component mount
   useEffect(() => {
     fetchTranslations();
   }, []);
