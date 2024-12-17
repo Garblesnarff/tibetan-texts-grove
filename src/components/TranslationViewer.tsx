@@ -35,10 +35,13 @@ const TranslationViewer = ({ translations, onUpdate }: TranslationViewerProps) =
     : undefined;
 
   return (
-    <Card className="p-6 hover:shadow-lg transition-shadow relative min-h-[200px]">
-      {/* Edit buttons container - Super prominent positioning and styling */}
+    <div className="relative">
+      {/* Edit buttons container - Now floating above everything */}
       {englishTranslation && onUpdate && (
-        <div className="absolute top-4 right-4 z-[100] flex gap-4 p-2 bg-white/90 rounded-lg shadow-xl">
+        <div 
+          className="fixed top-1/2 right-4 transform -translate-y-1/2 z-[9999] flex flex-col gap-6 p-4 bg-white rounded-xl shadow-2xl border-4 border-tibetan-maroon"
+          onClick={(e) => e.stopPropagation()}
+        >
           <EditTranslationDialog 
             translation={englishTranslation}
             onUpdate={onUpdate}
@@ -47,9 +50,9 @@ const TranslationViewer = ({ translations, onUpdate }: TranslationViewerProps) =
       )}
 
       {/* Card content */}
-      <div 
+      <Card 
+        className="p-6 hover:shadow-lg transition-shadow min-h-[200px] cursor-pointer"
         onClick={handleClick}
-        className="cursor-pointer"
       >
         <h3 className="text-xl font-semibold mb-2">{code}</h3>
         {englishTranslation && (
@@ -62,8 +65,8 @@ const TranslationViewer = ({ translations, onUpdate }: TranslationViewerProps) =
             {originalTibetanTitle || tibetanTranslation?.tibetan_title}
           </p>
         )}
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 };
 

@@ -85,14 +85,14 @@ export function EditTranslationDialog({ translation, onUpdate }: EditTranslation
   };
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col gap-6">
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <Button 
             size="lg"
-            className="h-14 w-14 bg-tibetan-gold hover:bg-tibetan-gold/90 text-tibetan-maroon border-2 border-tibetan-maroon shadow-lg"
+            className="h-16 w-16 bg-tibetan-gold hover:bg-tibetan-gold/90 text-tibetan-maroon border-4 border-tibetan-maroon shadow-2xl rounded-xl"
           >
-            <Pencil className="h-8 w-8" />
+            <Pencil className="h-10 w-10" />
           </Button>
         </DialogTrigger>
         <DialogContent>
@@ -128,9 +128,9 @@ export function EditTranslationDialog({ translation, onUpdate }: EditTranslation
         <AlertDialogTrigger asChild>
           <Button 
             size="lg"
-            className="h-14 w-14 bg-destructive hover:bg-destructive/90 text-white border-2 border-destructive shadow-lg"
+            className="h-16 w-16 bg-destructive hover:bg-destructive/90 text-white border-4 border-destructive shadow-2xl rounded-xl"
           >
-            <Trash2 className="h-8 w-8" />
+            <Trash2 className="h-10 w-10" />
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
