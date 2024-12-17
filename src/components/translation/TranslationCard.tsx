@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import EditableTitle from "./EditableTitle";
+import DisplayTitle from "./DisplayTitle";
+import TitleEditControls from "./TitleEditControls";
 
 interface TranslationCardProps {
   code: string;
@@ -18,8 +18,8 @@ interface TranslationCardProps {
 
 /**
  * TranslationCard Component
- * Displays and manages the editing of translation titles in both English and Tibetan.
- * Provides inline editing capabilities with save and cancel functionality.
+ * Main component for managing translation titles display and editing
+ * Coordinates between edit controls and title display/edit components
  * 
  * @component
  * @param {Object} props - Component properties
@@ -98,56 +98,35 @@ const TranslationCard = ({
   return (
     <div className="mb-6 relative">
       {isEditing && (
-        <div className="absolute top-0 right-0 space-x-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSave}
-            className="h-8 w-8"
-          >
-            <Check className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleCancel}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+        <TitleEditControls
+          onSave={handleSave}
+          onCancel={handleCancel}
+        />
       )}
 
       <h3 className="text-xl font-semibold mb-2">{code}</h3>
       
       {isEditing ? (
         <div className="space-y-4">
-          <Input
+          <EditableTitle
             value={editedEnglishTitle}
-            onChange={(e) => setEditedEnglishTitle(e.target.value)}
+            onChange={setEditedEnglishTitle}
             placeholder="English Title"
             className="w-full"
           />
-          <Input
+          <EditableTitle
             value={editedTibetanTitle}
-            onChange={(e) => setEditedTibetanTitle(e.target.value)}
+            onChange={setEditedTibetanTitle}
             placeholder="Tibetan Title"
             className="w-full font-tibetan"
           />
         </div>
       ) : (
-        <>
-          {englishTitle && (
-            <p className="text-gray-700 mb-2">
-              {englishTitle}
-            </p>
-          )}
-          {(originalTibetanFileName || tibetanTitle) && (
-            <p className="text-tibetan-maroon font-tibetan text-xl">
-              {originalTibetanFileName || tibetanTitle}
-            </p>
-          )}
-        </>
+        <DisplayTitle
+          englishTitle={englishTitle}
+          tibetanTitle={tibetanTitle}
+          originalTibetanFileName={originalTibetanFileName}
+        />
       )}
     </div>
   );
