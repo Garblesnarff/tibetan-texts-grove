@@ -54,6 +54,7 @@ const TranslationCard = ({
   /**
    * Handles saving the edited translation titles
    * Updates both English and Tibetan titles in the database
+   * and refreshes the page to show updated content
    */
   const handleSave = async () => {
     try {
@@ -73,7 +74,13 @@ const TranslationCard = ({
       });
       
       onEditingChange(false);
-      if (onUpdate) onUpdate();
+      
+      // Ensure the page refreshes to show updated content
+      if (onUpdate) {
+        onUpdate();
+      } else {
+        window.location.reload();
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
