@@ -2,9 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Translation } from "@/types/translation";
 import { Json } from "@/integrations/supabase/types";
+import { EditTranslationDialog } from "./translation/EditTranslationDialog";
 
 interface TranslationViewerProps {
   translations: Translation[];
+  onUpdate?: () => void;
 }
 
 // Type guard to check if metadata has the correct structure
@@ -13,7 +15,7 @@ const hasOriginalTibetanFileName = (metadata: Translation['metadata']): metadata
   return 'originalTibetanFileName' in metadata;
 };
 
-const TranslationViewer = ({ translations }: TranslationViewerProps) => {
+const TranslationViewer = ({ translations, onUpdate }: TranslationViewerProps) => {
   const navigate = useNavigate();
   const code = translations[0]?.title.split(' ')[0];
 
@@ -35,10 +37,20 @@ const TranslationViewer = ({ translations }: TranslationViewerProps) => {
 
   return (
     <Card 
-      className="p-6 hover:shadow-lg transition-shadow cursor-pointer" 
-      onClick={handleClick}
+      className="p-6 hover:shadow-lg transition-shadow cursor-pointer relative" 
     >
-      <div className="mb-6">
+      <div 
+        className="absolute top-4 right-4 z-10"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {englishTranslation && onUpdate && (
+          <EditTranslationDialog 
+            translation={englishTranslation}
+            onUpdate={onUpdate}
+          />
+        )}
+      </div>
+      <div className="mb-6" onClick={handleClick}>
         <h3 className="text-xl font-semibold mb-2">{code}</h3>
         {englishTranslation && (
           <p className="text-gray-700 mb-2">

@@ -63,7 +63,7 @@ export default function Index() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-tibetan-maroon">Tibetan Translation Hub</h1>
-        <AdminUpload />
+        <AdminUpload onUploadComplete={fetchTranslations} />
       </div>
 
       {loading ? (
@@ -79,6 +79,7 @@ export default function Index() {
               <TranslationViewer 
                 key={group.code} 
                 translations={group.translations} 
+                onUpdate={fetchTranslations}
               />
             ))
           )}
