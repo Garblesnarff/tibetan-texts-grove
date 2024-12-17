@@ -11,6 +11,7 @@ interface EditableTitleProps {
 /**
  * EditableTitle Component
  * Renders an input field for editing titles
+ * Prevents click events from propagating to parent elements
  * 
  * @component
  * @param {Object} props - Component properties
@@ -25,12 +26,22 @@ const EditableTitle = ({
   placeholder,
   className 
 }: EditableTitleProps) => {
+  /**
+   * Handles click events on the input field
+   * Prevents event propagation to parent elements
+   * @param {React.MouseEvent} e - The click event object
+   */
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <Input
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       className={className}
+      onClick={handleClick}
     />
   );
 };
