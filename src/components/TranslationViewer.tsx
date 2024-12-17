@@ -36,9 +36,8 @@ const TranslationViewer = ({ translations, onUpdate }: TranslationViewerProps) =
     : undefined;
 
   return (
-    <Card 
-      className="p-6 hover:shadow-lg transition-shadow cursor-pointer relative" 
-    >
+    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer relative">
+      {/* Edit button container */}
       <div 
         className="absolute top-4 right-4 z-10"
         onClick={(e) => e.stopPropagation()}
@@ -50,6 +49,8 @@ const TranslationViewer = ({ translations, onUpdate }: TranslationViewerProps) =
           />
         )}
       </div>
+
+      {/* Card content */}
       <div className="mb-6" onClick={handleClick}>
         <h3 className="text-xl font-semibold mb-2">{code}</h3>
         {englishTranslation && (
