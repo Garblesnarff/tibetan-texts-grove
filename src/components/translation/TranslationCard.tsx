@@ -18,17 +18,19 @@ interface TranslationCardProps {
 
 /**
  * TranslationCard Component
- * Displays translation information in a card format with edit capabilities
+ * Displays and manages the editing of translation titles in both English and Tibetan.
+ * Provides inline editing capabilities with save and cancel functionality.
  * 
- * @param {Object} props - Component props
- * @param {string} props.code - Translation code
- * @param {string} props.englishTitle - English title of the translation
- * @param {string} props.tibetanTitle - Tibetan title of the translation
- * @param {string} props.originalTibetanFileName - Original Tibetan filename from metadata
- * @param {string} props.translationId - ID of the translation for updates
- * @param {Function} props.onUpdate - Callback function after successful update
- * @param {boolean} props.isEditing - Whether the card is in edit mode
- * @param {Function} props.onEditingChange - Callback to change edit mode
+ * @component
+ * @param {Object} props - Component properties
+ * @param {string} props.code - The translation code identifier
+ * @param {string} [props.englishTitle] - The English title of the translation
+ * @param {string} [props.tibetanTitle] - The Tibetan title of the translation
+ * @param {string} [props.originalTibetanFileName] - Original filename for the Tibetan text
+ * @param {string} props.translationId - Unique identifier for the translation
+ * @param {Function} [props.onUpdate] - Callback function triggered after successful update
+ * @param {boolean} props.isEditing - Controls whether the component is in edit mode
+ * @param {Function} props.onEditingChange - Callback to update the editing state
  */
 const TranslationCard = ({ 
   code, 
@@ -40,10 +42,19 @@ const TranslationCard = ({
   isEditing,
   onEditingChange
 }: TranslationCardProps) => {
+  // State for managing edited title values
   const [editedEnglishTitle, setEditedEnglishTitle] = useState(englishTitle || "");
   const [editedTibetanTitle, setEditedTibetanTitle] = useState(tibetanTitle || "");
   const { toast } = useToast();
 
+  /**
+   * Handles saving the edited translation titles to the database
+   * Updates both English and Tibetan titles simultaneously
+   * Shows success/error toast messages based on the operation result
+   * 
+   * @async
+   * @function handleSave
+   */
   const handleSave = async () => {
     try {
       const { error } = await supabase
@@ -72,6 +83,12 @@ const TranslationCard = ({
     }
   };
 
+  /**
+   * Handles canceling the edit operation
+   * Resets the edited titles to their original values
+   * 
+   * @function handleCancel
+   */
   const handleCancel = () => {
     setEditedEnglishTitle(englishTitle || "");
     setEditedTibetanTitle(tibetanTitle || "");
