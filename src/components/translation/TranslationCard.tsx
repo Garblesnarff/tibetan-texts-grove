@@ -1,19 +1,26 @@
 import React from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import EditableTitle from "./EditableTitle";
 import DisplayTitle from "./DisplayTitle";
-import TitleEditControls from "./TitleEditControls";
+import TitleEditForm from "./TitleEditForm";
 import { useTitleEditor } from "@/hooks/useTitleEditor";
 
 interface TranslationCardProps {
+  /** Translation code identifier */
   code: string;
+  /** English title of the translation */
   englishTitle?: string;
+  /** Tibetan title of the translation */
   tibetanTitle?: string;
+  /** Original Tibetan filename */
   originalTibetanFileName?: string;
+  /** Unique identifier for the translation */
   translationId: string;
+  /** Callback triggered after successful update */
   onUpdate?: () => void;
+  /** Controls edit mode state */
   isEditing: boolean;
+  /** Callback to update edit mode state */
   onEditingChange: (isEditing: boolean) => void;
 }
 
@@ -22,7 +29,7 @@ interface TranslationCardProps {
  * Displays and manages translation titles in both view and edit modes
  * 
  * @component
- * @param {Object} props - Component properties
+ * @param {TranslationCardProps} props - Component properties
  */
 const TranslationCard = ({ 
   code, 
@@ -35,6 +42,8 @@ const TranslationCard = ({
   onEditingChange
 }: TranslationCardProps) => {
   const { toast } = useToast();
+  
+  // Initialize title editor hook for managing edit state
   const {
     editedEnglishTitle,
     editedTibetanTitle,
@@ -46,6 +55,7 @@ const TranslationCard = ({
   /**
    * Handles saving the edited translation titles
    * Updates both English and Tibetan titles in the database
+   * Refreshes the page or calls onUpdate callback after successful save
    */
   const handleSave = async () => {
     try {
@@ -94,36 +104,25 @@ const TranslationCard = ({
 
   return (
     <div className={`mb-6 relative ${isEditing ? 'bg-gray-50 p-4 rounded-lg border' : ''}`}>
-      {isEditing && (
-        <TitleEditControls
+      {isEditing ? (
+        <TitleEditForm
+          code={code}
+          editedEnglishTitle={editedEnglishTitle}
+          editedTibetanTitle={editedTibetanTitle}
+          onEnglishTitleChange={setEditedEnglishTitle}
+          onTibetanTitleChange={setEditedTibetanTitle}
           onSave={handleSave}
           onCancel={handleCancel}
         />
-      )}
-
-      <h3 className="text-xl font-semibold mb-2">{code}</h3>
-      
-      {isEditing ? (
-        <div className="space-y-4">
-          <EditableTitle
-            value={editedEnglishTitle}
-            onChange={setEditedEnglishTitle}
-            placeholder="English Title"
-            className="w-full"
-          />
-          <EditableTitle
-            value={editedTibetanTitle}
-            onChange={setEditedTibetanTitle}
-            placeholder="Tibetan Title"
-            className="w-full font-tibetan"
-          />
-        </div>
       ) : (
-        <DisplayTitle
-          englishTitle={fullEnglishTitle}
-          tibetanTitle={tibetanTitle}
-          originalTibetanFileName={originalTibetanFileName}
-        />
+        <>
+          <h3 className="text-xl font-semibold mb-2">{code}</h3>
+          <DisplayTitle
+            englishTitle={fullEnglishTitle}
+            tibetanTitle={tibetanTitle}
+            originalTibetanFileName={originalTibetanFileName}
+          />
+        </>
       )}
     </div>
   );
