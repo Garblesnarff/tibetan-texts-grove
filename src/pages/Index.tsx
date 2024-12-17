@@ -1,20 +1,10 @@
 import { useEffect, useState } from "react";
-import { AdminUpload } from "@/components/AdminUpload";
 import { supabase } from "@/integrations/supabase/client";
-import TranslationViewer from "@/components/TranslationViewer";
 import { useToast } from "@/hooks/use-toast";
 import { Translation } from "@/types/translation";
-
-/**
- * Interface representing a group of translations sharing the same code
- * @interface GroupedTranslation
- * @property {string} code - The unique code identifier for the group
- * @property {Translation[]} translations - Array of translations in this group
- */
-interface GroupedTranslation {
-  code: string;
-  translations: Translation[];
-}
+import { GroupedTranslation } from "@/types/groupedTranslation";
+import { Header } from "@/components/index/Header";
+import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 
 /**
  * Index Page Component
@@ -120,30 +110,12 @@ export default function Index() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-tibetan-maroon">Tibetan Translation Hub</h1>
-        <AdminUpload />
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center items-center h-[200px]">
-          <p>Loading translations...</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {translations.length === 0 ? (
-            <p className="col-span-full text-center">No translations found. Use the upload button to add some!</p>
-          ) : (
-            translations.map((group) => (
-              <TranslationViewer 
-                key={group.code} 
-                translations={group.translations}
-                onDelete={handleDelete}
-              />
-            ))
-          )}
-        </div>
-      )}
+      <Header />
+      <TranslationsGrid 
+        translations={translations}
+        onDelete={handleDelete}
+        isLoading={loading}
+      />
     </div>
   );
 }
