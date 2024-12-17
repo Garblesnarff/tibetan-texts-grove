@@ -1,43 +1,30 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { FileType } from "@/types/upload";
+import { useFileValidation } from "./useFileValidation";
+import { useUploadState } from "./useUploadState";
+import { useFileSubmission } from "./useFileSubmission";
 
+/**
+ * Main hook for handling file uploads
+ * Coordinates between validation, state management, and submission
+ */
 export const useFileUpload = () => {
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [title, setTitle] = useState("");
-  const [tibetanTitle, setTibetanTitle] = useState("");
-  const [open, setOpen] = useState(false);
-  const [sourceFile, setSourceFile] = useState<File | null>(null);
-  const [translationFile, setTranslationFile] = useState<File | null>(null);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const { verifyAdminStatus, extractTitleFromFileName, navigate, toast } = useFileValidation();
+  const { 
+    uploading, setUploading,
+    progress, setProgress,
+    title, setTitle,
+    tibetanTitle, setTibetanTitle,
+    open, setOpen,
+    sourceFile, translationFile,
+    updateFileState
+  } = useUploadState();
+  const { uploadFile } = useFileSubmission();
 
-  const verifyAdminStatus = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      throw new Error('You must be logged in to upload files.');
-    }
-
-    if (session.user.email !== 'wonky.coin@gmail.com') {
-      throw new Error('Only admin users can upload files.');
-    }
-
-    return session;
-  };
-
-  const extractTitleFromFileName = (fileName: string) => {
-    // Remove file extension
-    const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
-    // Convert dashes/underscores to spaces and capitalize words
-    return nameWithoutExt
-      .replace(/[-_]/g, ' ')
-      .replace(/\b\w/g, l => l.toUpperCase());
-  };
-
+  /**
+   * Handles file selection and validation
+   * @param {React.ChangeEvent<HTMLInputElement>} event - File input change event
+   * @param {FileType} fileType - Type of file being uploaded
+   */
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, fileType: FileType) => {
     try {
       if (!event.target.files || event.target.files.length === 0) {
@@ -48,15 +35,7 @@ export const useFileUpload = () => {
       
       const file = event.target.files[0];
       const extractedTitle = extractTitleFromFileName(file.name);
-      
-      // Set file and title based on type
-      if (fileType === 'translation') {
-        setTranslationFile(file);
-        setTitle(extractedTitle);
-      } else if (fileType === 'source') {
-        setSourceFile(file);
-        setTibetanTitle(extractedTitle);
-      }
+      updateFileState(file, fileType, extractedTitle);
     } catch (error: any) {
       console.error('File selection error:', error);
       toast({
@@ -67,6 +46,9 @@ export const useFileUpload = () => {
     }
   };
 
+  /**
+   * Handles the submission of both source and translation files
+   */
   const handleSubmit = async () => {
     try {
       if (!sourceFile || !translationFile) {
@@ -83,19 +65,7 @@ export const useFileUpload = () => {
       sourceFormData.append('title', title);
       sourceFormData.append('tibetanTitle', tibetanTitle);
 
-      console.log('Uploading source file with data:', {
-        fileType: 'source',
-        title,
-        tibetanTitle,
-        fileName: sourceFile.name
-      });
-
-      const sourceResult = await supabase.functions.invoke('upload-translation', {
-        body: sourceFormData,
-      });
-
-      if (sourceResult.error) throw sourceResult.error;
-
+      await uploadFile(sourceFormData, 'source');
       setProgress(50);
 
       // Upload translation file
@@ -105,27 +75,15 @@ export const useFileUpload = () => {
       translationFormData.append('title', title);
       translationFormData.append('tibetanTitle', tibetanTitle);
 
-      console.log('Uploading translation file with data:', {
-        fileType: 'translation',
-        title,
-        tibetanTitle,
-        fileName: translationFile.name
-      });
-
-      const translationResult = await supabase.functions.invoke('upload-translation', {
-        body: translationFormData,
-      });
-
-      if (translationResult.error) throw translationResult.error;
-
+      await uploadFile(translationFormData, 'translation');
       setProgress(100);
+      
       toast({
         title: "Success",
         description: "Files uploaded successfully"
       });
       
       setOpen(false);
-      
     } catch (error: any) {
       console.error('Upload error:', error);
       toast({
