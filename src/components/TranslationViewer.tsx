@@ -36,9 +36,9 @@ const TranslationViewer = ({ translations, onUpdate }: TranslationViewerProps) =
 
   return (
     <Card className="p-6 hover:shadow-lg transition-shadow relative">
-      {/* Edit buttons container - Always visible */}
+      {/* Edit buttons container - Always visible with prominent styling */}
       {englishTranslation && onUpdate && (
-        <div className="absolute top-2 right-2 z-10 flex gap-2 bg-white rounded-md p-1 shadow-sm">
+        <div className="absolute top-2 right-2 z-10 flex gap-2 bg-white border border-gray-200 rounded-md p-2 shadow-md">
           <EditTranslationDialog 
             translation={englishTranslation}
             onUpdate={onUpdate}

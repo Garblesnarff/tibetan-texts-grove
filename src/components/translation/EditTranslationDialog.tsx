@@ -88,8 +88,12 @@ export function EditTranslationDialog({ translation, onUpdate }: EditTranslation
     <div className="flex gap-2">
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="icon">
-            <Pencil className="h-4 w-4" />
+          <Button 
+            variant="outline" 
+            size="icon"
+            className="bg-primary/10 hover:bg-primary/20 border-primary/20"
+          >
+            <Pencil className="h-4 w-4 text-primary" />
           </Button>
         </DialogTrigger>
         <DialogContent>
@@ -123,8 +127,12 @@ export function EditTranslationDialog({ translation, onUpdate }: EditTranslation
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogTrigger asChild>
-          <Button variant="outline" size="icon">
-            <Trash2 className="h-4 w-4" />
+          <Button 
+            variant="outline" 
+            size="icon"
+            className="bg-destructive/10 hover:bg-destructive/20 border-destructive/20"
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
