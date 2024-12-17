@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Toast, ToasterToast, ToastState } from "@/types/toast";
+import { Toast, ToasterToast, ToastState, Action } from "@/types/toast";
 import { reducer } from "@/reducers/toastReducer";
 import { TOAST_REMOVE_DELAY } from "@/constants/toast";
 
@@ -31,7 +31,7 @@ let memoryState: ToastState = { toasts: [] };
  * Dispatches an action to update toast state
  * @param action - Action to be dispatched
  */
-function dispatch(action: Action) {
+export function dispatch(action: Action) {
   memoryState = reducer(memoryState, action);
   listeners.forEach((listener) => {
     listener(memoryState);

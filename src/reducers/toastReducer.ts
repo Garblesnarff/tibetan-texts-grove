@@ -1,5 +1,6 @@
 import { Action, ToastState } from "@/types/toast";
-import { TOAST_LIMIT } from "@/constants/toast";
+import { TOAST_REMOVE_DELAY } from "@/constants/toast";
+import { dispatch } from "@/hooks/use-toast";
 
 /**
  * Map to store toast timeout IDs
@@ -11,7 +12,7 @@ export const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
  * @param toastId - ID of the toast to be removed
  * @param delay - Delay in milliseconds before removal
  */
-export const addToRemoveQueue = (toastId: string, delay: number) => {
+export const addToRemoveQueue = (toastId: string, delay: number = TOAST_REMOVE_DELAY) => {
   if (toastTimeouts.has(toastId)) {
     return;
   }
@@ -53,10 +54,10 @@ export const reducer = (state: ToastState, action: Action): ToastState => {
       const { toastId } = action;
 
       if (toastId) {
-        addToRemoveQueue(toastId);
+        addToRemoveQueue(toastId, TOAST_REMOVE_DELAY);
       } else {
         state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id);
+          addToRemoveQueue(toast.id, TOAST_REMOVE_DELAY);
         });
       }
 
