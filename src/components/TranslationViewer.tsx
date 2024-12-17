@@ -35,13 +35,10 @@ const TranslationViewer = ({ translations, onUpdate }: TranslationViewerProps) =
     : undefined;
 
   return (
-    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer relative">
-      {/* Edit buttons container */}
+    <Card className="p-6 hover:shadow-lg transition-shadow relative">
+      {/* Edit buttons container - Always visible */}
       {englishTranslation && onUpdate && (
-        <div 
-          className="absolute top-2 right-2 z-10 bg-white shadow-sm rounded-md p-1"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="absolute top-2 right-2 z-10 flex gap-2 bg-white rounded-md p-1 shadow-sm">
           <EditTranslationDialog 
             translation={englishTranslation}
             onUpdate={onUpdate}
@@ -50,7 +47,10 @@ const TranslationViewer = ({ translations, onUpdate }: TranslationViewerProps) =
       )}
 
       {/* Card content */}
-      <div onClick={handleClick}>
+      <div 
+        onClick={handleClick}
+        className="cursor-pointer"
+      >
         <h3 className="text-xl font-semibold mb-2">{code}</h3>
         {englishTranslation && (
           <p className="text-gray-700 mb-2">
