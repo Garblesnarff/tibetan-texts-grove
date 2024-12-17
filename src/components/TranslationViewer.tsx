@@ -8,8 +8,8 @@ interface TranslationViewerProps {
 }
 
 // Type guard to check if metadata has the correct structure
-const hasOriginalTibetanFileName = (metadata: Translation['metadata']): metadata is { originalTibetanFileName?: string } => {
-  if (!metadata || typeof metadata === 'string' || Array.isArray(metadata)) return false;
+const hasOriginalTibetanFileName = (metadata: Translation['metadata']): metadata is { originalTibetanFileName?: string } & Record<string, unknown> => {
+  if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return false;
   return 'originalTibetanFileName' in metadata;
 };
 
