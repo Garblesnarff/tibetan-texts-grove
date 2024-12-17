@@ -1,10 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Translation } from "@/types/translation";
+import { Json } from "@/integrations/supabase/types";
 
 interface TranslationViewerProps {
   translations: Translation[];
 }
+
+// Type guard to check if metadata has the correct structure
+const hasOriginalTibetanFileName = (metadata: Translation['metadata']): metadata is { originalTibetanFileName?: string } => {
+  if (!metadata || typeof metadata === 'string' || Array.isArray(metadata)) return false;
+  return 'originalTibetanFileName' in metadata;
+};
 
 const TranslationViewer = ({ translations }: TranslationViewerProps) => {
   const navigate = useNavigate();
@@ -22,7 +29,9 @@ const TranslationViewer = ({ translations }: TranslationViewerProps) => {
   const tibetanTranslation = translations.find(t => t.tibetan_title);
 
   // Get the original Tibetan filename from metadata if available
-  const originalTibetanTitle = tibetanTranslation?.metadata?.originalTibetanFileName;
+  const originalTibetanTitle = hasOriginalTibetanFileName(tibetanTranslation?.metadata) 
+    ? tibetanTranslation.metadata.originalTibetanFileName 
+    : undefined;
 
   return (
     <Card 
