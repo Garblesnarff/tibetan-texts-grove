@@ -29,14 +29,15 @@ export default function TranslationDetail() {
       }
       return data;
     },
-    onError: (error: Error) => {
-      toast({
-        variant: "destructive",
-        title: "Error loading translation",
-        description: error.message
-      });
-      // Redirect to home page after showing the error
-      navigate('/');
+    meta: {
+      errorHandler: (error: Error) => {
+        toast({
+          variant: "destructive",
+          title: "Error loading translation",
+          description: error.message
+        });
+        navigate('/');
+      }
     }
   });
 
