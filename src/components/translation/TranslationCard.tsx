@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Pencil, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -12,6 +11,8 @@ interface TranslationCardProps {
   originalTibetanFileName?: string;
   translationId: string;
   onUpdate?: () => void;
+  isEditing: boolean;
+  onEditingChange: (isEditing: boolean) => void;
 }
 
 /**
@@ -25,6 +26,8 @@ interface TranslationCardProps {
  * @param {string} props.originalTibetanFileName - Original Tibetan filename from metadata
  * @param {string} props.translationId - ID of the translation for updates
  * @param {Function} props.onUpdate - Callback function after successful update
+ * @param {boolean} props.isEditing - Whether the card is in edit mode
+ * @param {Function} props.onEditingChange - Callback to change edit mode
  */
 const TranslationCard = ({ 
   code, 
@@ -32,9 +35,10 @@ const TranslationCard = ({
   tibetanTitle, 
   originalTibetanFileName,
   translationId,
-  onUpdate
+  onUpdate,
+  isEditing,
+  onEditingChange
 }: TranslationCardProps) => {
-  const [isEditing, setIsEditing] = useState(false);
   const [editedEnglishTitle, setEditedEnglishTitle] = useState(englishTitle || "");
   const [editedTibetanTitle, setEditedTibetanTitle] = useState(tibetanTitle || "");
   const { toast } = useToast();
@@ -56,7 +60,7 @@ const TranslationCard = ({
         description: "Translation titles updated successfully",
       });
       
-      setIsEditing(false);
+      onEditingChange(false);
       if (onUpdate) onUpdate();
     } catch (error: any) {
       toast({
@@ -70,42 +74,31 @@ const TranslationCard = ({
   const handleCancel = () => {
     setEditedEnglishTitle(englishTitle || "");
     setEditedTibetanTitle(tibetanTitle || "");
-    setIsEditing(false);
+    onEditingChange(false);
   };
 
   return (
     <div className="mb-6 relative">
-      <div className="absolute top-0 right-0 space-x-2">
-        {!isEditing ? (
+      {isEditing && (
+        <div className="absolute top-0 right-0 space-x-2">
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setIsEditing(true)}
+            onClick={handleSave}
             className="h-8 w-8"
           >
-            <Pencil className="h-4 w-4" />
+            <Check className="h-4 w-4" />
           </Button>
-        ) : (
-          <>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSave}
-              className="h-8 w-8"
-            >
-              <Check className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancel}
-              className="h-8 w-8"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </>
-        )}
-      </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleCancel}
+            className="h-8 w-8"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
 
       <h3 className="text-xl font-semibold mb-2">{code}</h3>
       

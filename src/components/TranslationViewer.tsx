@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 import { Translation } from "@/types/translation";
 import DeleteTranslationDialog from "./translation/DeleteTranslationDialog";
 import TranslationCard from "./translation/TranslationCard";
@@ -30,6 +32,7 @@ const hasOriginalTibetanFileName = (metadata: Translation['metadata']): metadata
 const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) => {
   const navigate = useNavigate();
   const code = translations[0]?.title.split(' ')[0];
+  const [isEditing, setIsEditing] = React.useState(false);
 
   /**
    * Handles click events on the translation card
@@ -37,7 +40,7 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
    */
   const handleClick = (e: React.MouseEvent) => {
     // Prevent click event from bubbling up when clicking delete or edit buttons
-    if ((e.target as HTMLElement).closest('.delete-button, button')) {
+    if ((e.target as HTMLElement).closest('.delete-button, .edit-button, button')) {
       e.stopPropagation();
       return;
     }
@@ -61,7 +64,15 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
       className="p-6 hover:shadow-lg transition-shadow relative" 
       onClick={handleClick}
     >
-      <div className="absolute top-2 right-2 z-50">
+      <div className="absolute top-2 right-2 z-50 flex gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 edit-button"
+          onClick={() => setIsEditing(true)}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
         <DeleteTranslationDialog 
           onDelete={() => onDelete(translations[0].id)} 
         />
@@ -73,6 +84,8 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
         originalTibetanFileName={originalTibetanTitle}
         translationId={translations[0].id}
         onUpdate={() => window.location.reload()}
+        isEditing={isEditing}
+        onEditingChange={setIsEditing}
       />
     </Card>
   );
