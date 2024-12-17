@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import EditableTitle from "./EditableTitle";
 import DisplayTitle from "./DisplayTitle";
 import TitleEditControls from "./TitleEditControls";
+import { useTitleEditor } from "@/hooks/useTitleEditor";
 
 interface TranslationCardProps {
   code: string;
@@ -18,19 +19,18 @@ interface TranslationCardProps {
 
 /**
  * TranslationCard Component
- * Main component for managing translation titles display and editing
- * Coordinates between edit controls and title display/edit components
+ * Displays and manages translation titles in both view and edit modes
  * 
  * @component
  * @param {Object} props - Component properties
- * @param {string} props.code - The translation code identifier
- * @param {string} [props.englishTitle] - The English title of the translation
- * @param {string} [props.tibetanTitle] - The Tibetan title of the translation
- * @param {string} [props.originalTibetanFileName] - Original filename for the Tibetan text
+ * @param {string} props.code - Translation code identifier
+ * @param {string} [props.englishTitle] - English title of the translation
+ * @param {string} [props.tibetanTitle] - Tibetan title of the translation
+ * @param {string} [props.originalTibetanFileName] - Original Tibetan filename
  * @param {string} props.translationId - Unique identifier for the translation
- * @param {Function} [props.onUpdate] - Callback function triggered after successful update
- * @param {boolean} props.isEditing - Controls whether the component is in edit mode
- * @param {Function} props.onEditingChange - Callback to update the editing state
+ * @param {Function} [props.onUpdate] - Callback triggered after successful update
+ * @param {boolean} props.isEditing - Controls edit mode state
+ * @param {Function} props.onEditingChange - Callback to update edit mode state
  */
 const TranslationCard = ({ 
   code, 
@@ -42,18 +42,18 @@ const TranslationCard = ({
   isEditing,
   onEditingChange
 }: TranslationCardProps) => {
-  // State for managing edited title values
-  const [editedEnglishTitle, setEditedEnglishTitle] = useState(englishTitle || "");
-  const [editedTibetanTitle, setEditedTibetanTitle] = useState(tibetanTitle || "");
   const { toast } = useToast();
+  const {
+    editedEnglishTitle,
+    editedTibetanTitle,
+    setEditedEnglishTitle,
+    setEditedTibetanTitle,
+    resetTitles
+  } = useTitleEditor(englishTitle, tibetanTitle);
 
   /**
-   * Handles saving the edited translation titles to the database
-   * Updates both English and Tibetan titles simultaneously
-   * Shows success/error toast messages based on the operation result
-   * 
-   * @async
-   * @function handleSave
+   * Handles saving the edited translation titles
+   * Updates both English and Tibetan titles in the database
    */
   const handleSave = async () => {
     try {
@@ -85,13 +85,10 @@ const TranslationCard = ({
 
   /**
    * Handles canceling the edit operation
-   * Resets the edited titles to their original values
-   * 
-   * @function handleCancel
+   * Resets titles to their original values
    */
   const handleCancel = () => {
-    setEditedEnglishTitle(englishTitle || "");
-    setEditedTibetanTitle(tibetanTitle || "");
+    resetTitles();
     onEditingChange(false);
   };
 
