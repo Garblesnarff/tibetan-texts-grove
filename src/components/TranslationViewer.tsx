@@ -15,11 +15,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface TranslationViewerProps {
   translations: Translation[];
+  onDelete: (id: string) => Promise<void>;
 }
 
 // Type guard to check if metadata has the correct structure
@@ -28,9 +27,8 @@ const hasOriginalTibetanFileName = (metadata: Translation['metadata']): metadata
   return 'originalTibetanFileName' in metadata;
 };
 
-const TranslationViewer = ({ translations }: TranslationViewerProps) => {
+const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const code = translations[0]?.title.split(' ')[0];
 
   const handleClick = (e: React.MouseEvent) => {
@@ -42,31 +40,6 @@ const TranslationViewer = ({ translations }: TranslationViewerProps) => {
     // Navigate to the first translation's detail page
     if (translations.length > 0) {
       navigate(`/translation/${translations[0].id}`);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      const { error } = await supabase
-        .from('translations')
-        .delete()
-        .eq('id', translations[0].id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Translation deleted",
-        description: "The translation has been successfully deleted.",
-      });
-
-      // Refresh the page to update the list
-      window.location.reload();
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error deleting translation",
-        description: error.message,
-      });
     }
   };
 
@@ -105,7 +78,9 @@ const TranslationViewer = ({ translations }: TranslationViewerProps) => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+              <AlertDialogAction onClick={() => onDelete(translations[0].id)}>
+                Delete
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
