@@ -67,6 +67,13 @@ const TranslationCard = ({
 
       console.log('Update response:', data);
 
+      // Update the local state with the new values
+      if (data && data[0]) {
+        const updatedTranslation = data[0];
+        const updatedTitleWithoutCode = updatedTranslation.title.replace(`${code} `, '');
+        setEditedEnglishTitle(updatedTitleWithoutCode);
+      }
+
       toast({
         title: "Success",
         description: "Translation titles updated successfully",
