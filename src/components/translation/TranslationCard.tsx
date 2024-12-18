@@ -43,6 +43,9 @@ const TranslationCard = ({
 }: TranslationCardProps) => {
   const { toast } = useToast();
   
+  // Extract the full English title by removing the code prefix for editing
+  const fullEnglishTitle = englishTitle?.split(' ').slice(1).join(' ') || '';
+  
   // Initialize title editor hook for managing edit state
   const {
     editedEnglishTitle,
@@ -50,7 +53,7 @@ const TranslationCard = ({
     setEditedEnglishTitle,
     setEditedTibetanTitle,
     resetTitles
-  } = useTitleEditor(englishTitle, tibetanTitle);
+  } = useTitleEditor(fullEnglishTitle, tibetanTitle);
 
   /**
    * Handles saving the edited translation titles
@@ -60,12 +63,12 @@ const TranslationCard = ({
   const handleSave = async () => {
     try {
       // When saving, we need to include the code prefix in the title
-      const fullEnglishTitle = `${code} ${editedEnglishTitle}`;
+      const completeTitle = `${code} ${editedEnglishTitle}`;
       
       const { error } = await supabase
         .from('translations')
         .update({
-          title: fullEnglishTitle,
+          title: completeTitle,
           tibetan_title: editedTibetanTitle || null
         })
         .eq('id', translationId);
@@ -101,9 +104,6 @@ const TranslationCard = ({
     resetTitles();
     onEditingChange(false);
   };
-
-  // Extract the full English title by removing the code prefix
-  const fullEnglishTitle = englishTitle?.replace(`${code} `, '').trim() || '';
 
   return (
     <div className={`mb-6 relative ${isEditing ? 'bg-gray-50 p-4 rounded-lg border' : ''}`}>
