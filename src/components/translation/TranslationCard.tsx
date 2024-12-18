@@ -27,9 +27,6 @@ interface TranslationCardProps {
 /**
  * TranslationCard Component
  * Displays and manages translation titles in both view and edit modes
- * 
- * @component
- * @param {TranslationCardProps} props - Component properties
  */
 const TranslationCard = ({ 
   code, 
@@ -43,10 +40,10 @@ const TranslationCard = ({
 }: TranslationCardProps) => {
   const { toast } = useToast();
   
-  // Extract the full English title by removing the code prefix for editing
-  const fullEnglishTitle = englishTitle?.split(' ').slice(1).join(' ') || '';
+  // Remove the code prefix and any leading/trailing whitespace for editing
+  const fullEnglishTitle = englishTitle?.split(' ').slice(1).join(' ').trim() || '';
   
-  // Initialize title editor hook for managing edit state
+  // Initialize title editor hook with the full title
   const {
     editedEnglishTitle,
     editedTibetanTitle,
@@ -58,12 +55,11 @@ const TranslationCard = ({
   /**
    * Handles saving the edited translation titles
    * Updates both English and Tibetan titles in the database
-   * Refreshes the page or calls onUpdate callback after successful save
    */
   const handleSave = async () => {
     try {
-      // When saving, we need to include the code prefix in the title
-      const completeTitle = `${code} ${editedEnglishTitle}`;
+      // Combine the code prefix with the full edited title
+      const completeTitle = `${code} ${editedEnglishTitle}`.trim();
       
       const { error } = await supabase
         .from('translations')
