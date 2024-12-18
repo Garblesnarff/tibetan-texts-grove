@@ -1,18 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Pencil, FolderDown } from "lucide-react";
 import { Translation } from "@/types/translation";
 import { supabase } from "@/integrations/supabase/client";
-import DeleteTranslationDialog from "./translation/DeleteTranslationDialog";
 import TranslationCard from "./translation/TranslationCard";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import TranslationActions from "./translation/TranslationActions";
 import { useToast } from "@/hooks/use-toast";
 
 interface TranslationViewerProps {
@@ -20,11 +12,23 @@ interface TranslationViewerProps {
   onDelete: (id: string) => Promise<void>;
 }
 
+/**
+ * Type guard to check if metadata contains originalTibetanFileName
+ */
 const hasOriginalTibetanFileName = (metadata: Translation['metadata']): metadata is { originalTibetanFileName?: string } & Record<string, unknown> => {
   if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return false;
   return 'originalTibetanFileName' in metadata;
 };
 
+/**
+ * TranslationViewer Component
+ * Displays a single translation card with editing capabilities and category management
+ * 
+ * @component
+ * @param {Object} props - Component properties
+ * @param {Translation[]} props.translations - Array of translations (currently only uses first item)
+ * @param {Function} props.onDelete - Callback function for translation deletion
+ */
 const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) => {
   const navigate = useNavigate();
   const code = translations[0]?.title.split(' ')[0];
@@ -33,6 +37,9 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
   const [categories, setCategories] = React.useState<Array<{ id: string; title: string }>>([]);
   const { toast } = useToast();
 
+  /**
+   * Fetches available categories from the database
+   */
   React.useEffect(() => {
     const fetchCategories = async () => {
       const { data, error } = await supabase
@@ -51,6 +58,10 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
     fetchCategories();
   }, []);
 
+  /**
+   * Handles click events on the card
+   * Navigates to translation detail page unless clicking action buttons
+   */
   const handleClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     if (target.closest('.delete-button, .edit-button, .category-button, [role="menuitem"]')) {
@@ -62,6 +73,9 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
     }
   };
 
+  /**
+   * Updates the current translation data
+   */
   const handleUpdate = async () => {
     try {
       const { data, error } = await supabase
@@ -84,6 +98,9 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
     }
   };
 
+  /**
+   * Handles category changes for the translation
+   */
   const handleCategoryChange = async (categoryId: string) => {
     try {
       console.log('Updating category for translation:', translations[0].id, 'to category:', categoryId);
@@ -125,44 +142,12 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
       className="p-6 hover:shadow-lg transition-shadow relative min-h-[200px]" 
       onClick={handleClick}
     >
-      <div className="absolute top-2 right-2 z-50 flex gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 category-button hover:bg-tibetan-brown/10"
-            >
-              <FolderDown className="h-4 w-4 text-tibetan-brown" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            align="end" 
-            className="w-48 z-[100] bg-background border border-tibetan-brown/20 shadow-lg"
-          >
-            {categories.map((category) => (
-              <DropdownMenuItem
-                key={category.id}
-                onClick={() => handleCategoryChange(category.id)}
-                className="cursor-pointer hover:bg-tibetan-brown/10 focus:bg-tibetan-brown/20"
-              >
-                {category.title}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 edit-button hover:bg-tibetan-brown/10"
-          onClick={() => setIsEditing(true)}
-        >
-          <Pencil className="h-4 w-4 text-tibetan-brown" />
-        </Button>
-        <DeleteTranslationDialog 
-          onDelete={() => onDelete(translations[0].id)} 
-        />
-      </div>
+      <TranslationActions
+        categories={categories}
+        onCategoryChange={handleCategoryChange}
+        onDelete={() => onDelete(translations[0].id)}
+        onEditingChange={setIsEditing}
+      />
       <div className="pt-10">
         <TranslationCard
           code={code}
