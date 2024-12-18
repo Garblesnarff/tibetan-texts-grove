@@ -24,7 +24,11 @@ const CardTitleEditForm = ({
   onCancel
 }: CardTitleEditFormProps) => {
   return (
-    <div className="space-y-4 bg-background p-4 rounded-lg">
+    <div className="space-y-4 bg-background p-4 pt-14 rounded-lg relative">
+      <TitleEditControls
+        onSave={onSave}
+        onCancel={onCancel}
+      />
       <EditableTitle
         value={title}
         onChange={onTitleChange}
@@ -42,10 +46,6 @@ const CardTitleEditForm = ({
         onChange={onTibetanPdfTitleChange}
         placeholder="Tibetan PDF Title"
         className="w-full font-tibetan"
-      />
-      <TitleEditControls
-        onSave={onSave}
-        onCancel={onCancel}
       />
     </div>
   );
