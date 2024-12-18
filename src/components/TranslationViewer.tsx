@@ -52,7 +52,8 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
   }, []);
 
   const handleClick = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('.delete-button, .edit-button, .category-button, button')) {
+    const target = e.target as HTMLElement;
+    if (target.closest('.delete-button, .edit-button, .category-button, [role="menuitem"]')) {
       e.stopPropagation();
       return;
     }
@@ -129,11 +130,15 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
               <FolderDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent 
+            align="end" 
+            className="w-48 z-[100] bg-background"
+          >
             {categories.map((category) => (
               <DropdownMenuItem
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
+                className="cursor-pointer"
               >
                 {category.title}
               </DropdownMenuItem>
