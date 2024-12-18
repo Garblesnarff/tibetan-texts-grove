@@ -1,3 +1,5 @@
+import { Json } from "@/integrations/supabase/types/json";
+
 /**
  * Translation interface
  * Defines the structure of a translation object
