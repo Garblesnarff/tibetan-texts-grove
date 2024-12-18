@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Plus, Edit2, Trash2, Check, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -14,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { CategoryEditForm } from "./CategoryEditForm";
 
 interface Category {
   id: string;
@@ -29,15 +29,21 @@ interface CategoryManagerProps {
   onCategoryChange: () => void;
 }
 
+/**
+ * CategoryManager Component
+ * Manages the creation, editing, and deletion of categories
+ * Only visible to admin users
+ * @param onCategoryChange - Callback function to refresh the category list
+ */
 export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
+  // State management for editing and deletion
   const [editingCategory, setEditingCategory] = useState<EditingCategory | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
   const { toast } = useToast();
 
-  const handleEdit = (category: Category) => {
-    setEditingCategory(category);
-  };
-
+  /**
+   * Initializes the form for adding a new category
+   */
   const handleAdd = () => {
     setEditingCategory({
       id: "",
@@ -47,11 +53,16 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
     });
   };
 
+  /**
+   * Handles the saving of a new or edited category
+   * Shows success/error toast messages and triggers category list refresh
+   */
   const handleSave = async () => {
     if (!editingCategory) return;
 
     try {
       if (editingCategory.isNew) {
+        // Handle new category creation
         const { error } = await supabase
           .from('categories')
           .insert([{
@@ -65,10 +76,8 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
           title: "Success",
           description: "Category added successfully"
         });
-        
-        // Trigger refresh of categories
-        onCategoryChange();
       } else {
+        // Handle category update
         const { error } = await supabase
           .from('categories')
           .update({
@@ -83,10 +92,10 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
           title: "Success",
           description: "Category updated successfully"
         });
-        
-        // Trigger refresh of categories
-        onCategoryChange();
       }
+      
+      // Refresh category list and reset form
+      onCategoryChange();
       setEditingCategory(null);
     } catch (error: any) {
       toast({
@@ -97,10 +106,16 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
     }
   };
 
+  /**
+   * Opens the delete confirmation dialog
+   */
   const handleDelete = async (category: Category) => {
     setCategoryToDelete(category);
   };
 
+  /**
+   * Handles the actual deletion of a category after confirmation
+   */
   const confirmDelete = async () => {
     if (!categoryToDelete) return;
 
@@ -117,7 +132,7 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
         description: "Category deleted successfully"
       });
       
-      // Trigger refresh of categories
+      // Refresh category list and close dialog
       onCategoryChange();
       setCategoryToDelete(null);
     } catch (error: any) {
@@ -142,36 +157,12 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
       </Button>
       
       {editingCategory && (
-        <div className="space-y-2 p-2 border rounded-md">
-          <Input
-            placeholder="Category Title"
-            value={editingCategory.title}
-            onChange={(e) => setEditingCategory({
-              ...editingCategory,
-              title: e.target.value
-            })}
-          />
-          <Input
-            placeholder="Description"
-            value={editingCategory.description}
-            onChange={(e) => setEditingCategory({
-              ...editingCategory,
-              description: e.target.value
-            })}
-          />
-          <div className="flex gap-2">
-            <Button size="sm" onClick={handleSave}>
-              <Check className="h-4 w-4" />
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline"
-              onClick={() => setEditingCategory(null)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        <CategoryEditForm
+          category={editingCategory}
+          onSave={handleSave}
+          onCancel={() => setEditingCategory(null)}
+          onChange={setEditingCategory}
+        />
       )}
 
       <AlertDialog open={!!categoryToDelete} onOpenChange={() => setCategoryToDelete(null)}>
