@@ -57,8 +57,8 @@ const TranslationCard = ({
           title: completeTitle,
           tibetan_title: editedTibetanTitle || null,
           metadata: {
-            originalFileName: `${code}_translation.pdf`,
-            originalTibetanFileName: editedTibetanTitle || `${code}_translation.pdf`
+            originalFileName: editedEnglishTitle,
+            originalTibetanFileName: editedTibetanTitle || null
           }
         })
         .eq('id', translationId)
