@@ -86,24 +86,31 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
 
   const handleCategoryChange = async (categoryId: string) => {
     try {
+      console.log('Updating category for translation:', translations[0].id, 'to category:', categoryId);
+      
       const { error } = await supabase
         .from('translations')
         .update({ category_id: categoryId })
         .eq('id', translations[0].id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating category:', error);
+        throw error;
+      }
 
       toast({
         title: "Success",
         description: "Translation moved to new category",
       });
 
-      handleUpdate();
+      // Refresh the translation data after successful update
+      await handleUpdate();
     } catch (error: any) {
+      console.error('Error in handleCategoryChange:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to move translation",
+        description: "Failed to move translation to new category",
       });
     }
   };
