@@ -59,10 +59,13 @@ const TranslationCard = ({
    */
   const handleSave = async () => {
     try {
+      // When saving, we need to include the code prefix in the title
+      const fullEnglishTitle = `${code} ${editedEnglishTitle}`;
+      
       const { error } = await supabase
         .from('translations')
         .update({
-          title: editedEnglishTitle,
+          title: fullEnglishTitle,
           tibetan_title: editedTibetanTitle || null
         })
         .eq('id', translationId);
@@ -100,7 +103,7 @@ const TranslationCard = ({
   };
 
   // Extract the full English title by removing the code prefix
-  const fullEnglishTitle = englishTitle?.replace(`${code} `, '') || '';
+  const fullEnglishTitle = englishTitle?.replace(`${code} `, '').trim() || '';
 
   return (
     <div className={`mb-6 relative ${isEditing ? 'bg-gray-50 p-4 rounded-lg border' : ''}`}>

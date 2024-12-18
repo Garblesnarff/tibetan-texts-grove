@@ -25,12 +25,12 @@ const DisplayTitle = ({
   return (
     <div className="break-words">
       {englishTitle && (
-        <p className="text-gray-700 mb-2 whitespace-normal">
+        <p className="text-gray-700 mb-2 whitespace-normal break-words">
           {englishTitle}
         </p>
       )}
       {(originalTibetanFileName || tibetanTitle) && (
-        <p className="text-tibetan-maroon font-tibetan text-xl whitespace-normal">
+        <p className="text-tibetan-maroon font-tibetan text-xl whitespace-normal break-words">
           {originalTibetanFileName || tibetanTitle}
         </p>
       )}
