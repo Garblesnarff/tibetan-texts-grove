@@ -55,7 +55,11 @@ const TranslationCard = ({
         .from('translations')
         .update({
           title: completeTitle,
-          tibetan_title: editedTibetanTitle || null
+          tibetan_title: editedTibetanTitle || null,
+          metadata: {
+            originalFileName: `${code}_translation.pdf`,
+            originalTibetanFileName: editedTibetanTitle || `${code}_translation.pdf`
+          }
         })
         .eq('id', translationId)
         .select();
