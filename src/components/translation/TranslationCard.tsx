@@ -6,28 +6,16 @@ import TitleEditForm from "./TitleEditForm";
 import { useTitleEditor } from "@/hooks/useTitleEditor";
 
 interface TranslationCardProps {
-  /** Translation code identifier */
   code: string;
-  /** English title of the translation */
   englishTitle?: string;
-  /** Tibetan title of the translation */
   tibetanTitle?: string;
-  /** Original Tibetan filename */
   originalTibetanFileName?: string;
-  /** Unique identifier for the translation */
   translationId: string;
-  /** Callback triggered after successful update */
   onUpdate?: () => void;
-  /** Controls edit mode state */
   isEditing: boolean;
-  /** Callback to update edit mode state */
   onEditingChange: (isEditing: boolean) => void;
 }
 
-/**
- * TranslationCard Component
- * Displays and manages translation titles in both view and edit modes
- */
 const TranslationCard = ({ 
   code, 
   englishTitle, 
@@ -40,10 +28,9 @@ const TranslationCard = ({
 }: TranslationCardProps) => {
   const { toast } = useToast();
   
-  // Get the title without the code prefix for editing
-  const titleWithoutCode = englishTitle?.replace(`${code} `, '') || '';
+  // Extract the title without the code prefix for editing
+  const titleWithoutCode = englishTitle?.replace(`${code} `, '').trim() || '';
   
-  // Initialize title editor hook with the title (without code)
   const {
     editedEnglishTitle,
     editedTibetanTitle,
@@ -52,13 +39,9 @@ const TranslationCard = ({
     resetTitles
   } = useTitleEditor(titleWithoutCode, tibetanTitle);
 
-  /**
-   * Handles saving the edited translation titles
-   * Updates both English and Tibetan titles in the database
-   */
   const handleSave = async () => {
     try {
-      // Add the code prefix back when saving to database
+      // Add the code prefix back when saving
       const completeTitle = `${code} ${editedEnglishTitle}`;
       
       const { error } = await supabase
@@ -80,10 +63,9 @@ const TranslationCard = ({
       
       if (onUpdate) {
         onUpdate();
-      } else {
-        window.location.reload();
       }
     } catch (error: any) {
+      console.error('Error updating translation:', error);
       toast({
         variant: "destructive",
         title: "Error updating translation",
@@ -92,10 +74,6 @@ const TranslationCard = ({
     }
   };
 
-  /**
-   * Handles canceling the edit operation
-   * Resets titles to their original values
-   */
   const handleCancel = () => {
     resetTitles();
     onEditingChange(false);
