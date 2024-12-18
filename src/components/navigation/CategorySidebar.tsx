@@ -6,15 +6,12 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuAction,
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CategoryManager } from "./CategoryManager";
+import { CategoryListItem } from "./CategoryListItem";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2 } from "lucide-react";
 
 interface Category {
   id: string;
@@ -22,16 +19,21 @@ interface Category {
   description: string;
 }
 
+/**
+ * CategorySidebar Component
+ * Displays a sidebar with a list of translation categories
+ * Includes category management functionality for admin users
+ */
 export function CategorySidebar() {
+  // State management
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchCategories();
-    checkAdminStatus();
-  }, []);
-
+  /**
+   * Fetch categories from the database
+   * Updates the categories state and handles any errors
+   */
   const fetchCategories = async () => {
     try {
       const { data, error } = await supabase
@@ -50,11 +52,19 @@ export function CategorySidebar() {
     }
   };
 
+  /**
+   * Check if the current user is an admin
+   * Currently checks against a specific email address
+   */
   const checkAdminStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setIsAdmin(user?.email === 'wonky.coin@gmail.com');
   };
 
+  /**
+   * Handle category deletion
+   * Deletes the category and refreshes the list
+   */
   const handleDelete = async (category: Category) => {
     try {
       const { error } = await supabase
@@ -69,7 +79,6 @@ export function CategorySidebar() {
         description: "Category deleted successfully"
       });
       
-      // Refresh categories after deletion
       fetchCategories();
     } catch (error: any) {
       toast({
@@ -79,6 +88,12 @@ export function CategorySidebar() {
       });
     }
   };
+
+  // Initialize component
+  useEffect(() => {
+    fetchCategories();
+    checkAdminStatus();
+  }, []);
 
   return (
     <Sidebar>
@@ -91,26 +106,12 @@ export function CategorySidebar() {
             <ScrollArea className="h-[calc(100vh-10rem)]">
               <SidebarMenu>
                 {categories.map((category) => (
-                  <SidebarMenuItem key={category.id}>
-                    <SidebarMenuButton className="w-full">
-                      <div className="flex flex-col items-start">
-                        <span className="font-bold text-tibetan-maroon">
-                          {category.title}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {category.description}
-                        </span>
-                      </div>
-                    </SidebarMenuButton>
-                    {isAdmin && (
-                      <SidebarMenuAction
-                        onClick={() => handleDelete(category)}
-                        className="hover:bg-destructive hover:text-destructive-foreground"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </SidebarMenuAction>
-                    )}
-                  </SidebarMenuItem>
+                  <CategoryListItem
+                    key={category.id}
+                    category={category}
+                    isAdmin={isAdmin}
+                    onDelete={handleDelete}
+                  />
                 ))}
               </SidebarMenu>
               {isAdmin && <CategoryManager onCategoryChange={fetchCategories} />}
