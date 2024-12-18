@@ -6,17 +6,6 @@ interface DisplayTitleProps {
   originalTibetanFileName?: string;
 }
 
-/**
- * DisplayTitle Component
- * Renders the translation titles in display mode
- * Handles both English and Tibetan titles with proper formatting
- * 
- * @component
- * @param {Object} props - Component properties
- * @param {string} [props.englishTitle] - English title to display
- * @param {string} [props.tibetanTitle] - Tibetan title to display
- * @param {string} [props.originalTibetanFileName] - Original Tibetan filename
- */
 const DisplayTitle = ({ 
   englishTitle, 
   tibetanTitle, 
@@ -25,12 +14,12 @@ const DisplayTitle = ({
   return (
     <div className="break-words">
       {englishTitle && (
-        <h3 className="text-xl font-semibold mb-2 whitespace-normal break-words">
+        <h3 className="text-xl font-semibold mb-3 whitespace-normal break-words text-tibetan-brown">
           {englishTitle}
         </h3>
       )}
       {(originalTibetanFileName || tibetanTitle) && (
-        <p className="text-tibetan-maroon font-tibetan text-xl whitespace-normal break-words">
+        <p className="text-tibetan-maroon font-tibetan text-xl whitespace-normal break-words mt-2">
           {originalTibetanFileName || tibetanTitle}
         </p>
       )}

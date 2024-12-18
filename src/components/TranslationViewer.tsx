@@ -103,7 +103,6 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
         description: "Translation moved to new category",
       });
 
-      // Refresh the translation data after successful update
       await handleUpdate();
     } catch (error: any) {
       console.error('Error in handleCategoryChange:', error);
@@ -123,7 +122,7 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
 
   return (
     <Card 
-      className="p-6 hover:shadow-lg transition-shadow relative" 
+      className="p-6 hover:shadow-lg transition-shadow relative min-h-[200px]" 
       onClick={handleClick}
     >
       <div className="absolute top-2 right-2 z-50 flex gap-2">
@@ -132,20 +131,20 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 category-button"
+              className="h-8 w-8 category-button hover:bg-tibetan-brown/10"
             >
-              <FolderDown className="h-4 w-4" />
+              <FolderDown className="h-4 w-4 text-tibetan-brown" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
             align="end" 
-            className="w-48 z-[100] bg-background"
+            className="w-48 z-[100] bg-background border border-tibetan-brown/20 shadow-lg"
           >
             {categories.map((category) => (
               <DropdownMenuItem
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
-                className="cursor-pointer"
+                className="cursor-pointer hover:bg-tibetan-brown/10 focus:bg-tibetan-brown/20"
               >
                 {category.title}
               </DropdownMenuItem>
@@ -155,25 +154,27 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 edit-button"
+          className="h-8 w-8 edit-button hover:bg-tibetan-brown/10"
           onClick={() => setIsEditing(true)}
         >
-          <Pencil className="h-4 w-4" />
+          <Pencil className="h-4 w-4 text-tibetan-brown" />
         </Button>
         <DeleteTranslationDialog 
           onDelete={() => onDelete(translations[0].id)} 
         />
       </div>
-      <TranslationCard
-        code={code}
-        englishTitle={englishTranslation?.title}
-        tibetanTitle={tibetanTranslation?.tibetan_title}
-        originalTibetanFileName={originalTibetanTitle}
-        translationId={translations[0].id}
-        onUpdate={handleUpdate}
-        isEditing={isEditing}
-        onEditingChange={setIsEditing}
-      />
+      <div className="pt-10">
+        <TranslationCard
+          code={code}
+          englishTitle={englishTranslation?.title}
+          tibetanTitle={tibetanTranslation?.tibetan_title}
+          originalTibetanFileName={originalTibetanTitle}
+          translationId={translations[0].id}
+          onUpdate={handleUpdate}
+          isEditing={isEditing}
+          onEditingChange={setIsEditing}
+        />
+      </div>
     </Card>
   );
 };
