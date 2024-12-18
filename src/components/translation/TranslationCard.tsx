@@ -28,8 +28,8 @@ const TranslationCard = ({
 }: TranslationCardProps) => {
   const { toast } = useToast();
   
-  // Extract the full title without the code prefix for editing
-  const titleWithoutCode = englishTitle?.split(' ').slice(1).join(' ') || '';
+  // Remove the code prefix for editing, keeping the rest of the title intact
+  const fullTitleWithoutCode = englishTitle?.replace(`${code} `, '') || '';
   
   const {
     editedEnglishTitle,
@@ -37,11 +37,11 @@ const TranslationCard = ({
     setEditedEnglishTitle,
     setEditedTibetanTitle,
     resetTitles
-  } = useTitleEditor(titleWithoutCode, tibetanTitle);
+  } = useTitleEditor(fullTitleWithoutCode, tibetanTitle);
 
   const handleSave = async () => {
     try {
-      // Construct the complete title with the code prefix
+      // Add the code prefix back when saving
       const completeTitle = `${code} ${editedEnglishTitle}`;
       
       const { error } = await supabase
@@ -95,7 +95,7 @@ const TranslationCard = ({
         <>
           <h3 className="text-xl font-semibold mb-2">{code}</h3>
           <DisplayTitle
-            englishTitle={titleWithoutCode}
+            englishTitle={fullTitleWithoutCode}
             tibetanTitle={tibetanTitle}
             originalTibetanFileName={originalTibetanFileName}
           />
