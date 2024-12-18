@@ -12,50 +12,51 @@ interface TranslationViewerProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-/**
- * Type guard to check if metadata has the correct structure
- * @param metadata - The metadata object to check
- * @returns boolean indicating if the metadata has the correct structure
- */
 const hasOriginalTibetanFileName = (metadata: Translation['metadata']): metadata is { originalTibetanFileName?: string } & Record<string, unknown> => {
   if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return false;
   return 'originalTibetanFileName' in metadata;
 };
 
-/**
- * TranslationViewer Component
- * Container component that handles translation display and deletion
- * 
- * @param {Object} props - Component props
- * @param {Translation[]} props.translations - Array of translations to display
- * @param {Function} props.onDelete - Callback function to handle translation deletion
- */
 const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) => {
   const navigate = useNavigate();
   const code = translations[0]?.title.split(' ')[0];
   const [isEditing, setIsEditing] = React.useState(false);
+  const [localTranslations, setLocalTranslations] = React.useState(translations);
 
-  /**
-   * Handles click events on the translation card
-   * @param {React.MouseEvent} e - The click event object
-   */
   const handleClick = (e: React.MouseEvent) => {
-    // Prevent click event from bubbling up when clicking delete or edit buttons
     if ((e.target as HTMLElement).closest('.delete-button, .edit-button, button')) {
       e.stopPropagation();
       return;
     }
-    // Navigate to the first translation's detail page
     if (translations.length > 0) {
       navigate(`/translation/${translations[0].id}`);
     }
   };
 
-  // Find the English and Tibetan translations
-  const englishTranslation = translations.find(t => !t.tibetan_title);
-  const tibetanTranslation = translations.find(t => t.tibetan_title);
+  const handleUpdate = () => {
+    // Fetch the updated translation data
+    const fetchUpdatedTranslation = async () => {
+      const { data, error } = await supabase
+        .from('translations')
+        .select('*')
+        .eq('id', translations[0].id)
+        .single();
+        
+      if (error) {
+        console.error('Error fetching updated translation:', error);
+        return;
+      }
+      
+      if (data) {
+        setLocalTranslations([data]);
+      }
+    };
+    
+    fetchUpdatedTranslation();
+  };
 
-  // Get the original Tibetan filename from metadata if available
+  const englishTranslation = localTranslations.find(t => !t.tibetan_title);
+  const tibetanTranslation = localTranslations.find(t => t.tibetan_title);
   const originalTibetanTitle = hasOriginalTibetanFileName(tibetanTranslation?.metadata) 
     ? tibetanTranslation.metadata.originalTibetanFileName 
     : undefined;
@@ -84,7 +85,7 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
         tibetanTitle={tibetanTranslation?.tibetan_title}
         originalTibetanFileName={originalTibetanTitle}
         translationId={translations[0].id}
-        onUpdate={() => window.location.reload()}
+        onUpdate={handleUpdate}
         isEditing={isEditing}
         onEditingChange={setIsEditing}
       />
