@@ -44,7 +44,7 @@ const TranslationActions = ({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 category-button hover:bg-tibetan-brown/10"
+            className="h-8 w-8 category-button bg-[#F2FCE2] hover:bg-[#F2FCE2]/80"
           >
             <FolderDown className="h-4 w-4 text-tibetan-brown" />
           </Button>
@@ -68,7 +68,7 @@ const TranslationActions = ({
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 edit-button hover:bg-tibetan-brown/10"
+        className="h-8 w-8 edit-button bg-[#FEF7CD] hover:bg-[#FEF7CD]/80"
         onClick={() => onEditingChange(true)}
       >
         <Pencil className="h-4 w-4 text-tibetan-brown" />
