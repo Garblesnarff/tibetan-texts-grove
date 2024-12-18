@@ -13,22 +13,6 @@ interface CardTitleEditFormProps {
   onCancel: () => void;
 }
 
-/**
- * CardTitleEditForm Component
- * Form for editing translation titles
- * Handles both the main card title and PDF titles
- * 
- * @component
- * @param {Object} props - Component properties
- * @param {string} props.title - Main card title
- * @param {string} props.englishPdfTitle - English PDF title
- * @param {string} props.tibetanPdfTitle - Tibetan PDF title
- * @param {Function} props.onTitleChange - Handler for main title changes
- * @param {Function} props.onEnglishPdfTitleChange - Handler for English PDF title changes
- * @param {Function} props.onTibetanPdfTitleChange - Handler for Tibetan PDF title changes
- * @param {Function} props.onSave - Handler for save action
- * @param {Function} props.onCancel - Handler for cancel action
- */
 const CardTitleEditForm = ({
   title,
   englishPdfTitle,
@@ -40,7 +24,7 @@ const CardTitleEditForm = ({
   onCancel
 }: CardTitleEditFormProps) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-background p-4 rounded-lg">
       <EditableTitle
         value={title}
         onChange={onTitleChange}
