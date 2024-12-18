@@ -28,7 +28,7 @@ const TranslationCard = ({
 }: TranslationCardProps) => {
   const { toast } = useToast();
   
-  // Remove the code prefix for editing, keeping the rest of the title intact
+  // Remove the code prefix for editing
   const fullTitleWithoutCode = englishTitle?.replace(`${code} `, '') || '';
   
   const {
@@ -41,18 +41,31 @@ const TranslationCard = ({
 
   const handleSave = async () => {
     try {
+      console.log('Saving with values:', {
+        code,
+        editedEnglishTitle,
+        editedTibetanTitle,
+        translationId
+      });
+
       // Add the code prefix back when saving
       const completeTitle = `${code} ${editedEnglishTitle}`;
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('translations')
         .update({
           title: completeTitle,
           tibetan_title: editedTibetanTitle || null
         })
-        .eq('id', translationId);
+        .eq('id', translationId)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating translation:', error);
+        throw error;
+      }
+
+      console.log('Update response:', data);
 
       toast({
         title: "Success",
