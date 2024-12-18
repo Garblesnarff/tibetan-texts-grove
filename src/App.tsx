@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Translations from "./pages/Translations";
 import TranslationDetail from "./pages/TranslationDetail";
+import CategoryPage from "./pages/CategoryPage";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/translations" element={<Translations />} />
           <Route path="/translation/:id" element={<TranslationDetail />} />
+          <Route path="/category/:categoryId" element={<CategoryPage />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

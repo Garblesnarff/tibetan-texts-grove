@@ -1,4 +1,5 @@
 import { Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   SidebarMenuButton,
   SidebarMenuItem,
@@ -17,21 +18,23 @@ interface CategoryListItemProps {
   onDelete: (category: Category) => void;
 }
 
-/**
- * CategoryListItem Component
- * Renders a single category item in the sidebar
- * @param category - The category to display
- * @param isAdmin - Whether the current user is an admin
- * @param onDelete - Callback function when delete button is clicked
- */
 export function CategoryListItem({ 
   category, 
   isAdmin, 
   onDelete 
 }: CategoryListItemProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/category/${category.id}`);
+  };
+
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton className="w-full">
+      <SidebarMenuButton 
+        className="w-full"
+        onClick={handleClick}
+      >
         <div className="flex flex-col items-start">
           <span className="font-bold text-tibetan-maroon">
             {category.title}
