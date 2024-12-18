@@ -1,5 +1,3 @@
-import { Json } from "@/integrations/supabase/types";
-
 /**
  * Translation interface
  * Defines the structure of a translation object
@@ -18,4 +16,5 @@ export interface Translation {
   created_at?: string | null;
   updated_at?: string | null;
   created_by?: string | null;
+  category_id?: string | null;
 }

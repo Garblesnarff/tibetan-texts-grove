@@ -179,6 +179,7 @@ export type Database = {
       }
       translations: {
         Row: {
+          category_id: string | null
           created_at: string | null
           created_by: string | null
           id: string
@@ -190,6 +191,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          category_id?: string | null
           created_at?: string | null
           created_by?: string | null
           id?: string
@@ -201,6 +203,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          category_id?: string | null
           created_at?: string | null
           created_by?: string | null
           id?: string
@@ -211,7 +214,15 @@ export type Database = {
           translation_file_path?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "translations_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
