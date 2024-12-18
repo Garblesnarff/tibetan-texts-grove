@@ -6,6 +6,17 @@ interface DisplayTitleProps {
   originalTibetanFileName?: string;
 }
 
+/**
+ * DisplayTitle Component
+ * Renders the translation titles in display mode
+ * Handles both English and Tibetan titles with proper formatting
+ * 
+ * @component
+ * @param {Object} props - Component properties
+ * @param {string} [props.englishTitle] - English title to display
+ * @param {string} [props.tibetanTitle] - Tibetan title to display
+ * @param {string} [props.originalTibetanFileName] - Original Tibetan filename
+ */
 const DisplayTitle = ({ 
   englishTitle, 
   tibetanTitle, 

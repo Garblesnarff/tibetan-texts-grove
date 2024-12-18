@@ -1,9 +1,8 @@
 import React from "react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import DisplayTitle from "./DisplayTitle";
 import CardTitleEditForm from "./CardTitleEditForm";
 import { useTitleEditor } from "@/hooks/useTitleEditor";
+import { useTranslationSave } from "@/hooks/useTranslationSave";
 
 interface TranslationCardProps {
   code: string;
@@ -16,6 +15,22 @@ interface TranslationCardProps {
   onEditingChange: (isEditing: boolean) => void;
 }
 
+/**
+ * TranslationCard Component
+ * Displays and manages the editing of translation titles
+ * Handles both display and edit modes for translation metadata
+ * 
+ * @component
+ * @param {Object} props - Component properties
+ * @param {string} props.code - Translation code identifier
+ * @param {string} [props.englishTitle] - English title of the translation
+ * @param {string} [props.tibetanTitle] - Tibetan title of the translation
+ * @param {string} [props.originalTibetanFileName] - Original Tibetan filename
+ * @param {string} props.translationId - Unique identifier for the translation
+ * @param {Function} [props.onUpdate] - Callback after successful update
+ * @param {boolean} props.isEditing - Whether the card is in edit mode
+ * @param {Function} props.onEditingChange - Handler for edit mode changes
+ */
 const TranslationCard = ({ 
   code, 
   englishTitle, 
@@ -26,8 +41,6 @@ const TranslationCard = ({
   isEditing,
   onEditingChange
 }: TranslationCardProps) => {
-  const { toast } = useToast();
-  
   const {
     editedEnglishTitle,
     editedTibetanTitle,
@@ -36,52 +49,14 @@ const TranslationCard = ({
     resetTitles
   } = useTitleEditor(englishTitle || '', tibetanTitle || '');
 
-  const handleSave = async () => {
-    try {
-      console.log('Saving with values:', {
-        editedEnglishTitle,
-        editedTibetanTitle,
-        translationId
-      });
-      
-      const { data, error } = await supabase
-        .from('translations')
-        .update({
-          title: editedEnglishTitle,
-          tibetan_title: editedTibetanTitle || null,
-          metadata: {
-            originalFileName: editedEnglishTitle,
-            originalTibetanFileName: editedTibetanTitle || null
-          }
-        })
-        .eq('id', translationId)
-        .select();
+  const { handleSave } = useTranslationSave({
+    translationId,
+    onUpdate,
+    onEditingChange
+  });
 
-      if (error) {
-        console.error('Error updating translation:', error);
-        throw error;
-      }
-
-      console.log('Update response:', data);
-
-      toast({
-        title: "Success",
-        description: "Translation titles updated successfully",
-      });
-      
-      onEditingChange(false);
-      
-      if (onUpdate) {
-        onUpdate();
-      }
-    } catch (error: any) {
-      console.error('Error updating translation:', error);
-      toast({
-        variant: "destructive",
-        title: "Error updating translation",
-        description: error.message
-      });
-    }
+  const handleSaveClick = () => {
+    handleSave(editedEnglishTitle, editedTibetanTitle);
   };
 
   const handleCancel = () => {
@@ -99,17 +74,15 @@ const TranslationCard = ({
           onTitleChange={setEditedEnglishTitle}
           onEnglishPdfTitleChange={setEditedEnglishTitle}
           onTibetanPdfTitleChange={setEditedTibetanTitle}
-          onSave={handleSave}
+          onSave={handleSaveClick}
           onCancel={handleCancel}
         />
       ) : (
-        <>
-          <DisplayTitle
-            englishTitle={editedEnglishTitle || englishTitle}
-            tibetanTitle={tibetanTitle}
-            originalTibetanFileName={originalTibetanFileName}
-          />
-        </>
+        <DisplayTitle
+          englishTitle={editedEnglishTitle || englishTitle}
+          tibetanTitle={tibetanTitle}
+          originalTibetanFileName={originalTibetanFileName}
+        />
       )}
     </div>
   );
