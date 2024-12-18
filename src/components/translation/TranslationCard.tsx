@@ -28,8 +28,8 @@ const TranslationCard = ({
 }: TranslationCardProps) => {
   const { toast } = useToast();
   
-  // Extract the title without the code prefix for editing
-  const titleWithoutCode = englishTitle?.replace(`${code} `, '').trim() || '';
+  // Extract the full title without the code prefix for editing
+  const titleWithoutCode = englishTitle?.split(' ').slice(1).join(' ') || '';
   
   const {
     editedEnglishTitle,
@@ -41,7 +41,7 @@ const TranslationCard = ({
 
   const handleSave = async () => {
     try {
-      // Add the code prefix back when saving
+      // Construct the complete title with the code prefix
       const completeTitle = `${code} ${editedEnglishTitle}`;
       
       const { error } = await supabase
