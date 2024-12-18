@@ -22,7 +22,7 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
   const navigate = useNavigate();
   const code = translations[0]?.title.split(' ')[0];
   const [isEditing, setIsEditing] = React.useState(false);
-  const [localTranslations, setLocalTranslations] = React.useState(translations);
+  const [currentTranslation, setCurrentTranslation] = React.useState(translations[0]);
 
   const handleClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.delete-button, .edit-button, button')) {
@@ -34,9 +34,8 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
     }
   };
 
-  const handleUpdate = () => {
-    // Fetch the updated translation data
-    const fetchUpdatedTranslation = async () => {
+  const handleUpdate = async () => {
+    try {
       const { data, error } = await supabase
         .from('translations')
         .select('*')
@@ -49,15 +48,16 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
       }
       
       if (data) {
-        setLocalTranslations([data]);
+        console.log('Updated translation data:', data);
+        setCurrentTranslation(data);
       }
-    };
-    
-    fetchUpdatedTranslation();
+    } catch (err) {
+      console.error('Error in handleUpdate:', err);
+    }
   };
 
-  const englishTranslation = localTranslations.find(t => !t.tibetan_title);
-  const tibetanTranslation = localTranslations.find(t => t.tibetan_title);
+  const englishTranslation = currentTranslation;
+  const tibetanTranslation = currentTranslation;
   const originalTibetanTitle = hasOriginalTibetanFileName(tibetanTranslation?.metadata) 
     ? tibetanTranslation.metadata.originalTibetanFileName 
     : undefined;
