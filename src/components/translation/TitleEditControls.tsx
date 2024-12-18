@@ -23,7 +23,7 @@ interface TitleEditControlsProps {
  */
 const TitleEditControls = ({ onSave, onCancel }: TitleEditControlsProps) => {
   return (
-    <div className="absolute top-0 right-0 space-x-2 bg-white p-2 rounded-md shadow-sm">
+    <div className="absolute top-2 right-2 space-x-2 bg-white p-2 rounded-md shadow-sm">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
