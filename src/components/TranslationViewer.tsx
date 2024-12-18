@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { Translation } from "@/types/translation";
+import { supabase } from "@/integrations/supabase/client";
 import DeleteTranslationDialog from "./translation/DeleteTranslationDialog";
 import TranslationCard from "./translation/TranslationCard";
 
