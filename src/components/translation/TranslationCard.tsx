@@ -2,7 +2,7 @@ import React from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import DisplayTitle from "./DisplayTitle";
-import TitleEditForm from "./TitleEditForm";
+import CardTitleEditForm from "./CardTitleEditForm";
 import { useTitleEditor } from "@/hooks/useTitleEditor";
 
 interface TranslationCardProps {
@@ -92,18 +92,18 @@ const TranslationCard = ({
   return (
     <div className={`mb-6 relative ${isEditing ? 'bg-gray-50 p-4 rounded-lg border' : ''}`}>
       {isEditing ? (
-        <TitleEditForm
-          code={code}
-          editedEnglishTitle={editedEnglishTitle}
-          editedTibetanTitle={editedTibetanTitle}
-          onEnglishTitleChange={setEditedEnglishTitle}
-          onTibetanTitleChange={setEditedTibetanTitle}
+        <CardTitleEditForm
+          title={editedEnglishTitle}
+          englishPdfTitle={editedEnglishTitle}
+          tibetanPdfTitle={editedTibetanTitle}
+          onTitleChange={setEditedEnglishTitle}
+          onEnglishPdfTitleChange={setEditedEnglishTitle}
+          onTibetanPdfTitleChange={setEditedTibetanTitle}
           onSave={handleSave}
           onCancel={handleCancel}
         />
       ) : (
         <>
-          <h3 className="text-xl font-semibold mb-2">{code}</h3>
           <DisplayTitle
             englishTitle={editedEnglishTitle || englishTitle}
             tibetanTitle={tibetanTitle}
