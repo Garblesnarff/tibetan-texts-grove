@@ -40,17 +40,17 @@ const TranslationCard = ({
 }: TranslationCardProps) => {
   const { toast } = useToast();
   
-  // Remove the code prefix and any leading/trailing whitespace for editing
-  const fullEnglishTitle = englishTitle?.split(' ').slice(1).join(' ').trim() || '';
+  // Get the title without the code prefix for editing
+  const titleWithoutCode = englishTitle?.replace(`${code} `, '') || '';
   
-  // Initialize title editor hook with the full title
+  // Initialize title editor hook with the title (without code)
   const {
     editedEnglishTitle,
     editedTibetanTitle,
     setEditedEnglishTitle,
     setEditedTibetanTitle,
     resetTitles
-  } = useTitleEditor(fullEnglishTitle, tibetanTitle);
+  } = useTitleEditor(titleWithoutCode, tibetanTitle);
 
   /**
    * Handles saving the edited translation titles
@@ -58,8 +58,8 @@ const TranslationCard = ({
    */
   const handleSave = async () => {
     try {
-      // Combine the code prefix with the full edited title
-      const completeTitle = `${code} ${editedEnglishTitle}`.trim();
+      // Add the code prefix back when saving to database
+      const completeTitle = `${code} ${editedEnglishTitle}`;
       
       const { error } = await supabase
         .from('translations')
@@ -117,7 +117,7 @@ const TranslationCard = ({
         <>
           <h3 className="text-xl font-semibold mb-2">{code}</h3>
           <DisplayTitle
-            englishTitle={fullEnglishTitle}
+            englishTitle={titleWithoutCode}
             tibetanTitle={tibetanTitle}
             originalTibetanFileName={originalTibetanFileName}
           />
