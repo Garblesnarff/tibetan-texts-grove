@@ -113,7 +113,7 @@ export function CategorySidebar() {
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
-              {isAdmin && <CategoryManager />}
+              {isAdmin && <CategoryManager onCategoryChange={fetchCategories} />}
             </ScrollArea>
           </SidebarGroupContent>
         </SidebarGroup>

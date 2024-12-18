@@ -25,7 +25,11 @@ interface EditingCategory extends Category {
   isNew?: boolean;
 }
 
-export function CategoryManager() {
+interface CategoryManagerProps {
+  onCategoryChange: () => void;
+}
+
+export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
   const [editingCategory, setEditingCategory] = useState<EditingCategory | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
   const { toast } = useToast();
@@ -61,6 +65,9 @@ export function CategoryManager() {
           title: "Success",
           description: "Category added successfully"
         });
+        
+        // Trigger refresh of categories
+        onCategoryChange();
       } else {
         const { error } = await supabase
           .from('categories')
@@ -76,6 +83,9 @@ export function CategoryManager() {
           title: "Success",
           description: "Category updated successfully"
         });
+        
+        // Trigger refresh of categories
+        onCategoryChange();
       }
       setEditingCategory(null);
     } catch (error: any) {
@@ -107,6 +117,8 @@ export function CategoryManager() {
         description: "Category deleted successfully"
       });
       
+      // Trigger refresh of categories
+      onCategoryChange();
       setCategoryToDelete(null);
     } catch (error: any) {
       toast({
