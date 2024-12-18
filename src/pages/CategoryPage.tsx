@@ -17,20 +17,16 @@ export default function CategoryPage() {
 
   const fetchCategoryTranslations = async () => {
     try {
-      const { data: categoryData, error: categoryError } = await supabase
-        .from('categories')
-        .select('title')
-        .eq('id', categoryId)
-        .single();
-
-      if (categoryError) throw categoryError;
-
+      console.log('Fetching translations for category:', categoryId);
+      
       const { data: translationsData, error: translationsError } = await supabase
         .from('translations')
         .select('*')
-        .contains('metadata', { categories: [categoryData.title] });
+        .eq('category_id', categoryId);
 
       if (translationsError) throw translationsError;
+
+      console.log('Fetched translations:', translationsData);
 
       // Group translations by their code (first word of title)
       const grouped = translationsData.reduce((acc: GroupedTranslation[], translation: Translation) => {
@@ -51,6 +47,7 @@ export default function CategoryPage() {
 
       setTranslations(grouped);
     } catch (error: any) {
+      console.error('Error fetching translations:', error);
       toast({
         variant: "destructive",
         title: "Error fetching translations",
