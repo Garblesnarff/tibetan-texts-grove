@@ -8,11 +8,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuAction,
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CategoryManager } from "./CategoryManager";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Trash2 } from "lucide-react";
 
 interface Category {
   id: string;
@@ -53,6 +55,31 @@ export function CategorySidebar() {
     setIsAdmin(user?.email === 'wonky.coin@gmail.com');
   };
 
+  const handleDelete = async (category: Category) => {
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', category.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Category deleted successfully"
+      });
+      
+      // Refresh categories after deletion
+      fetchCategories();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error deleting category",
+        description: error.message
+      });
+    }
+  };
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -75,6 +102,14 @@ export function CategorySidebar() {
                         </span>
                       </div>
                     </SidebarMenuButton>
+                    {isAdmin && (
+                      <SidebarMenuAction
+                        onClick={() => handleDelete(category)}
+                        className="hover:bg-destructive hover:text-destructive-foreground"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </SidebarMenuAction>
+                    )}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>

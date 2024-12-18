@@ -4,6 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Category {
   id: string;
@@ -17,6 +27,7 @@ interface EditingCategory extends Category {
 
 export function CategoryManager() {
   const [editingCategory, setEditingCategory] = useState<EditingCategory | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
   const { toast } = useToast();
 
   const handleEdit = (category: Category) => {
@@ -76,12 +87,18 @@ export function CategoryManager() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (category: Category) => {
+    setCategoryToDelete(category);
+  };
+
+  const confirmDelete = async () => {
+    if (!categoryToDelete) return;
+
     try {
       const { error } = await supabase
         .from('categories')
         .delete()
-        .eq('id', id);
+        .eq('id', categoryToDelete.id);
 
       if (error) throw error;
 
@@ -89,6 +106,8 @@ export function CategoryManager() {
         title: "Success",
         description: "Category deleted successfully"
       });
+      
+      setCategoryToDelete(null);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -142,6 +161,22 @@ export function CategoryManager() {
           </div>
         </div>
       )}
+
+      <AlertDialog open={!!categoryToDelete} onOpenChange={() => setCategoryToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the category
+              "{categoryToDelete?.title}".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
