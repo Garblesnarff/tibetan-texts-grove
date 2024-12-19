@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
@@ -24,43 +24,21 @@ export function AdminUpload() {
     handleSubmit,
     sourceFile,
     translationFile,
-    navigate,
     toast
   } = useFileUpload();
 
   /**
    * Verifies if the current user has admin privileges
-   * Redirects to login if not authenticated or lacks admin rights
    */
   const checkAdminStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Access Denied",
-        description: "Please log in first."
-      });
-      navigate('/login');
-      return;
-    }
-    
     // Set admin status based on email
-    const isAdminUser = user.email === 'wonky.coin@gmail.com';
-    setIsAdmin(isAdminUser);
-    
-    if (!isAdminUser) {
-      toast({
-        variant: "destructive",
-        title: "Access Denied",
-        description: "You don't have admin privileges."
-      });
-      navigate('/login');
-    }
+    setIsAdmin(user?.email === 'wonky.coin@gmail.com');
   };
 
-  useEffect(() => {
+  useState(() => {
     checkAdminStatus();
-  }, []);
+  });
 
   if (!isAdmin) {
     return null;
