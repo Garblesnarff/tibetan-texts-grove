@@ -1,20 +1,10 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { CategoryEditForm } from "./CategoryEditForm";
+import { CategoryAddButton } from "./category/CategoryAddButton";
+import { CategoryDeleteDialog } from "./category/CategoryDeleteDialog";
 
 interface Category {
   id: string;
@@ -34,7 +24,10 @@ interface CategoryManagerProps {
  * CategoryManager Component
  * Manages the creation, editing, and deletion of categories
  * Only visible to admin users
- * @param onCategoryChange - Callback function to refresh the category list
+ * 
+ * @component
+ * @param {Object} props - Component properties
+ * @param {Function} props.onCategoryChange - Callback function to refresh the category list
  */
 export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
   const { isAdmin } = useAuth();
@@ -68,7 +61,6 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
 
     try {
       if (editingCategory.isNew) {
-        // Handle new category creation
         const { error } = await supabase
           .from('categories')
           .insert([{
@@ -83,7 +75,6 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
           description: "Category added successfully"
         });
       } else {
-        // Handle category update
         const { error } = await supabase
           .from('categories')
           .update({
@@ -100,7 +91,6 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
         });
       }
       
-      // Refresh category list and reset form
       onCategoryChange();
       setEditingCategory(null);
     } catch (error: any) {
@@ -110,13 +100,6 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
         description: error.message
       });
     }
-  };
-
-  /**
-   * Opens the delete confirmation dialog
-   */
-  const handleDelete = async (category: Category) => {
-    setCategoryToDelete(category);
   };
 
   /**
@@ -138,7 +121,6 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
         description: "Category deleted successfully"
       });
       
-      // Refresh category list and close dialog
       onCategoryChange();
       setCategoryToDelete(null);
     } catch (error: any) {
@@ -152,15 +134,7 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
 
   return (
     <div className="mt-4 space-y-2">
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="w-full"
-        onClick={handleAdd}
-      >
-        <Plus className="mr-2 h-4 w-4" />
-        Add Category
-      </Button>
+      <CategoryAddButton onClick={handleAdd} />
       
       {editingCategory && (
         <CategoryEditForm
@@ -171,21 +145,11 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
         />
       )}
 
-      <AlertDialog open={!!categoryToDelete} onOpenChange={() => setCategoryToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the category
-              "{categoryToDelete?.title}".
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <CategoryDeleteDialog
+        category={categoryToDelete}
+        onClose={() => setCategoryToDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
