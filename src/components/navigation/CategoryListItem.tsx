@@ -1,5 +1,6 @@
 import { Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import {
   SidebarMenuButton,
   SidebarMenuItem,
@@ -24,6 +25,7 @@ export function CategoryListItem({
   onDelete 
 }: CategoryListItemProps) {
   const navigate = useNavigate();
+  const { isAdmin: isCurrentUserAdmin } = useAuth();
 
   const handleClick = () => {
     navigate(`/category/${category.id}`);
@@ -44,7 +46,7 @@ export function CategoryListItem({
           </span>
         </div>
       </SidebarMenuButton>
-      {isAdmin && (
+      {isCurrentUserAdmin && (
         <SidebarMenuAction
           onClick={() => onDelete(category)}
           className="hover:bg-destructive hover:text-destructive-foreground"

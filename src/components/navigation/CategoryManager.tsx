@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,10 +37,15 @@ interface CategoryManagerProps {
  * @param onCategoryChange - Callback function to refresh the category list
  */
 export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
-  // State management for editing and deletion
+  const { isAdmin } = useAuth();
   const [editingCategory, setEditingCategory] = useState<EditingCategory | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
   const { toast } = useToast();
+
+  // If user is not admin, don't render anything
+  if (!isAdmin) {
+    return null;
+  }
 
   /**
    * Initializes the form for adding a new category

@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import DeleteTranslationDialog from "./DeleteTranslationDialog";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Category {
   id: string;
@@ -24,6 +25,7 @@ interface TranslationActionsProps {
 /**
  * TranslationActions Component
  * Renders the action buttons (category dropdown, edit, delete) for a translation card
+ * Only shows admin actions if the user is an admin
  * 
  * @param {Object} props - Component properties
  * @param {Category[]} props.categories - Available categories for the dropdown
@@ -37,6 +39,13 @@ const TranslationActions = ({
   onDelete,
   onEditingChange,
 }: TranslationActionsProps) => {
+  const { isAdmin } = useAuth();
+
+  // If user is not admin, don't render any actions
+  if (!isAdmin) {
+    return null;
+  }
+
   return (
     <div className="absolute top-2 right-2 z-50 flex gap-2">
       <DropdownMenu>
