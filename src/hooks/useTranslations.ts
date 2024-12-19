@@ -7,6 +7,7 @@ import { groupTranslations } from "@/utils/translationUtils";
 
 /**
  * Custom hook for managing translations data and operations
+ * Only returns uncategorized translations for the main page
  * @returns {Object} Object containing translations data and management functions
  */
 export const useTranslations = () => {
@@ -15,7 +16,7 @@ export const useTranslations = () => {
   const { toast } = useToast();
 
   /**
-   * Fetches all translations from the database and groups them
+   * Fetches uncategorized translations from the database and groups them
    * @returns {Promise<void>}
    */
   const fetchTranslations = useCallback(async () => {
@@ -23,6 +24,7 @@ export const useTranslations = () => {
       const { data, error } = await supabase
         .from('translations')
         .select('*')
+        .is('category_id', null)  // Only fetch translations without a category
         .order('created_at', { ascending: false });
 
       if (error) throw error;
