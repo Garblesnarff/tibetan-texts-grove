@@ -44,9 +44,9 @@ const TranslationActions = ({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 category-button bg-[#F2FCE2] hover:bg-[#F2FCE2]/80"
+            className="h-8 w-8 category-button bg-[#0EA5E9] hover:bg-[#0EA5E9]/80"
           >
-            <FolderDown className="h-4 w-4 text-tibetan-brown" />
+            <FolderDown className="h-4 w-4 text-white" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
@@ -68,10 +68,10 @@ const TranslationActions = ({
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 edit-button bg-[#FEF7CD] hover:bg-[#FEF7CD]/80"
+        className="h-8 w-8 edit-button bg-[#F97316] hover:bg-[#F97316]/80"
         onClick={() => onEditingChange(true)}
       >
-        <Pencil className="h-4 w-4 text-tibetan-brown" />
+        <Pencil className="h-4 w-4 text-white" />
       </Button>
       
       <DeleteTranslationDialog onDelete={onDelete} />
