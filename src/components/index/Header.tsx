@@ -22,7 +22,7 @@ export function Header() {
       </h2>
       <p className="mb-8 max-w-2xl mx-auto text-muted-foreground">
         A curated collection of Buddhist texts translated from Tibetan to English,
-        preserving the wisdom and insights of the Tibetan Buddhist tradition.
+        preserving the wisdom and insights of the Tibetan Buddhist tradition. -As translated by Google Gemini
       </p>
       <AdminUpload />
     </div>
