@@ -4,21 +4,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 
-/**
- * Custom hook for managing translations within a category
- * @param categoryId - UUID of the category to fetch translations for
- * @returns Object containing translations data and loading state
- */
 export const useCategoryTranslations = (categoryId: string | undefined) => {
   const [translations, setTranslations] = useState<GroupedTranslation[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  /**
-   * Groups translations by their code (first word of title)
-   * @param translationsData - Array of translations to group
-   * @returns Array of grouped translations
-   */
   const groupTranslations = (translationsData: Translation[]): GroupedTranslation[] => {
     return translationsData.reduce((acc: GroupedTranslation[], translation: Translation) => {
       const code = translation.title.split(' ')[0];
@@ -37,9 +27,6 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
     }, []);
   };
 
-  /**
-   * Fetches translations for the specified category
-   */
   const fetchCategoryTranslations = async () => {
     try {
       if (!categoryId) {
@@ -57,7 +44,11 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
         .order('created_at', { ascending: false });
 
       if (translationsError) {
-        console.error('Supabase error:', translationsError);
+        console.error('Supabase error details:', {
+          message: translationsError.message,
+          details: translationsError.details,
+          hint: translationsError.hint
+        });
         throw translationsError;
       }
 
@@ -72,7 +63,12 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
       const groupedData = groupTranslations(translationsData);
       setTranslations(groupedData);
     } catch (error: any) {
-      console.error('Error fetching translations:', error);
+      console.error('Error fetching translations:', {
+        error,
+        categoryId,
+        message: error.message,
+        details: error.details
+      });
       toast({
         variant: "destructive",
         title: "Error fetching translations",
@@ -84,10 +80,6 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
     }
   };
 
-  /**
-   * Handles deletion of a translation
-   * @param id - UUID of the translation to delete
-   */
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
