@@ -56,7 +56,16 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
         .eq('category_id', categoryId)
         .order('created_at', { ascending: false });
 
-      if (translationsError) throw translationsError;
+      if (translationsError) {
+        console.error('Supabase error:', translationsError);
+        throw translationsError;
+      }
+
+      if (!translationsData) {
+        console.log('No translations found for category:', categoryId);
+        setTranslations([]);
+        return;
+      }
 
       console.log('Fetched translations:', translationsData);
       
@@ -67,8 +76,9 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
       toast({
         variant: "destructive",
         title: "Error fetching translations",
-        description: error.message
+        description: error.message || "Failed to fetch translations"
       });
+      setTranslations([]);
     } finally {
       setLoading(false);
     }
@@ -94,10 +104,11 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
 
       fetchCategoryTranslations();
     } catch (error: any) {
+      console.error('Error deleting translation:', error);
       toast({
         variant: "destructive",
         title: "Error deleting translation",
-        description: error.message
+        description: error.message || "Failed to delete translation"
       });
     }
   };
