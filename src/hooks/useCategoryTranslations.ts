@@ -48,8 +48,7 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
         console.error('Supabase error details:', {
           message: translationsError.message,
           details: translationsError.details,
-          hint: translationsError.hint,
-          status: translationsError.status
+          hint: translationsError.hint
         });
         throw translationsError;
       }
@@ -69,8 +68,7 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
         error,
         categoryId,
         message: error.message,
-        details: error.details,
-        status: error?.status
+        details: error.details
       });
       toast({
         variant: "destructive",
