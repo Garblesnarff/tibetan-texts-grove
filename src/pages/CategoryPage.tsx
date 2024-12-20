@@ -8,10 +8,10 @@ import { useCategoryTranslations } from "@/hooks/useCategoryTranslations";
 
 /**
  * CategoryPage Component
- * Displays all translations within a specific category
+ * Displays translations filtered by category with a sidebar navigation
  * 
  * @component
- * @returns {JSX.Element} The rendered category page with all translations in the category
+ * @returns {JSX.Element} The rendered category page
  */
 const CategoryPage = () => {
   // Get category ID from URL parameters
@@ -27,9 +27,8 @@ const CategoryPage = () => {
 
   // Fetch translations when category ID changes
   useEffect(() => {
-    console.log('Fetching translations for category:', categoryId);
     fetchCategoryTranslations();
-  }, [categoryId, fetchCategoryTranslations]);
+  }, [categoryId]);
 
   return (
     <SidebarProvider>
@@ -38,9 +37,6 @@ const CategoryPage = () => {
         <main className="flex-1 px-4 py-8">
           <div className="container mx-auto">
             <Header />
-            <h2 className="text-2xl font-bold text-tibetan-brown mb-6">
-              Category Translations
-            </h2>
             <TranslationsGrid 
               translations={translations}
               onDelete={handleDelete}
