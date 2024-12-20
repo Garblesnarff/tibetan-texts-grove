@@ -42,12 +42,19 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
    */
   const fetchCategoryTranslations = async () => {
     try {
+      if (!categoryId) {
+        console.log('No category ID provided');
+        setLoading(false);
+        return;
+      }
+
       console.log('Fetching translations for category:', categoryId);
       
       const { data: translationsData, error: translationsError } = await supabase
         .from('translations')
         .select('*')
-        .eq('category_id', categoryId);
+        .eq('category_id', categoryId)
+        .order('created_at', { ascending: false });
 
       if (translationsError) throw translationsError;
 
