@@ -8,10 +8,16 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce'
   },
   global: {
     headers: {
       'Content-Type': 'application/json',
-    },
+      'Accept': 'application/json'
+    }
   },
+  db: {
+    schema: 'public'
+  }
 });

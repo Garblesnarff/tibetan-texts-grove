@@ -41,13 +41,15 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
         .from('translations')
         .select('*')
         .eq('category_id', categoryId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .throwOnError();
 
       if (translationsError) {
         console.error('Supabase error details:', {
           message: translationsError.message,
           details: translationsError.details,
-          hint: translationsError.hint
+          hint: translationsError.hint,
+          status: translationsError.status
         });
         throw translationsError;
       }
@@ -58,7 +60,7 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
         return;
       }
 
-      console.log('Fetched translations:', translationsData);
+      console.log('Successfully fetched translations:', translationsData);
       
       const groupedData = groupTranslations(translationsData);
       setTranslations(groupedData);
@@ -67,7 +69,8 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
         error,
         categoryId,
         message: error.message,
-        details: error.details
+        details: error.details,
+        status: error?.status
       });
       toast({
         variant: "destructive",
@@ -85,7 +88,8 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
       const { error } = await supabase
         .from('translations')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .throwOnError();
 
       if (error) throw error;
 
