@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Header } from "@/components/index/Header";
 import { TranslationsGrid } from "@/components/index/TranslationsGrid";
-import { CategorySidebar } from "@/components/navigation/CategorySidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { useCategoryTranslations } from "@/hooks/useCategoryTranslations";
 
 /**
@@ -31,21 +28,11 @@ const CategoryPage = () => {
   }, [categoryId]);
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-amber-50 to-orange-100">
-        <CategorySidebar />
-        <main className="flex-1 px-4 py-8">
-          <div className="container mx-auto">
-            <Header />
-            <TranslationsGrid 
-              translations={translations}
-              onDelete={handleDelete}
-              isLoading={loading}
-            />
-          </div>
-        </main>
-      </div>
-    </SidebarProvider>
+    <TranslationsGrid 
+      translations={translations}
+      onDelete={handleDelete}
+      isLoading={loading}
+    />
   );
 };
 
