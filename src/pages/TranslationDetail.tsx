@@ -9,19 +9,10 @@ import ErrorView from "@/components/translation-detail/ErrorView";
 
 const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
 
-/**
- * TranslationDetail Page Component
- * Displays detailed information about a specific translation, including PDF viewers
- * for both the source and translated documents
- */
 export default function TranslationDetail() {
   const { id } = useParams();
   const { toast } = useToast();
 
-  /**
-   * Fetches translation data from Supabase
-   * Handles error cases and displays appropriate notifications
-   */
   const { data: translation, isLoading, error } = useQuery({
     queryKey: ['translation', id],
     queryFn: async () => {
@@ -29,14 +20,17 @@ export default function TranslationDetail() {
         .from('translations')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          throw new Error('Translation not found');
-        }
+        console.error('Error fetching translation:', error);
         throw error;
       }
+      
+      if (!data) {
+        throw new Error('Translation not found');
+      }
+      
       return data;
     },
     meta: {
