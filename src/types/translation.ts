@@ -19,4 +19,5 @@ export interface Translation {
   updated_at?: string | null;
   created_by?: string | null;
   category_id?: string | null;
+  description?: string | null;
 }
