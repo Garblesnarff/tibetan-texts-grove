@@ -1,29 +1,30 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
 import { Translation } from "@/types/translation";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import TranslationCard from "./translation/TranslationCard";
 import TranslationActions from "./translation/TranslationActions";
-import { useToast } from "@/hooks/use-toast";
+import { ViewerContainer } from "./translation/viewer/ViewerContainer";
+import { TranslationMetadata } from "./translation/viewer/TranslationMetadata";
+import { useTranslationState } from "./translation/viewer/useTranslationState";
 
 interface TranslationViewerProps {
   translations: Translation[];
   onDelete: (id: string) => Promise<void>;
 }
 
-const hasOriginalTibetanFileName = (metadata: Translation['metadata']): metadata is { originalTibetanFileName?: string } & Record<string, unknown> => {
-  if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return false;
-  return 'originalTibetanFileName' in metadata;
-};
-
 const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) => {
   const navigate = useNavigate();
-  const code = translations[0]?.title.split(' ')[0];
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [currentTranslation, setCurrentTranslation] = React.useState(translations[0]);
-  const [categories, setCategories] = React.useState<Array<{ id: string; title: string }>>([]);
   const { toast } = useToast();
+  const [categories, setCategories] = React.useState<Array<{ id: string; title: string }>>([]);
+  
+  const {
+    currentTranslation,
+    isEditing,
+    setIsEditing,
+    handleUpdate
+  } = useTranslationState(translations[0]);
 
   React.useEffect(() => {
     const fetchCategories = async () => {
@@ -54,27 +55,6 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
     }
   };
 
-  const handleUpdate = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('translations')
-        .select('*')
-        .eq('id', translations[0].id)
-        .single();
-        
-      if (error) {
-        console.error('Error fetching updated translation:', error);
-        return;
-      }
-      
-      if (data) {
-        setCurrentTranslation(data);
-      }
-    } catch (err) {
-      console.error('Error in handleUpdate:', err);
-    }
-  };
-
   const handleCategoryChange = async (categoryId: string) => {
     try {
       const { error } = await supabase
@@ -100,17 +80,8 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
     }
   };
 
-  const englishTranslation = currentTranslation;
-  const tibetanTranslation = currentTranslation;
-  const originalTibetanTitle = hasOriginalTibetanFileName(tibetanTranslation?.metadata) 
-    ? tibetanTranslation.metadata.originalTibetanFileName 
-    : undefined;
-
   return (
-    <Card 
-      className="p-6 hover:shadow-lg transition-shadow relative min-h-[200px]" 
-      onClick={handleClick}
-    >
+    <ViewerContainer onClick={handleClick}>
       <TranslationActions
         categories={categories}
         onCategoryChange={handleCategoryChange}
@@ -118,19 +89,26 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
         onEditingChange={setIsEditing}
       />
       <div className="pt-10">
+        <TranslationMetadata translation={currentTranslation} />
         <TranslationCard
-          code={code}
-          englishTitle={englishTranslation?.title}
-          tibetanTitle={tibetanTranslation?.tibetan_title}
-          originalTibetanFileName={originalTibetanTitle}
-          description={englishTranslation?.description}
+          code={currentTranslation.title.split(' ')[0]}
+          englishTitle={currentTranslation.title}
+          tibetanTitle={currentTranslation.tibetan_title}
+          originalTibetanFileName={
+            currentTranslation.metadata && 
+            typeof currentTranslation.metadata === 'object' && 
+            'originalTibetanFileName' in currentTranslation.metadata
+              ? (currentTranslation.metadata as { originalTibetanFileName?: string }).originalTibetanFileName
+              : undefined
+          }
+          description={currentTranslation.description}
           translationId={translations[0].id}
           onUpdate={handleUpdate}
           isEditing={isEditing}
           onEditingChange={setIsEditing}
         />
       </div>
-    </Card>
+    </ViewerContainer>
   );
 };
 
