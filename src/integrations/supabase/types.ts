@@ -11,43 +11,55 @@ export type Database = {
     Tables: {
       campaigns: {
         Row: {
+          atmosphere: string | null
           campaign_length: string | null
           created_at: string | null
           description: string | null
           difficulty_level: string | null
+          era: string | null
           genre: string | null
           id: string
+          location: string | null
           name: string
           setting_details: Json | null
           status: string | null
+          thematic_elements: Json | null
           tone: string | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
+          atmosphere?: string | null
           campaign_length?: string | null
           created_at?: string | null
           description?: string | null
           difficulty_level?: string | null
+          era?: string | null
           genre?: string | null
           id?: string
+          location?: string | null
           name: string
           setting_details?: Json | null
           status?: string | null
+          thematic_elements?: Json | null
           tone?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
+          atmosphere?: string | null
           campaign_length?: string | null
           created_at?: string | null
           description?: string | null
           difficulty_level?: string | null
+          era?: string | null
           genre?: string | null
           id?: string
+          location?: string | null
           name?: string
           setting_details?: Json | null
           status?: string | null
+          thematic_elements?: Json | null
           tone?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -528,6 +540,7 @@ export type Database = {
       }
       memories: {
         Row: {
+          category: string | null
           content: string
           created_at: string | null
           embedding: string | null
@@ -539,6 +552,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          category?: string | null
           content: string
           created_at?: string | null
           embedding?: string | null
@@ -550,6 +564,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          category?: string | null
           content?: string
           created_at?: string | null
           embedding?: string | null
@@ -786,6 +801,7 @@ export type Database = {
           category_id: string | null
           created_at: string | null
           created_by: string | null
+          description: string | null
           id: string
           metadata: Json | null
           source_file_path: string | null
@@ -798,6 +814,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          description?: string | null
           id?: string
           metadata?: Json | null
           source_file_path?: string | null
@@ -810,6 +827,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          description?: string | null
           id?: string
           metadata?: Json | null
           source_file_path?: string | null

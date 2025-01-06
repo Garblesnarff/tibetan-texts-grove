@@ -12,23 +12,11 @@ interface TranslationViewerProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-/**
- * Type guard to check if metadata contains originalTibetanFileName
- */
 const hasOriginalTibetanFileName = (metadata: Translation['metadata']): metadata is { originalTibetanFileName?: string } & Record<string, unknown> => {
   if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return false;
   return 'originalTibetanFileName' in metadata;
 };
 
-/**
- * TranslationViewer Component
- * Displays a single translation card with editing capabilities and category management
- * 
- * @component
- * @param {Object} props - Component properties
- * @param {Translation[]} props.translations - Array of translations (currently only uses first item)
- * @param {Function} props.onDelete - Callback function for translation deletion
- */
 const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) => {
   const navigate = useNavigate();
   const code = translations[0]?.title.split(' ')[0];
@@ -37,9 +25,6 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
   const [categories, setCategories] = React.useState<Array<{ id: string; title: string }>>([]);
   const { toast } = useToast();
 
-  /**
-   * Fetches available categories from the database
-   */
   React.useEffect(() => {
     const fetchCategories = async () => {
       const { data, error } = await supabase
@@ -58,13 +43,9 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
     fetchCategories();
   }, []);
 
-  /**
-   * Handles click events on the card
-   * Navigates to translation detail page unless clicking action buttons
-   */
   const handleClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (target.closest('.delete-button, .edit-button, .category-button, [role="menuitem"]')) {
+    if (target.closest('.delete-button, .edit-button, .category-button, [role="menuitem"], textarea, button')) {
       e.stopPropagation();
       return;
     }
@@ -73,9 +54,6 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
     }
   };
 
-  /**
-   * Updates the current translation data
-   */
   const handleUpdate = async () => {
     try {
       const { data, error } = await supabase
@@ -90,7 +68,6 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
       }
       
       if (data) {
-        console.log('Updated translation data:', data);
         setCurrentTranslation(data);
       }
     } catch (err) {
@@ -98,22 +75,14 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
     }
   };
 
-  /**
-   * Handles category changes for the translation
-   */
   const handleCategoryChange = async (categoryId: string) => {
     try {
-      console.log('Updating category for translation:', translations[0].id, 'to category:', categoryId);
-      
       const { error } = await supabase
         .from('translations')
         .update({ category_id: categoryId })
         .eq('id', translations[0].id);
 
-      if (error) {
-        console.error('Error updating category:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
@@ -154,6 +123,7 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
           englishTitle={englishTranslation?.title}
           tibetanTitle={tibetanTranslation?.tibetan_title}
           originalTibetanFileName={originalTibetanTitle}
+          description={englishTranslation?.description}
           translationId={translations[0].id}
           onUpdate={handleUpdate}
           isEditing={isEditing}
