@@ -7,34 +7,22 @@ interface TranslationsGridProps {
   translations: GroupedTranslation[];
   onDelete: (id: string) => Promise<void>;
   isLoading: boolean;
+  searchQuery?: string;
 }
 
-/**
- * TranslationsGrid Component
- * Displays a grid of translation groups with loading and empty states
- * 
- * @param {Object} props - Component props
- * @param {GroupedTranslation[]} props.translations - Array of grouped translations to display
- * @param {Function} props.onDelete - Callback function to handle translation deletion
- * @param {boolean} props.isLoading - Loading state indicator
- * @returns {JSX.Element} Grid of translations or appropriate state component
- */
 export const TranslationsGrid = ({ 
   translations, 
   onDelete, 
-  isLoading 
+  isLoading,
+  searchQuery 
 }: TranslationsGridProps) => {
-  /**
-   * Renders the appropriate content based on loading and data state
-   * @returns {JSX.Element} The content to display
-   */
   const renderContent = () => {
     if (isLoading) {
       return <LoadingState />;
     }
 
     if (translations.length === 0) {
-      return <EmptyState />;
+      return <EmptyState isSearching={!!searchQuery} searchQuery={searchQuery} />;
     }
 
     return (
