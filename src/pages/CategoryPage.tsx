@@ -57,13 +57,17 @@ const CategoryPage = () => {
     return activeFilters.some(filter => {
       switch (filter) {
         case 'featured':
-          return group.translations.some(t => t.metadata?.featured);
+          return group.translations.some(t => t.metadata?.featured === true);
         case 'recent':
-          return group.translations.some(t => 
-            new Date(t.created_at || '').getTime() > Date.now() - (7 * 24 * 60 * 60 * 1000)
-          );
+          return group.translations.some(t => {
+            const createdAt = t.created_at || '';
+            return new Date(createdAt).getTime() > Date.now() - (7 * 24 * 60 * 60 * 1000);
+          });
         case 'most-viewed':
-          return group.translations.some(t => (t.metadata?.view_count || 0) > 100);
+          return group.translations.some(t => {
+            const viewCount = t.metadata?.view_count || 0;
+            return viewCount > 100;
+          });
         default:
           return true;
       }
