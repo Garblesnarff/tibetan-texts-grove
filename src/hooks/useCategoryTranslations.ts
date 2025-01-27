@@ -30,13 +30,17 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
   const fetchCategoryTranslations = async () => {
     try {
       console.log('Fetching translations for category:', categoryId);
+      setLoading(true);
       
       const { data: translationsData, error: translationsError } = await supabase
         .from('translations')
         .select('*')
         .eq('category_id', categoryId);
 
-      if (translationsError) throw translationsError;
+      if (translationsError) {
+        console.error('Error fetching translations:', translationsError);
+        throw translationsError;
+      }
 
       console.log('Fetched translations:', translationsData);
       
@@ -50,6 +54,7 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
         title: "Error fetching translations",
         description: error.message
       });
+      setTranslations([]);
     } finally {
       setLoading(false);
     }

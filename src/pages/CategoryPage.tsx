@@ -3,7 +3,7 @@ import { CategoryBreadcrumb } from "@/components/navigation/Breadcrumb";
 import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 import { useCategoryTranslations } from "@/hooks/useCategoryTranslations";
 import { QuickFilters } from "@/components/filtering/QuickFilters";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
@@ -15,6 +15,13 @@ const CategoryPage = () => {
     fetchCategoryTranslations, 
     handleDelete 
   } = useCategoryTranslations(categoryId);
+
+  useEffect(() => {
+    if (categoryId) {
+      console.log('Fetching translations for category:', categoryId);
+      fetchCategoryTranslations();
+    }
+  }, [categoryId, fetchCategoryTranslations]);
 
   const handleFilterChange = (filterId: string) => {
     setActiveFilters(prev => 
