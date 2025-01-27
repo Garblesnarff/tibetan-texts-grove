@@ -6,6 +6,7 @@ import { useTranslationSave } from "@/hooks/useTranslationSave";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Pencil, Save } from "lucide-react";
+import { highlightText } from "@/utils/highlightText";
 
 interface TranslationCardProps {
   code: string;
@@ -17,6 +18,7 @@ interface TranslationCardProps {
   onUpdate?: () => void;
   isEditing: boolean;
   onEditingChange: (isEditing: boolean) => void;
+  searchQuery?: string;
 }
 
 const TranslationCard = ({ 
@@ -28,7 +30,8 @@ const TranslationCard = ({
   translationId,
   onUpdate,
   isEditing,
-  onEditingChange
+  onEditingChange,
+  searchQuery
 }: TranslationCardProps) => {
   const {
     editedEnglishTitle,
@@ -79,6 +82,7 @@ const TranslationCard = ({
           englishTitle={editedEnglishTitle || englishTitle}
           tibetanTitle={tibetanTitle}
           originalTibetanFileName={originalTibetanFileName}
+          searchQuery={searchQuery}
         />
       )}
 
@@ -115,7 +119,9 @@ const TranslationCard = ({
         ) : (
           <div className="relative group">
             {description ? (
-              <p className="text-sm text-muted-foreground">{description}</p>
+              <p className="text-sm text-muted-foreground">
+                {searchQuery ? highlightText(description, searchQuery) : description}
+              </p>
             ) : (
               <p className="text-sm text-muted-foreground italic">No description available</p>
             )}

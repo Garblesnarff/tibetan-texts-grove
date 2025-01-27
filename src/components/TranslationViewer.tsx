@@ -12,9 +12,10 @@ import { useTranslationState } from "./translation/viewer/useTranslationState";
 interface TranslationViewerProps {
   translations: Translation[];
   onDelete: (id: string) => Promise<void>;
+  searchQuery?: string;
 }
 
-const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) => {
+const TranslationViewer = ({ translations, onDelete, searchQuery }: TranslationViewerProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [categories, setCategories] = React.useState<Array<{ id: string; title: string }>>([]);
@@ -106,6 +107,7 @@ const TranslationViewer = ({ translations, onDelete }: TranslationViewerProps) =
           onUpdate={handleUpdate}
           isEditing={isEditing}
           onEditingChange={setIsEditing}
+          searchQuery={searchQuery}
         />
       </div>
     </ViewerContainer>

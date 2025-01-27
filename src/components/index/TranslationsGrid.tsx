@@ -8,13 +8,15 @@ interface TranslationsGridProps {
   onDelete: (id: string) => Promise<void>;
   isLoading: boolean;
   searchQuery?: string;
+  activeCategory?: string;
 }
 
 export const TranslationsGrid = ({ 
   translations, 
   onDelete, 
   isLoading,
-  searchQuery 
+  searchQuery,
+  activeCategory
 }: TranslationsGridProps) => {
   const renderContent = () => {
     if (isLoading) {
@@ -22,7 +24,13 @@ export const TranslationsGrid = ({
     }
 
     if (translations.length === 0) {
-      return <EmptyState isSearching={!!searchQuery} searchQuery={searchQuery} />;
+      return (
+        <EmptyState 
+          isSearching={!!searchQuery} 
+          searchQuery={searchQuery}
+          activeCategory={activeCategory}
+        />
+      );
     }
 
     return (
@@ -32,6 +40,7 @@ export const TranslationsGrid = ({
             key={group.code} 
             translations={group.translations}
             onDelete={onDelete}
+            searchQuery={searchQuery}
           />
         ))}
       </div>

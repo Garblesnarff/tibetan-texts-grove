@@ -1,14 +1,16 @@
 interface EmptyStateProps {
   isSearching?: boolean;
   searchQuery?: string;
+  activeCategory?: string;
 }
 
-export const EmptyState = ({ isSearching, searchQuery }: EmptyStateProps) => {
+export const EmptyState = ({ isSearching, searchQuery, activeCategory }: EmptyStateProps) => {
   if (isSearching && searchQuery) {
     return (
       <div className="flex flex-col items-center justify-center h-[200px] text-center">
         <p className="text-lg text-muted-foreground">
           No translations found for "{searchQuery}"
+          {activeCategory && ` in category "${activeCategory}"`}
         </p>
         <p className="text-sm text-muted-foreground mt-2">
           Try adjusting your search terms or browse all translations
