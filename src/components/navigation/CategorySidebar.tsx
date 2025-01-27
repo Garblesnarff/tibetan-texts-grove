@@ -12,33 +12,28 @@ import { CategoryManager } from "./CategoryManager";
 import { CategoryListItem } from "./CategoryListItem";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ChevronRight } from "lucide-react";
 
 interface Category {
   id: string;
   title: string;
   description: string;
+  translation_count?: number;
 }
 
-/**
- * CategorySidebar Component
- * Displays a sidebar with a list of translation categories
- * Includes category management functionality for admin users
- */
 export function CategorySidebar() {
-  // State management
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
 
-  /**
-   * Fetch categories from the database
-   * Updates the categories state and handles any errors
-   */
   const fetchCategories = async () => {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select('*')
+        .select(`
+          *,
+          translation_count: translations(count)
+        `)
         .order('title');
 
       if (error) throw error;
@@ -52,19 +47,11 @@ export function CategorySidebar() {
     }
   };
 
-  /**
-   * Check if the current user is an admin
-   * Currently checks against a specific email address
-   */
   const checkAdminStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setIsAdmin(user?.email === 'wonky.coin@gmail.com');
   };
 
-  /**
-   * Handle category deletion
-   * Deletes the category and refreshes the list
-   */
   const handleDelete = async (category: Category) => {
     try {
       const { error } = await supabase
@@ -89,17 +76,17 @@ export function CategorySidebar() {
     }
   };
 
-  // Initialize component
   useEffect(() => {
     fetchCategories();
     checkAdminStatus();
   }, []);
 
   return (
-    <Sidebar>
+    <Sidebar className="border-r border-tibetan-brown/20">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="font-tibetan text-lg text-tibetan-maroon">
+          <SidebarGroupLabel className="font-tibetan text-lg text-tibetan-maroon flex items-center">
+            <ChevronRight className="h-4 w-4 mr-2" />
             Translation Categories
           </SidebarGroupLabel>
           <SidebarGroupContent>
