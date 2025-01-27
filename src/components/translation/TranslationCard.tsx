@@ -14,7 +14,7 @@ interface TranslationCardProps {
   originalTibetanFileName?: string;
   description?: string;
   translationId: string;
-  onUpdate?: () => void;
+  onUpdate?: () => Promise<void>;
   isEditing: boolean;
   onEditingChange: (isEditing: boolean) => void;
   searchQuery?: string;
@@ -31,7 +31,7 @@ const TranslationCard = ({
   originalTibetanFileName,
   description,
   translationId,
-  onUpdate,
+  onUpdate = async () => {},
   isEditing,
   onEditingChange,
   searchQuery,
@@ -119,7 +119,8 @@ const TranslationCard = ({
         translationId={translationId}
         featured={featured}
         tags={tags}
-        onUpdate={onUpdate || (() => Promise.resolve())}
+        viewCount={viewCount}
+        onUpdate={onUpdate}
       />
     </div>
   );
