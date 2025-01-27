@@ -7,6 +7,7 @@ import TranslationHeader from "@/components/translation-detail/TranslationHeader
 import PDFViewer from "@/components/translation-detail/PDFViewer";
 import ErrorView from "@/components/translation-detail/ErrorView";
 import { parseTranslation } from "@/types/translation";
+import { CategoryBreadcrumb } from "@/components/navigation/Breadcrumb";
 
 const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
 
@@ -48,6 +49,7 @@ export default function TranslationDetail() {
   if (isLoading) {
     return (
       <div className="container mx-auto p-4">
+        <CategoryBreadcrumb />
         <p>Loading translation...</p>
       </div>
     );
@@ -59,6 +61,7 @@ export default function TranslationDetail() {
 
   return (
     <div className="container mx-auto p-4">
+      <CategoryBreadcrumb />
       <Card className="p-6">
         <TranslationHeader translation={translation} />
         
