@@ -1,23 +1,24 @@
-import { Json } from "@/integrations/supabase/types/json";
-
-/**
- * Translation interface
- * Defines the structure of a translation object
- */
 export interface Translation {
   id: string;
   title: string;
   tibetan_title?: string | null;
   source_file_path?: string | null;
   translation_file_path?: string | null;
-  metadata?: {
-    originalFileName?: string;
-    originalTibetanFileName?: string;
-    [key: string]: any;
-  } | Json | null;
+  metadata?: TranslationMetadata | null;
   created_at?: string | null;
   updated_at?: string | null;
   created_by?: string | null;
   category_id?: string | null;
   description?: string | null;
+  tags?: string[] | null;
+  view_count?: number;
+  featured?: boolean;
+}
+
+export interface TranslationMetadata {
+  featured?: boolean;
+  view_count?: number;
+  originalFileName?: string;
+  originalTibetanFileName?: string;
+  [key: string]: any;
 }

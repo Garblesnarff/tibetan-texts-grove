@@ -33,7 +33,7 @@ const QuickFilters = ({ onFilterChange, activeFilters }) => {
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
-  const [activeFilters, setActiveFilters] = useState([]);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
   
   const { 
     translations, 
@@ -42,7 +42,7 @@ const CategoryPage = () => {
     handleDelete 
   } = useCategoryTranslations(categoryId);
 
-  const handleFilterChange = (filterId) => {
+  const handleFilterChange = (filterId: string) => {
     setActiveFilters(prev => 
       prev.includes(filterId) 
         ? prev.filter(id => id !== filterId)
@@ -57,7 +57,7 @@ const CategoryPage = () => {
     return activeFilters.some(filter => {
       switch (filter) {
         case 'featured':
-          return group.translations.some(t => t.metadata?.featured === true);
+          return group.translations.some(t => t.featured === true || t.metadata?.featured === true);
         case 'recent':
           return group.translations.some(t => {
             const createdAt = t.created_at || '';
@@ -65,7 +65,7 @@ const CategoryPage = () => {
           });
         case 'most-viewed':
           return group.translations.some(t => {
-            const viewCount = t.metadata?.view_count || 0;
+            const viewCount = t.view_count || t.metadata?.view_count || 0;
             return viewCount > 100;
           });
         default:

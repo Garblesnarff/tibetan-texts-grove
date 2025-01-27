@@ -2,8 +2,8 @@ export interface Category {
   id: string;
   title: string;
   description: string;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
   created_by: string | null;
-  translation_count: number;
+  translation_count?: number;
 }
