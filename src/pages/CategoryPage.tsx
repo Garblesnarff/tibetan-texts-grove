@@ -3,15 +3,18 @@ import { CategoryBreadcrumb } from "@/components/navigation/Breadcrumb";
 import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 import { useCategoryTranslations } from "@/hooks/useCategoryTranslations";
 import { QuickFilters } from "@/components/filtering/QuickFilters";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const { toast } = useToast();
   
   const { 
     translations, 
     loading, 
+    error,
     fetchCategoryTranslations, 
     handleDelete 
   } = useCategoryTranslations(categoryId);
@@ -19,17 +22,29 @@ const CategoryPage = () => {
   useEffect(() => {
     if (categoryId) {
       console.log('Fetching translations for category:', categoryId);
-      fetchCategoryTranslations();
+      fetchCategoryTranslations().catch((err) => {
+        console.error('Error fetching translations:', err);
+        toast({
+          variant: "destructive",
+          title: "Error loading translations",
+          description: "Please try again later"
+        });
+      });
     }
-  }, [categoryId, fetchCategoryTranslations]);
 
-  const handleFilterChange = (filterId: string) => {
+    return () => {
+      // Cleanup function
+      console.log('Cleaning up category page');
+    };
+  }, [categoryId, fetchCategoryTranslations, toast]);
+
+  const handleFilterChange = useCallback((filterId: string) => {
     setActiveFilters(prev => 
       prev.includes(filterId) 
         ? prev.filter(id => id !== filterId)
         : [...prev, filterId]
     );
-  };
+  }, []);
 
   // Filter translations based on active quick filters
   const filteredTranslations = translations.filter(group => {
@@ -54,6 +69,15 @@ const CategoryPage = () => {
       }
     });
   });
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <h2 className="text-xl font-semibold text-red-600">Error Loading Translations</h2>
+        <p className="text-muted-foreground mt-2">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

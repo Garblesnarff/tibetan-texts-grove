@@ -2,6 +2,7 @@ import { GroupedTranslation } from "@/types/groupedTranslation";
 import TranslationViewer from "@/components/TranslationViewer";
 import { LoadingState } from "./LoadingState";
 import { EmptyState } from "./EmptyState";
+import { memo } from "react";
 
 interface TranslationsGridProps {
   translations: GroupedTranslation[];
@@ -11,7 +12,7 @@ interface TranslationsGridProps {
   activeCategory?: string;
 }
 
-export const TranslationsGrid = ({ 
+export const TranslationsGrid = memo(({ 
   translations, 
   onDelete, 
   isLoading,
@@ -48,4 +49,6 @@ export const TranslationsGrid = ({
   };
 
   return renderContent();
-};
+});
+
+TranslationsGrid.displayName = 'TranslationsGrid';

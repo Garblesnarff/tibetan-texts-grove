@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Translation, parseTranslation } from "@/types/translation";
@@ -7,6 +7,7 @@ import { GroupedTranslation } from "@/types/groupedTranslation";
 export const useCategoryTranslations = (categoryId: string | undefined) => {
   const [translations, setTranslations] = useState<GroupedTranslation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const groupTranslations = (translationsData: Translation[]): GroupedTranslation[] => {
@@ -27,10 +28,16 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
     }, []);
   };
 
-  const fetchCategoryTranslations = async () => {
+  const fetchCategoryTranslations = useCallback(async () => {
+    if (!categoryId) {
+      setError('No category ID provided');
+      setLoading(false);
+      return;
+    }
+
     try {
-      console.log('Fetching translations for category:', categoryId);
       setLoading(true);
+      setError(null);
       
       const { data: translationsData, error: translationsError } = await supabase
         .from('translations')
@@ -48,17 +55,17 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
       const groupedData = groupTranslations(parsedTranslations);
       setTranslations(groupedData);
     } catch (error: any) {
-      console.error('Error fetching translations:', error);
+      console.error('Error in fetchCategoryTranslations:', error);
+      setError(error.message);
       toast({
         variant: "destructive",
         title: "Error fetching translations",
         description: error.message
       });
-      setTranslations([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [categoryId, toast]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -87,6 +94,7 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
   return {
     translations,
     loading,
+    error,
     fetchCategoryTranslations,
     handleDelete
   };
