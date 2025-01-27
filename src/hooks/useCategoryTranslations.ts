@@ -1,24 +1,14 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Translation } from "@/types/translation";
+import { Translation, parseTranslation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 
-/**
- * Custom hook for managing translations within a category
- * @param categoryId - UUID of the category to fetch translations for
- * @returns Object containing translations data and loading state
- */
 export const useCategoryTranslations = (categoryId: string | undefined) => {
   const [translations, setTranslations] = useState<GroupedTranslation[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  /**
-   * Groups translations by their code (first word of title)
-   * @param translationsData - Array of translations to group
-   * @returns Array of grouped translations
-   */
   const groupTranslations = (translationsData: Translation[]): GroupedTranslation[] => {
     return translationsData.reduce((acc: GroupedTranslation[], translation: Translation) => {
       const code = translation.title.split(' ')[0];
@@ -37,9 +27,6 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
     }, []);
   };
 
-  /**
-   * Fetches translations for the specified category
-   */
   const fetchCategoryTranslations = async () => {
     try {
       console.log('Fetching translations for category:', categoryId);
@@ -53,7 +40,8 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
 
       console.log('Fetched translations:', translationsData);
       
-      const groupedData = groupTranslations(translationsData);
+      const parsedTranslations = translationsData.map(parseTranslation);
+      const groupedData = groupTranslations(parsedTranslations);
       setTranslations(groupedData);
     } catch (error: any) {
       console.error('Error fetching translations:', error);
@@ -67,10 +55,6 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
     }
   };
 
-  /**
-   * Handles deletion of a translation
-   * @param id - UUID of the translation to delete
-   */
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase

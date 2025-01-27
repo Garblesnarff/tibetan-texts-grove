@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Translation } from "@/types/translation";
+import { Translation, parseTranslation } from "@/types/translation";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useTranslationState = (initialTranslation: Translation) => {
@@ -20,7 +20,7 @@ export const useTranslationState = (initialTranslation: Translation) => {
       }
       
       if (data) {
-        setCurrentTranslation(data);
+        setCurrentTranslation(parseTranslation(data));
       }
     } catch (err) {
       console.error('Error in handleUpdate:', err);

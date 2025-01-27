@@ -1,3 +1,5 @@
+import { Json } from "@/integrations/supabase/types/json";
+
 export interface Translation {
   id: string;
   title: string;
@@ -13,6 +15,7 @@ export interface Translation {
   tags?: string[] | null;
   view_count?: number;
   featured?: boolean;
+  search_vector?: unknown;
 }
 
 export interface TranslationMetadata {
@@ -22,3 +25,12 @@ export interface TranslationMetadata {
   originalTibetanFileName?: string;
   [key: string]: any;
 }
+
+export const parseTranslation = (data: any): Translation => {
+  return {
+    ...data,
+    metadata: typeof data.metadata === 'string' 
+      ? JSON.parse(data.metadata) 
+      : data.metadata
+  };
+};

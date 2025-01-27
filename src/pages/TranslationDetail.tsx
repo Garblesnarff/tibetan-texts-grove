@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import TranslationHeader from "@/components/translation-detail/TranslationHeader";
 import PDFViewer from "@/components/translation-detail/PDFViewer";
 import ErrorView from "@/components/translation-detail/ErrorView";
+import { parseTranslation } from "@/types/translation";
 
 const STORAGE_URL = "https://cnalyhtalikwsopogula.supabase.co/storage/v1/object/public/admin_translations";
 
@@ -31,7 +32,7 @@ export default function TranslationDetail() {
         throw new Error('Translation not found');
       }
       
-      return data;
+      return parseTranslation(data);
     },
     meta: {
       errorHandler: (error: Error) => {
