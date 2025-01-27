@@ -13,13 +13,7 @@ import { CategoryListItem } from "./CategoryListItem";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronRight } from "lucide-react";
-
-interface Category {
-  id: string;
-  title: string;
-  description: string;
-  translation_count?: number;
-}
+import { Category } from "@/types/category";
 
 export function CategorySidebar() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -38,9 +32,14 @@ export function CategorySidebar() {
 
       if (error) throw error;
 
-      // Transform the data to extract count from the array
+      // Transform the data to extract count from the array and ensure all required properties
       const transformedData = data.map(category => ({
-        ...category,
+        id: category.id,
+        title: category.title,
+        description: category.description,
+        created_at: category.created_at,
+        updated_at: category.updated_at,
+        created_by: category.created_by,
         translation_count: category.translation_count?.[0]?.count || 0
       }));
 
