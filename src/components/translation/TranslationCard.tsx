@@ -1,12 +1,9 @@
 import React from "react";
-import DisplayTitle from "./DisplayTitle";
+import CardTitleDisplay from "./card/CardTitleDisplay";
+import CardDescription from "./card/CardDescription";
 import CardTitleEditForm from "./CardTitleEditForm";
 import { useTitleEditor } from "@/hooks/useTitleEditor";
 import { useTranslationSave } from "@/hooks/useTranslationSave";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Pencil, Save } from "lucide-react";
-import { highlightText } from "@/utils/highlightText";
 
 interface TranslationCardProps {
   code: string;
@@ -21,10 +18,10 @@ interface TranslationCardProps {
   searchQuery?: string;
 }
 
-const TranslationCard = ({ 
-  code, 
-  englishTitle, 
-  tibetanTitle, 
+const TranslationCard = ({
+  code,
+  englishTitle,
+  tibetanTitle,
   originalTibetanFileName,
   description,
   translationId,
@@ -78,7 +75,7 @@ const TranslationCard = ({
           />
         </div>
       ) : (
-        <DisplayTitle
+        <CardTitleDisplay
           englishTitle={editedEnglishTitle || englishTitle}
           tibetanTitle={tibetanTitle}
           originalTibetanFileName={originalTibetanFileName}
@@ -87,54 +84,15 @@ const TranslationCard = ({
       )}
 
       <div className="mt-4">
-        {isEditingDescription ? (
-          <div className="space-y-2">
-            <Textarea
-              value={editedDescription}
-              onChange={(e) => setEditedDescription(e.target.value)}
-              placeholder="Enter description..."
-              className="min-h-[100px]"
-            />
-            <div className="flex space-x-2">
-              <Button
-                size="sm"
-                onClick={handleSaveClick}
-                className="flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" />
-                Save
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setEditedDescription(description || '');
-                  setIsEditingDescription(false);
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="relative group">
-            {description ? (
-              <p className="text-sm text-muted-foreground">
-                {searchQuery ? highlightText(description, searchQuery) : description}
-              </p>
-            ) : (
-              <p className="text-sm text-muted-foreground italic">No description available</p>
-            )}
-            <Button
-              size="sm"
-              variant="ghost"
-              className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={() => setIsEditingDescription(true)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+        <CardDescription
+          description={description}
+          isEditing={isEditingDescription}
+          editedDescription={editedDescription}
+          setEditedDescription={setEditedDescription}
+          setIsEditingDescription={setIsEditingDescription}
+          handleSaveClick={handleSaveClick}
+          searchQuery={searchQuery}
+        />
       </div>
     </div>
   );
