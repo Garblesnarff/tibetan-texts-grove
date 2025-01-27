@@ -1,6 +1,7 @@
 import { Slot } from "@radix-ui/react-slot";
 import { VariantProps } from "class-variance-authority";
 import { sidebarMenuButtonVariants } from "../components/sidebar-menu";
+import type { TooltipContent } from "@/components/ui/tooltip";
 
 export type SidebarState = "expanded" | "collapsed";
 
