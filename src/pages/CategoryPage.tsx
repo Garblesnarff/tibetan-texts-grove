@@ -1,35 +1,9 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { CategoryBreadcrumb } from "@/components/navigation/Breadcrumb";
 import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 import { useCategoryTranslations } from "@/hooks/useCategoryTranslations";
-import { CategoryBreadcrumb } from "@/components/navigation/Breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Star, Clock, Eye } from "lucide-react";
-
-const QuickFilters = ({ onFilterChange, activeFilters }) => {
-  const filters = [
-    { id: 'featured', label: 'Featured', icon: Star },
-    { id: 'recent', label: 'Recent', icon: Clock },
-    { id: 'most-viewed', label: 'Most Viewed', icon: Eye },
-  ];
-
-  return (
-    <div className="flex flex-wrap gap-2 mb-6">
-      {filters.map(({ id, label, icon: Icon }) => (
-        <Button
-          key={id}
-          variant={activeFilters.includes(id) ? "default" : "outline"}
-          size="sm"
-          className="transition-all duration-200"
-          onClick={() => onFilterChange(id)}
-        >
-          <Icon className="h-4 w-4 mr-2" />
-          {label}
-        </Button>
-      ))}
-    </div>
-  );
-};
+import { QuickFilters } from "@/components/filtering/QuickFilters";
+import { useState } from "react";
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
@@ -57,7 +31,7 @@ const CategoryPage = () => {
     return activeFilters.some(filter => {
       switch (filter) {
         case 'featured':
-          return group.translations.some(t => t.featured === true || t.metadata?.featured === true);
+          return group.translations.some(t => t.featured === true);
         case 'recent':
           return group.translations.some(t => {
             const createdAt = t.created_at || '';
@@ -65,7 +39,7 @@ const CategoryPage = () => {
           });
         case 'most-viewed':
           return group.translations.some(t => {
-            const viewCount = t.view_count || t.metadata?.view_count || 0;
+            const viewCount = t.view_count || 0;
             return viewCount > 100;
           });
         default:
@@ -73,10 +47,6 @@ const CategoryPage = () => {
       }
     });
   });
-
-  useEffect(() => {
-    fetchCategoryTranslations();
-  }, [categoryId]);
 
   return (
     <div className="space-y-6">
@@ -89,6 +59,7 @@ const CategoryPage = () => {
         translations={filteredTranslations}
         onDelete={handleDelete}
         isLoading={loading}
+        activeCategory={categoryId}
       />
     </div>
   );
