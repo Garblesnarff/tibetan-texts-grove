@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 import { useCategoryTranslations } from "@/hooks/useCategoryTranslations";
 import { CategoryBreadcrumb } from "@/components/navigation/Breadcrumb";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, Clock, Eye } from "lucide-react";
 
@@ -52,17 +51,19 @@ const CategoryPage = () => {
   };
 
   // Filter translations based on active quick filters
-  const filteredTranslations = translations.filter(translation => {
+  const filteredTranslations = translations.filter(group => {
     if (activeFilters.length === 0) return true;
     
     return activeFilters.some(filter => {
       switch (filter) {
         case 'featured':
-          return translation.featured;
+          return group.translations.some(t => t.metadata?.featured);
         case 'recent':
-          return (new Date(translation.created_at)).getTime() > Date.now() - (7 * 24 * 60 * 60 * 1000); // Last 7 days
+          return group.translations.some(t => 
+            new Date(t.created_at || '').getTime() > Date.now() - (7 * 24 * 60 * 60 * 1000)
+          );
         case 'most-viewed':
-          return translation.view_count > 100; // Arbitrary threshold
+          return group.translations.some(t => (t.metadata?.view_count || 0) > 100);
         default:
           return true;
       }

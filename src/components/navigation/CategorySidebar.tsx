@@ -37,7 +37,14 @@ export function CategorySidebar() {
         .order('title');
 
       if (error) throw error;
-      setCategories(data || []);
+
+      // Transform the data to extract count from the array
+      const transformedData = data.map(category => ({
+        ...category,
+        translation_count: category.translation_count?.[0]?.count || 0
+      }));
+
+      setCategories(transformedData);
     } catch (error: any) {
       toast({
         variant: "destructive",
