@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Translation, parseTranslation } from "@/types/translation";
@@ -42,14 +42,10 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
       const { data: translationsData, error: translationsError } = await supabase
         .from('translations')
         .select('*')
-        .eq('category_id', categoryId);
+        .eq('category_id', categoryId)
+        .abortSignal(new AbortController().signal);
 
-      if (translationsError) {
-        console.error('Error fetching translations:', translationsError);
-        throw translationsError;
-      }
-
-      console.log('Fetched translations:', translationsData);
+      if (translationsError) throw translationsError;
       
       const parsedTranslations = translationsData.map(parseTranslation);
       const groupedData = groupTranslations(parsedTranslations);
@@ -66,6 +62,15 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
       setLoading(false);
     }
   }, [categoryId, toast]);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    fetchCategoryTranslations();
+    
+    return () => {
+      abortController.abort();
+    };
+  }, [fetchCategoryTranslations]);
 
   const handleDelete = async (id: string) => {
     try {

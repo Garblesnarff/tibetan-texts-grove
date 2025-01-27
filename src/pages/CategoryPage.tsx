@@ -3,7 +3,7 @@ import { CategoryBreadcrumb } from "@/components/navigation/Breadcrumb";
 import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 import { useCategoryTranslations } from "@/hooks/useCategoryTranslations";
 import { QuickFilters } from "@/components/filtering/QuickFilters";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 const CategoryPage = () => {
@@ -15,28 +15,8 @@ const CategoryPage = () => {
     translations, 
     loading, 
     error,
-    fetchCategoryTranslations, 
     handleDelete 
   } = useCategoryTranslations(categoryId);
-
-  useEffect(() => {
-    if (categoryId) {
-      console.log('Fetching translations for category:', categoryId);
-      fetchCategoryTranslations().catch((err) => {
-        console.error('Error fetching translations:', err);
-        toast({
-          variant: "destructive",
-          title: "Error loading translations",
-          description: "Please try again later"
-        });
-      });
-    }
-
-    return () => {
-      // Cleanup function
-      console.log('Cleaning up category page');
-    };
-  }, [categoryId, fetchCategoryTranslations, toast]);
 
   const handleFilterChange = useCallback((filterId: string) => {
     setActiveFilters(prev => 
