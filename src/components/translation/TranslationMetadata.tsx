@@ -35,7 +35,7 @@ export const TranslationMetadata = ({
       </span>
       
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-2">
+        <div className="flex flex-wrap gap-1">
           {tags.map((tag) => (
             <Badge key={tag} variant="outline">
               {tag}

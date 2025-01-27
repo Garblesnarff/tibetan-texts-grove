@@ -3,6 +3,7 @@ import CardTitleDisplay from "./card/CardTitleDisplay";
 import CardDescription from "./card/CardDescription";
 import CardTitleEditForm from "./CardTitleEditForm";
 import { TranslationMetadata } from "./TranslationMetadata";
+import { AdminControls } from "./AdminControls";
 import { useTitleEditor } from "@/hooks/useTitleEditor";
 import { useTranslationSave } from "@/hooks/useTranslationSave";
 
@@ -36,7 +37,7 @@ const TranslationCard = ({
   searchQuery,
   viewCount = 0,
   featured = false,
-  updatedAt,
+  updatedAt = new Date().toISOString(),
   tags = [],
 }: TranslationCardProps) => {
   const {
@@ -95,7 +96,7 @@ const TranslationCard = ({
             <TranslationMetadata
               viewCount={viewCount}
               featured={featured}
-              updatedAt={updatedAt || new Date().toISOString()}
+              updatedAt={updatedAt}
               tags={tags}
             />
           </div>
@@ -113,6 +114,13 @@ const TranslationCard = ({
           searchQuery={searchQuery}
         />
       </div>
+
+      <AdminControls
+        translationId={translationId}
+        featured={featured}
+        tags={tags}
+        onUpdate={onUpdate || (() => Promise.resolve())}
+      />
     </div>
   );
 };
