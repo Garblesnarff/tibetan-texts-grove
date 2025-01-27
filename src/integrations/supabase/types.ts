@@ -9,6 +9,84 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agent_communications: {
+        Row: {
+          content: Json
+          created_at: string | null
+          id: string
+          message_type: string
+          read_at: string | null
+          receiver_id: string | null
+          sender_id: string | null
+        }
+        Insert: {
+          content: Json
+          created_at?: string | null
+          id?: string
+          message_type: string
+          read_at?: string | null
+          receiver_id?: string | null
+          sender_id?: string | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string | null
+          id?: string
+          message_type?: string
+          read_at?: string | null
+          receiver_id?: string | null
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_communications_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "agent_states"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_communications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "agent_states"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_states: {
+        Row: {
+          agent_role: string
+          agent_type: string
+          configuration: Json | null
+          created_at: string | null
+          id: string
+          last_active: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          agent_role: string
+          agent_type: string
+          configuration?: Json | null
+          created_at?: string | null
+          id?: string
+          last_active?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          agent_role?: string
+          agent_type?: string
+          configuration?: Json | null
+          created_at?: string | null
+          id?: string
+          last_active?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
           atmosphere: string | null
@@ -542,36 +620,48 @@ export type Database = {
         Row: {
           category: string | null
           content: string
+          context_id: string | null
           created_at: string | null
           embedding: string | null
           id: string
           importance: number | null
           metadata: Json | null
+          related_memories: string[] | null
           session_id: string | null
+          subcategory: string | null
+          tags: string[] | null
           type: string
           updated_at: string | null
         }
         Insert: {
           category?: string | null
           content: string
+          context_id?: string | null
           created_at?: string | null
           embedding?: string | null
           id?: string
           importance?: number | null
           metadata?: Json | null
+          related_memories?: string[] | null
           session_id?: string | null
+          subcategory?: string | null
+          tags?: string[] | null
           type: string
           updated_at?: string | null
         }
         Update: {
           category?: string | null
           content?: string
+          context_id?: string | null
           created_at?: string | null
           embedding?: string | null
           id?: string
           importance?: number | null
           metadata?: Json | null
+          related_memories?: string[] | null
           session_id?: string | null
+          subcategory?: string | null
+          tags?: string[] | null
           type?: string
           updated_at?: string | null
         }
@@ -581,6 +671,91 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_acknowledgments: {
+        Row: {
+          acknowledged_at: string | null
+          attempts: number | null
+          created_at: string | null
+          error: string | null
+          id: string
+          last_attempt: string | null
+          message_id: string | null
+          metadata: Json | null
+          status: string
+          timeout_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          attempts?: number | null
+          created_at?: string | null
+          error?: string | null
+          id?: string
+          last_attempt?: string | null
+          message_id?: string | null
+          metadata?: Json | null
+          status?: string
+          timeout_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          attempts?: number | null
+          created_at?: string | null
+          error?: string | null
+          id?: string
+          last_attempt?: string | null
+          message_id?: string | null
+          metadata?: Json | null
+          status?: string
+          timeout_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_acknowledgments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "agent_communications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_sequences: {
+        Row: {
+          created_at: string | null
+          id: string
+          message_id: string
+          sequence_number: number
+          updated_at: string | null
+          vector_clock: Json
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message_id: string
+          sequence_number: number
+          updated_at?: string | null
+          vector_clock?: Json
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message_id?: string
+          sequence_number?: number
+          updated_at?: string | null
+          vector_clock?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_sequences_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: true
+            referencedRelation: "agent_communications"
             referencedColumns: ["id"]
           },
         ]
@@ -754,6 +929,142 @@ export type Database = {
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rule_validations: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          rule_category: string
+          rule_conditions: Json | null
+          rule_description: string | null
+          rule_exceptions: Json | null
+          rule_references: Json | null
+          rule_requirements: Json | null
+          rule_source: string | null
+          rule_type: string
+          updated_at: string | null
+          validation_data: Json
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          rule_category: string
+          rule_conditions?: Json | null
+          rule_description?: string | null
+          rule_exceptions?: Json | null
+          rule_references?: Json | null
+          rule_requirements?: Json | null
+          rule_source?: string | null
+          rule_type: string
+          updated_at?: string | null
+          validation_data: Json
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          rule_category?: string
+          rule_conditions?: Json | null
+          rule_description?: string | null
+          rule_exceptions?: Json | null
+          rule_references?: Json | null
+          rule_requirements?: Json | null
+          rule_source?: string | null
+          rule_type?: string
+          updated_at?: string | null
+          validation_data?: Json
+        }
+        Relationships: []
+      }
+      sync_status: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          id: string
+          last_sync_timestamp: string
+          sync_state: Json
+          updated_at: string | null
+          vector_clock: Json
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          id?: string
+          last_sync_timestamp?: string
+          sync_state?: Json
+          updated_at?: string | null
+          vector_clock?: Json
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          id?: string
+          last_sync_timestamp?: string
+          sync_state?: Json
+          updated_at?: string | null
+          vector_clock?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_status_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: true
+            referencedRelation: "agent_states"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_queue: {
+        Row: {
+          assigned_agent_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          data: Json
+          error: string | null
+          id: string
+          priority: number | null
+          result: Json | null
+          status: string
+          task_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_agent_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          data?: Json
+          error?: string | null
+          id?: string
+          priority?: number | null
+          result?: Json | null
+          status?: string
+          task_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_agent_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          data?: Json
+          error?: string | null
+          id?: string
+          priority?: number | null
+          result?: Json | null
+          status?: string
+          task_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_queue_assigned_agent_id_fkey"
+            columns: ["assigned_agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_states"
             referencedColumns: ["id"]
           },
         ]
@@ -1162,6 +1473,18 @@ export type Database = {
     }
     Enums: {
       media_type: "Newspaper" | "Document" | "Photo" | "Video" | "Audio"
+      memory_subcategory:
+        | "current_location"
+        | "previous_location"
+        | "npc"
+        | "player"
+        | "player_action"
+        | "npc_action"
+        | "dialogue"
+        | "description"
+        | "environment"
+        | "item"
+        | "general"
       timeline_category:
         | "Technology"
         | "Political"
