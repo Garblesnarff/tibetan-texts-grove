@@ -1113,39 +1113,51 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           description: string | null
+          featured: boolean | null
           id: string
           metadata: Json | null
+          search_vector: unknown | null
           source_file_path: string | null
+          tags: string[] | null
           tibetan_title: string | null
           title: string
           translation_file_path: string | null
           updated_at: string | null
+          view_count: number | null
         }
         Insert: {
           category_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
+          featured?: boolean | null
           id?: string
           metadata?: Json | null
+          search_vector?: unknown | null
           source_file_path?: string | null
+          tags?: string[] | null
           tibetan_title?: string | null
           title: string
           translation_file_path?: string | null
           updated_at?: string | null
+          view_count?: number | null
         }
         Update: {
           category_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
+          featured?: boolean | null
           id?: string
           metadata?: Json | null
+          search_vector?: unknown | null
           source_file_path?: string | null
+          tags?: string[] | null
           tibetan_title?: string | null
           title?: string
           translation_file_path?: string | null
           updated_at?: string | null
+          view_count?: number | null
         }
         Relationships: [
           {
