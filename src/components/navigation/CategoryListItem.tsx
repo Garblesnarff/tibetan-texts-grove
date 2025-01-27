@@ -1,7 +1,7 @@
 import { Category } from "@/types/category";
 import { Button } from "@/components/ui/button";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { Trash2 } from "lucide-react";
+import { Folder, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface CategoryListItemProps {
@@ -18,9 +18,15 @@ export const CategoryListItem = ({
   return (
     <SidebarMenuItem className="group relative">
       <SidebarMenuButton asChild>
-        <Link to={`/category/${category.id}`} className="flex justify-between">
-          <span>{category.title}</span>
-          <span className="text-muted-foreground text-sm">
+        <Link 
+          to={`/category/${category.id}`} 
+          className="flex justify-between items-center transition-all duration-200 hover:scale-[1.02]"
+        >
+          <span className="flex items-center">
+            <Folder className="h-4 w-4 mr-2 shrink-0" />
+            <span className="truncate">{category.title}</span>
+          </span>
+          <span className="text-muted-foreground text-sm ml-2 shrink-0">
             {category.translation_count}
           </span>
         </Link>
@@ -29,7 +35,7 @@ export const CategoryListItem = ({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();

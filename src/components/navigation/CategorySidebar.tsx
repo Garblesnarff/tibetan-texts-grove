@@ -5,10 +5,12 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { CategoryManager } from "./CategoryManager";
 import { CategoryList } from "./category/CategoryList";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, PanelLeftClose } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 
 export function CategorySidebar() {
@@ -27,12 +29,17 @@ export function CategorySidebar() {
 
   return (
     <Sidebar className="border-r border-tibetan-brown/20">
+      <SidebarHeader className="p-4 flex items-center justify-between">
+        <span className="font-tibetan text-lg text-tibetan-maroon flex items-center">
+          <ChevronRight className="h-4 w-4 mr-2" />
+          Translation Categories
+        </span>
+        <SidebarTrigger>
+          <PanelLeftClose className="h-4 w-4" />
+        </SidebarTrigger>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="font-tibetan text-lg text-tibetan-maroon flex items-center">
-            <ChevronRight className="h-4 w-4 mr-2" />
-            Translation Categories
-          </SidebarGroupLabel>
           <SidebarGroupContent>
             <CategoryList 
               categories={categories}
