@@ -2,6 +2,7 @@ import React from "react";
 import CardTitleDisplay from "./card/CardTitleDisplay";
 import CardDescription from "./card/CardDescription";
 import CardTitleEditForm from "./CardTitleEditForm";
+import { TranslationMetadata } from "./TranslationMetadata";
 import { useTitleEditor } from "@/hooks/useTitleEditor";
 import { useTranslationSave } from "@/hooks/useTranslationSave";
 
@@ -16,6 +17,10 @@ interface TranslationCardProps {
   isEditing: boolean;
   onEditingChange: (isEditing: boolean) => void;
   searchQuery?: string;
+  viewCount?: number;
+  featured?: boolean;
+  updatedAt?: string;
+  tags?: string[];
 }
 
 const TranslationCard = ({
@@ -28,7 +33,11 @@ const TranslationCard = ({
   onUpdate,
   isEditing,
   onEditingChange,
-  searchQuery
+  searchQuery,
+  viewCount = 0,
+  featured = false,
+  updatedAt,
+  tags = [],
 }: TranslationCardProps) => {
   const {
     editedEnglishTitle,
@@ -75,12 +84,22 @@ const TranslationCard = ({
           />
         </div>
       ) : (
-        <CardTitleDisplay
-          englishTitle={editedEnglishTitle || englishTitle}
-          tibetanTitle={tibetanTitle}
-          originalTibetanFileName={originalTibetanFileName}
-          searchQuery={searchQuery}
-        />
+        <>
+          <CardTitleDisplay
+            englishTitle={editedEnglishTitle || englishTitle}
+            tibetanTitle={tibetanTitle}
+            originalTibetanFileName={originalTibetanFileName}
+            searchQuery={searchQuery}
+          />
+          <div className="mt-2">
+            <TranslationMetadata
+              viewCount={viewCount}
+              featured={featured}
+              updatedAt={updatedAt || new Date().toISOString()}
+              tags={tags}
+            />
+          </div>
+        </>
       )}
 
       <div className="mt-4">
