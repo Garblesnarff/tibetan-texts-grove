@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => ({
   },
   worker: {
     format: 'es',
-    plugins: []
+    plugins: () => []
   },
   build: {
     rollupOptions: {

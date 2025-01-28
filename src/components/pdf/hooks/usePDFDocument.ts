@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFDocumentProxy } from 'pdfjs-dist';
-import worker from 'pdfjs-dist/build/pdf.worker.js?worker';
+import PDFWorker from 'pdfjs-dist/build/pdf.worker.mjs';
 
 // Configure PDF.js worker
 if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerPort = new worker();
+  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.mjs',
+    import.meta.url
+  ).toString();
 }
 
 export const usePDFDocument = (url: string) => {
