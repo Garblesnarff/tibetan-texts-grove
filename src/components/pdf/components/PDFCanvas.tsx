@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { PDFDocumentProxy } from 'pdfjs-dist';
+import React, { useEffect, useRef, useState } from 'react';
+import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
 
 interface PDFCanvasProps {
   pdf: PDFDocumentProxy | null;
@@ -17,33 +17,46 @@ export const PDFCanvas: React.FC<PDFCanvasProps> = ({
   onError,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [currentPageObj, setCurrentPageObj] = useState<PDFPageProxy | null>(null);
 
   useEffect(() => {
     const renderPage = async () => {
-      if (!pdf || !canvasRef.current) return;
+      if (!pdf || !canvasRef.current || !containerRef.current) return;
 
       try {
+        // Get the page
         const page = await pdf.getPage(currentPage);
+        setCurrentPageObj(page);
+
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
         if (!context) return;
 
-        const viewport = page.getViewport({ scale: zoom });
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+        // Calculate the scale based on container width if fitting to width
+        const containerWidth = containerRef.current.clientWidth;
+        const viewport = page.getViewport({ scale: 1.0 });
+        let scale = zoom;
 
-        if (isFitToWidth && canvasRef.current.parentElement) {
-          const parentWidth = canvasRef.current.parentElement.clientWidth;
-          const scale = parentWidth / viewport.width;
-          const adjustedViewport = page.getViewport({ scale });
-          canvas.height = adjustedViewport.height;
-          canvas.width = adjustedViewport.width;
+        if (isFitToWidth) {
+          // Add padding to prevent touching the edges
+          const padding = 40;
+          scale = (containerWidth - padding) / viewport.width;
         }
 
+        // Create new viewport with the calculated scale
+        const scaledViewport = page.getViewport({ scale });
+
+        // Set canvas dimensions
+        canvas.height = scaledViewport.height;
+        canvas.width = scaledViewport.width;
+
+        // Render the page
         await page.render({
           canvasContext: context,
-          viewport: isFitToWidth ? page.getViewport({ scale: zoom }) : viewport,
+          viewport: scaledViewport,
         }).promise;
+
       } catch (err) {
         console.error('Error rendering page:', err);
         onError('Failed to render page. Please try again.');
@@ -51,7 +64,18 @@ export const PDFCanvas: React.FC<PDFCanvasProps> = ({
     };
 
     renderPage();
+
+    // Cleanup
+    return () => {
+      if (currentPageObj) {
+        currentPageObj.cleanup();
+      }
+    };
   }, [pdf, currentPage, zoom, isFitToWidth, onError]);
 
-  return <canvas ref={canvasRef} className="max-w-full" />;
+  return (
+    <div ref={containerRef} className="w-full flex justify-center">
+      <canvas ref={canvasRef} className="max-w-full" />
+    </div>
+  );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -17,20 +17,34 @@ const PDFViewerEnhanced: React.FC<PDFViewerEnhancedProps> = ({ url, title }) => 
   const { pdf, isLoading, loadingProgress, error, handleRetry } = usePDFDocument(url);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [zoom, setZoom] = useState(1);
-  const [isFitToWidth, setIsFitToWidth] = useState(false);
+  const [zoom, setZoom] = useState(1.2); // Increased initial zoom for better readability
+  const [isFitToWidth, setIsFitToWidth] = useState(true); // Default to fit-to-width
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (pdf) {
       setTotalPages(pdf.numPages);
     }
   }, [pdf]);
 
-  const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.25, 3));
-  const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.25, 0.5));
+  const handleZoomIn = () => {
+    setIsFitToWidth(false);
+    setZoom(prev => Math.min(prev + 0.25, 3));
+  };
+
+  const handleZoomOut = () => {
+    setIsFitToWidth(false);
+    setZoom(prev => Math.max(prev - 0.25, 0.5));
+  };
+
   const handlePreviousPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
   const handleNextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
-  const toggleFitToWidth = () => setIsFitToWidth(prev => !prev);
+  
+  const toggleFitToWidth = () => {
+    setIsFitToWidth(prev => !prev);
+    if (!isFitToWidth) {
+      setZoom(1.2); // Reset zoom when switching to fit-to-width
+    }
+  };
   
   const handleDownload = () => {
     const link = document.createElement('a');
