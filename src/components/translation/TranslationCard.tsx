@@ -21,6 +21,7 @@ interface TranslationCardProps {
   viewCount?: number;
   featured?: boolean;
   updatedAt?: string;
+  createdAt?: string;
   tags?: string[];
 }
 
@@ -38,6 +39,7 @@ const TranslationCard = ({
   viewCount = 0,
   featured = false,
   updatedAt = new Date().toISOString(),
+  createdAt = new Date().toISOString(),
   tags = [],
 }: TranslationCardProps) => {
   const {
@@ -97,6 +99,7 @@ const TranslationCard = ({
               viewCount={viewCount}
               featured={featured}
               updatedAt={updatedAt}
+              createdAt={createdAt}
               tags={tags}
             />
           </div>
