@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFDocumentProxy } from 'pdfjs-dist';
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.js';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -18,7 +17,7 @@ import {
 } from 'lucide-react';
 
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface PDFViewerEnhancedProps {
   url: string;
@@ -238,3 +237,4 @@ const PDFViewerEnhanced: React.FC<PDFViewerEnhancedProps> = ({ url, title }) => 
 };
 
 export default PDFViewerEnhanced;
+
