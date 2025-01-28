@@ -16,6 +16,8 @@ export interface Translation {
   view_count?: number;
   featured?: boolean;
   search_vector?: unknown;
+  source_author?: string | null;
+  source_url?: string | null;
 }
 
 export interface TranslationMetadata {

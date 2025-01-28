@@ -1117,7 +1117,9 @@ export type Database = {
           id: string
           metadata: Json | null
           search_vector: unknown | null
+          source_author: string | null
           source_file_path: string | null
+          source_url: string | null
           tags: string[] | null
           tibetan_title: string | null
           title: string
@@ -1134,7 +1136,9 @@ export type Database = {
           id?: string
           metadata?: Json | null
           search_vector?: unknown | null
+          source_author?: string | null
           source_file_path?: string | null
+          source_url?: string | null
           tags?: string[] | null
           tibetan_title?: string | null
           title: string
@@ -1151,7 +1155,9 @@ export type Database = {
           id?: string
           metadata?: Json | null
           search_vector?: unknown | null
+          source_author?: string | null
           source_file_path?: string | null
+          source_url?: string | null
           tags?: string[] | null
           tibetan_title?: string | null
           title?: string

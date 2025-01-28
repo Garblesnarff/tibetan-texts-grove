@@ -1,5 +1,7 @@
 import React from 'react';
 import { Translation } from '@/types/translation';
+import { TranslationMetadata } from '@/components/translation/TranslationMetadata';
+import { ExternalLink } from 'lucide-react';
 
 interface TranslationHeaderProps {
   translation: Translation;
@@ -7,7 +9,7 @@ interface TranslationHeaderProps {
 
 /**
  * TranslationHeader Component
- * Displays the title and Tibetan title of a translation
+ * Displays the title, Tibetan title, and metadata of a translation
  * 
  * @param {Translation} translation - The translation object containing title information
  */
@@ -22,6 +24,32 @@ const TranslationHeader: React.FC<TranslationHeaderProps> = ({ translation }) =>
           {translation.tibetan_title}
         </p>
       )}
+      
+      {(translation.source_author || translation.source_url) && (
+        <div className="text-sm text-muted-foreground mb-3">
+          {translation.source_author && (
+            <p className="mb-1">Source: {translation.source_author}</p>
+          )}
+          {translation.source_url && (
+            <a 
+              href={translation.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 hover:text-primary"
+            >
+              View original source <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+      )}
+
+      <TranslationMetadata
+        viewCount={translation.view_count || 0}
+        featured={translation.featured || false}
+        updatedAt={translation.updated_at || ''}
+        createdAt={translation.created_at || ''}
+        tags={translation.tags || []}
+      />
     </div>
   );
 };
