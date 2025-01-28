@@ -4,7 +4,7 @@ import { PDFDocumentProxy } from 'pdfjs-dist';
 import PDFWorker from 'pdfjs-dist/build/pdf.worker?worker';
 
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = PDFWorker;
+pdfjsLib.GlobalWorkerOptions.workerSrc = PDFWorker.toString();
 
 export const usePDFDocument = (url: string) => {
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
