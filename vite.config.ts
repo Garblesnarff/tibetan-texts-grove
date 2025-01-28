@@ -25,6 +25,9 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     include: ['pdfjs-dist']
   },
+  worker: {
+    format: 'es'
+  },
   build: {
     rollupOptions: {
       output: {
