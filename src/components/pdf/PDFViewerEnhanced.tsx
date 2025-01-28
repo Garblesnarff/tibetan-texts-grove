@@ -16,8 +16,9 @@ import {
   Minimize,
 } from 'lucide-react';
 
-// Initialize PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Import worker directly from node_modules
+import PdfWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
+pdfjsLib.GlobalWorkerOptions.workerSrc = PdfWorker;
 
 interface PDFViewerEnhancedProps {
   url: string;
