@@ -16,9 +16,7 @@ import {
   Minimize,
 } from 'lucide-react';
 
-// Import worker using Vite's ?url query
-const workerUrl = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url);
-pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl.toString();
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface PDFViewerEnhancedProps {
   url: string;
