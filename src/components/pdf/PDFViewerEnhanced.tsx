@@ -16,11 +16,9 @@ import {
   Minimize,
 } from 'lucide-react';
 
-// Import worker as ES module
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs';
-
-// Set worker source
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+// Import worker using Vite's ?url query
+const workerUrl = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url);
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl.toString();
 
 interface PDFViewerEnhancedProps {
   url: string;
