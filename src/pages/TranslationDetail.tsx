@@ -46,16 +46,7 @@ export default function TranslationDetail() {
     }
   });
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-4">
-        <CategoryBreadcrumb />
-        <p>Loading translation...</p>
-      </div>
-    );
-  }
-
-  if (error || !translation) {
+  if (error) {
     return <ErrorView />;
   }
 
@@ -63,25 +54,30 @@ export default function TranslationDetail() {
     <div className="container mx-auto p-4">
       <CategoryBreadcrumb />
       <Card className="p-6">
-        <TranslationHeader translation={translation} />
+        <TranslationHeader 
+          translation={translation!} 
+          isLoading={isLoading}
+        />
         
-        <div className="grid md:grid-cols-2 gap-6">
-          {translation.source_file_path && (
-            <PDFViewer
-              title="Tibetan Source"
-              filePath={translation.source_file_path}
-              storageUrl={STORAGE_URL}
-            />
-          )}
-          
-          {translation.translation_file_path && (
-            <PDFViewer
-              title="English Translation"
-              filePath={translation.translation_file_path}
-              storageUrl={STORAGE_URL}
-            />
-          )}
-        </div>
+        {!isLoading && translation && (
+          <div className="grid md:grid-cols-2 gap-6">
+            {translation.source_file_path && (
+              <PDFViewer
+                title="Tibetan Source"
+                filePath={translation.source_file_path}
+                storageUrl={STORAGE_URL}
+              />
+            )}
+            
+            {translation.translation_file_path && (
+              <PDFViewer
+                title="English Translation"
+                filePath={translation.translation_file_path}
+                storageUrl={STORAGE_URL}
+              />
+            )}
+          </div>
+        )}
       </Card>
     </div>
   );
