@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import TranslationHeader from "@/components/translation-detail/TranslationHeader";
-import PDFViewer from "@/components/translation-detail/PDFViewer";
+import PDFViewerEnhanced from "@/components/pdf/PDFViewerEnhanced";
 import ErrorView from "@/components/translation-detail/ErrorView";
 import { parseTranslation } from "@/types/translation";
 import { CategoryBreadcrumb } from "@/components/navigation/Breadcrumb";
@@ -62,18 +62,16 @@ export default function TranslationDetail() {
         {!isLoading && translation && (
           <div className="grid md:grid-cols-2 gap-6">
             {translation.source_file_path && (
-              <PDFViewer
+              <PDFViewerEnhanced
                 title="Tibetan Source"
-                filePath={translation.source_file_path}
-                storageUrl={STORAGE_URL}
+                url={`${STORAGE_URL}/${translation.source_file_path}`}
               />
             )}
             
             {translation.translation_file_path && (
-              <PDFViewer
+              <PDFViewerEnhanced
                 title="English Translation"
-                filePath={translation.translation_file_path}
-                storageUrl={STORAGE_URL}
+                url={`${STORAGE_URL}/${translation.translation_file_path}`}
               />
             )}
           </div>
