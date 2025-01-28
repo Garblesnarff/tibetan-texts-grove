@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFDocumentProxy } from 'pdfjs-dist';
-import PDFWorker from 'pdfjs-dist/build/pdf.worker.mjs';
 
 // Configure PDF.js worker
 if (typeof window !== 'undefined') {
