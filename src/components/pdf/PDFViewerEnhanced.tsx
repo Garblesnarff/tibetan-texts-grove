@@ -16,11 +16,11 @@ import {
   Minimize,
 } from 'lucide-react';
 
-// Set worker source path using webpack worker-loader
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url
-).toString();
+// Import worker as ES module
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs';
+
+// Set worker source
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 interface PDFViewerEnhancedProps {
   url: string;
@@ -37,6 +37,8 @@ const PDFViewerEnhanced: React.FC<PDFViewerEnhancedProps> = ({ url, title }) => 
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [isFitToWidth, setIsFitToWidth] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
 
   // Load PDF document
   useEffect(() => {
@@ -60,18 +62,24 @@ const PDFViewerEnhanced: React.FC<PDFViewerEnhancedProps> = ({ url, title }) => 
         setPdf(pdfDoc);
         setTotalPages(pdfDoc.numPages);
         setCurrentPage(1);
+        setRetryCount(0); // Reset retry count on successful load
       } catch (err) {
         console.error('Error loading PDF:', err);
         setError('Failed to load PDF. Please try again.');
+        
+        // Implement retry mechanism
+        if (retryCount < MAX_RETRIES) {
+          setRetryCount(prev => prev + 1);
+          setTimeout(loadPDF, 1000 * (retryCount + 1)); // Exponential backoff
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     loadPDF();
-  }, [url]);
+  }, [url, retryCount]);
 
-  // Render PDF page
   useEffect(() => {
     const renderPage = async () => {
       if (!pdf || !canvasRef.current) return;
@@ -127,6 +135,7 @@ const PDFViewerEnhanced: React.FC<PDFViewerEnhancedProps> = ({ url, title }) => 
     setLoadingProgress(0);
     setPdf(null);
     setCurrentPage(1);
+    setRetryCount(0);
   };
 
   if (error) {
