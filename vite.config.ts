@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
       "react": path.resolve(__dirname, "./node_modules/react"),
       "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime"),
+      "pdfjs-dist": path.resolve(__dirname, "./node_modules/pdfjs-dist"),
       "pdfjs-dist/build/pdf.worker.min": path.resolve(__dirname, "./node_modules/pdfjs-dist/build/pdf.worker.min.js")
     },
   },
