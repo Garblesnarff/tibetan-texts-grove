@@ -1,11 +1,10 @@
 import React from "react";
-import CardTitleDisplay from "./card/CardTitleDisplay";
-import CardDescription from "./card/CardDescription";
-import CardTitleEditForm from "./CardTitleEditForm";
-import { TranslationMetadata } from "./TranslationMetadata";
-import { AdminControls } from "./AdminControls";
 import { useTitleEditor } from "@/hooks/useTitleEditor";
 import { useTranslationSave } from "@/hooks/useTranslationSave";
+import { AdminControls } from "./AdminControls";
+import { CardEditMode } from "./card/CardEditMode";
+import { CardViewMode } from "./card/CardViewMode";
+import CardDescription from "./card/CardDescription";
 
 interface TranslationCardProps {
   code: string;
@@ -74,36 +73,27 @@ const TranslationCard = ({
   return (
     <div className={`mb-6 relative ${isEditing ? 'bg-background p-4 rounded-lg border shadow-sm' : ''}`}>
       {isEditing ? (
-        <div className="relative z-50">
-          <CardTitleEditForm
-            title={editedEnglishTitle}
-            englishPdfTitle={editedEnglishTitle}
-            tibetanPdfTitle={editedTibetanTitle}
-            onTitleChange={setEditedEnglishTitle}
-            onEnglishPdfTitleChange={setEditedEnglishTitle}
-            onTibetanPdfTitleChange={setEditedTibetanTitle}
-            onSave={handleSaveClick}
-            onCancel={handleCancel}
-          />
-        </div>
+        <CardEditMode
+          editedEnglishTitle={editedEnglishTitle}
+          editedTibetanTitle={editedTibetanTitle}
+          editedDescription={editedDescription}
+          setEditedEnglishTitle={setEditedEnglishTitle}
+          setEditedTibetanTitle={setEditedTibetanTitle}
+          handleSaveClick={handleSaveClick}
+          handleCancel={handleCancel}
+        />
       ) : (
-        <>
-          <CardTitleDisplay
-            englishTitle={editedEnglishTitle || englishTitle}
-            tibetanTitle={tibetanTitle}
-            originalTibetanFileName={originalTibetanFileName}
-            searchQuery={searchQuery}
-          />
-          <div className="mt-2">
-            <TranslationMetadata
-              viewCount={viewCount}
-              featured={featured}
-              updatedAt={updatedAt}
-              createdAt={createdAt}
-              tags={tags}
-            />
-          </div>
-        </>
+        <CardViewMode
+          englishTitle={editedEnglishTitle || englishTitle}
+          tibetanTitle={tibetanTitle}
+          originalTibetanFileName={originalTibetanFileName}
+          searchQuery={searchQuery}
+          viewCount={viewCount}
+          featured={featured}
+          updatedAt={updatedAt}
+          createdAt={createdAt}
+          tags={tags}
+        />
       )}
 
       <div className="mt-4">
