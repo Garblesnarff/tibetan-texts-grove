@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFDocumentProxy } from 'pdfjs-dist';
+import worker from 'pdfjs-dist/build/pdf.worker.js?worker';
 
 // Configure PDF.js worker
 if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  pdfjsLib.GlobalWorkerOptions.workerPort = new worker();
 }
 
 export const usePDFDocument = (url: string) => {
