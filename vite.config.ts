@@ -10,10 +10,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react({
-      jsxImportSource: '@emotion/react',
-      babel: {
-        plugins: ['@emotion/babel-plugin']
-      }
+      jsxImportSource: 'react'
     }),
     mode === 'development' &&
     componentTagger(),
@@ -21,15 +18,17 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "react/jsx-runtime": "react/jsx-runtime.js"
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime"),
+      "pdfjs-dist/build/pdf.worker.min": path.resolve(__dirname, "./node_modules/pdfjs-dist/build/pdf.worker.min.js")
     },
   },
   optimizeDeps: {
-    include: ['pdfjs-dist']
+    include: ['pdfjs-dist', 'react', 'react-dom']
   },
   build: {
     commonjsOptions: {
-      include: [/pdfjs-dist/],
+      include: [/node_modules/],
       transformMixedEsModules: true
     }
   }
