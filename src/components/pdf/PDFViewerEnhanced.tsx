@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
-import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
+import { PDFDocumentProxy } from 'pdfjs-dist';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -16,9 +16,8 @@ import {
   Minimize,
 } from 'lucide-react';
 
-// Import worker directly from node_modules
-import PdfWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
-pdfjsLib.GlobalWorkerOptions.workerSrc = PdfWorker;
+// Set worker source path
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface PDFViewerEnhancedProps {
   url: string;
