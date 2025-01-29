@@ -16,13 +16,13 @@ import { RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-interface ViewCountManagerProps {
+interface AdminControlsProps {
   translationId: string;
   viewCount: number;
   onUpdate: () => Promise<void>;
 }
 
-export const ViewCountManager = ({ translationId, viewCount, onUpdate }: ViewCountManagerProps) => {
+export const ViewCountManager = ({ translationId, viewCount, onUpdate }: AdminControlsProps) => {
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = React.useState(false);
   const [newViewCount, setNewViewCount] = React.useState(viewCount.toString());
@@ -43,17 +43,19 @@ export const ViewCountManager = ({ translationId, viewCount, onUpdate }: ViewCou
         .eq('id', translationId)
         .single();
 
-      const metadata = translation?.metadata || {};
+      // Ensure metadata is an object and create a new object for the update
+      const currentMetadata = translation?.metadata || {};
+      const updatedMetadata = {
+        ...currentMetadata,
+        lastManualViewUpdate: new Date().toISOString(),
+        lastManualViewUpdateBy: user?.email
+      };
 
       const { error } = await supabase
         .from('translations')
         .update({ 
           view_count: newCount,
-          metadata: {
-            ...metadata,
-            lastManualViewUpdate: new Date().toISOString(),
-            lastManualViewUpdateBy: user?.email
-          }
+          metadata: updatedMetadata
         })
         .eq('id', translationId);
 
