@@ -15,6 +15,7 @@ import {
 import { RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Translation } from "@/types/translation";
 
 interface AdminControlsProps {
   translationId: string;
@@ -43,9 +44,9 @@ export const ViewCountManager = ({ translationId, viewCount, onUpdate }: AdminCo
         .eq('id', translationId)
         .single();
 
-      // Ensure metadata is an object and create a new object for the update
-      const currentMetadata = translation?.metadata || {};
-      const updatedMetadata = {
+      // Ensure metadata is properly typed as a Record
+      const currentMetadata: Record<string, any> = translation?.metadata as Record<string, any> || {};
+      const updatedMetadata: Record<string, any> = {
         ...currentMetadata,
         lastManualViewUpdate: new Date().toISOString(),
         lastManualViewUpdateBy: user?.email
