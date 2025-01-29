@@ -49,7 +49,7 @@ export function CategoryBreadcrumb() {
         </BreadcrumbSeparator>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to="/translations" className="hover:text-tibetan-maroon">
+            <Link to="/" className="hover:text-tibetan-maroon">
               Categories
             </Link>
           </BreadcrumbLink>
