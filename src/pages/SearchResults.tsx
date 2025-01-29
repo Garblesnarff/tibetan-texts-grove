@@ -3,16 +3,14 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useTranslations } from "@/hooks/useTranslations";
 import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 import { SearchInput } from "@/components/search/SearchInput";
-import { SortingControls } from "@/components/sorting/SortingControls";
-import { TagFilter } from "@/components/filtering/TagFilter";
+import { SearchControls } from "@/components/search/SearchControls";
+import { SearchStats } from "@/components/search/SearchStats";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 import { SortConfig } from "@/types/sorting";
 import { groupTranslations } from "@/utils/translationUtils";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Clock } from "lucide-react";
 
 export default function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -156,27 +154,20 @@ export default function SearchResults() {
             onClear={handleClearSearch}
           />
           
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <TagFilter
-              availableTags={availableTags}
-              selectedTags={selectedTags}
-              onTagSelect={handleTagSelect}
-              onTagRemove={handleTagRemove}
-            />
-            <SortingControls
-              onSortChange={handleSortChange}
-              currentSort={currentSort}
-            />
-          </div>
+          <SearchControls
+            availableTags={availableTags}
+            selectedTags={selectedTags}
+            onTagSelect={handleTagSelect}
+            onTagRemove={handleTagRemove}
+            onSortChange={handleSortChange}
+            currentSort={currentSort}
+          />
           
-          {(searchQuery || selectedTags.length > 0) && (
-            <Alert className="bg-muted">
-              <AlertDescription className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Found {searchStats.count} results in {searchStats.time} seconds
-              </AlertDescription>
-            </Alert>
-          )}
+          <SearchStats
+            count={searchStats.count}
+            time={searchStats.time}
+            showStats={!!(searchQuery || selectedTags.length > 0)}
+          />
         </div>
 
         <TranslationsGrid
