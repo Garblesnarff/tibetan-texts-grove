@@ -7,6 +7,7 @@ import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import CategoryPage from "./pages/CategoryPage";
 import TranslationDetail from "./pages/TranslationDetail";
+import SearchResults from "./pages/SearchResults";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
+            <Route path="/search" element={<SearchResults />} />
             <Route path="/category/:categoryId" element={<CategoryPage />} />
             <Route path="/translation/:id" element={<TranslationDetail />} />
             <Route path="*" element={<NotFound />} />
