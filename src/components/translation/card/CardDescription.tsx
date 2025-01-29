@@ -14,7 +14,6 @@ interface CardDescriptionProps {
   editedDescription: string;
   setEditedDescription: (value: string) => void;
   setIsEditingDescription: (value: boolean) => void;
-  handleSaveClick: () => Promise<void>;
   searchQuery?: string;
   onUpdate?: () => Promise<void>;
 }
@@ -116,10 +115,10 @@ const CardDescription = ({
         <Button
           size="sm"
           variant="ghost"
-          className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 bg-[#F97316] hover:bg-[#F97316]/80"
           onClick={() => setIsEditingDescription(true)}
         >
-          <Pencil className="h-4 w-4" />
+          <Pencil className="h-4 w-4 text-white" />
         </Button>
       )}
     </div>
