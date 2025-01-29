@@ -142,14 +142,21 @@ export const AdminControls = ({
 
       const { error } = await supabase
         .from('translations')
-        .update({ view_count: newCount })
+        .update({ 
+          view_count: newCount,
+          metadata: {
+            ...currentTranslation?.metadata,
+            lastManualViewUpdate: new Date().toISOString(),
+            lastManualViewUpdateBy: auth.user()?.email
+          }
+        })
         .eq('id', translationId);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "View count updated successfully",
+        description: "View count manually updated",
       });
 
       await onUpdate();
@@ -269,9 +276,10 @@ export const AdminControls = ({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Reset View Count</AlertDialogTitle>
+                <AlertDialogTitle>Manual View Count Correction</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to reset the view count to 0? This action cannot be undone.
+                  This is for administrative corrections only. View counts are automatically tracked.
+                  Are you sure you want to manually override the view count?
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -283,6 +291,10 @@ export const AdminControls = ({
             </AlertDialogContent>
           </AlertDialog>
         </div>
+        <p className="text-sm text-muted-foreground">
+          Note: Manual view count adjustment is for administrative corrections only. 
+          Views are automatically tracked.
+        </p>
       </div>
     </div>
   );

@@ -1107,6 +1107,35 @@ export type Database = {
           },
         ]
       }
+      translation_views: {
+        Row: {
+          id: string
+          translation_id: string
+          viewed_at: string | null
+          viewer_ip: string
+        }
+        Insert: {
+          id?: string
+          translation_id: string
+          viewed_at?: string | null
+          viewer_ip: string
+        }
+        Update: {
+          id?: string
+          translation_id?: string
+          viewed_at?: string | null
+          viewer_ip?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_views_translation_id_fkey"
+            columns: ["translation_id"]
+            isOneToOne: false
+            referencedRelation: "translations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       translations: {
         Row: {
           category_id: string | null

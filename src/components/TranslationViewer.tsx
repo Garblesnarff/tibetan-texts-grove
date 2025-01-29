@@ -8,6 +8,7 @@ import TranslationActions from "./translation/TranslationActions";
 import { ViewerContainer } from "./translation/viewer/ViewerContainer";
 import { TranslationMetadata } from "./translation/viewer/TranslationMetadata";
 import { useTranslationState } from "./translation/viewer/useTranslationState";
+import { useTranslationViews } from "@/hooks/useTranslationViews";
 
 interface TranslationViewerProps {
   translations: Translation[];
@@ -26,6 +27,11 @@ const TranslationViewer = ({ translations, onDelete, searchQuery }: TranslationV
     setIsEditing,
     handleUpdate
   } = useTranslationState(translations[0]);
+
+  // Use the new hook for view tracking
+  useTranslationViews(translations[0].id, async (newCount) => {
+    await handleUpdate();
+  });
 
   React.useEffect(() => {
     const fetchCategories = async () => {
