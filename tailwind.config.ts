@@ -59,7 +59,7 @@ export default {
         },
       },
       fontFamily: {
-        tibetan: ["Microsoft Himalaya", "Arial Unicode MS", "sans-serif"],
+        tibetan: ["Kailasa", "Microsoft Himalaya", "Noto Sans Tibetan", "Arial Unicode MS", "sans-serif"],
         serif: ["Crimson Pro", "serif"],
         sans: ["Inter", "sans-serif"],
       },
