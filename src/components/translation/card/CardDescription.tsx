@@ -1,28 +1,67 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Save } from "lucide-react";
+import { Pencil, Save, X, Loader2 } from "lucide-react";
 import { highlightText } from "@/utils/highlightText";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CardDescriptionProps {
+  translationId: string;
   description?: string;
   isEditing: boolean;
   editedDescription: string;
   setEditedDescription: (value: string) => void;
   setIsEditingDescription: (value: boolean) => void;
-  handleSaveClick: () => void;
+  handleSaveClick: () => Promise<void>;
   searchQuery?: string;
+  onUpdate?: () => Promise<void>;
 }
 
 const CardDescription = ({
+  translationId,
   description,
   isEditing,
   editedDescription,
   setEditedDescription,
   setIsEditingDescription,
-  handleSaveClick,
-  searchQuery
+  searchQuery,
+  onUpdate
 }: CardDescriptionProps) => {
+  const { isAdmin } = useAuth();
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      const { error } = await supabase
+        .from('translations')
+        .update({ description: editedDescription })
+        .eq('id', translationId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Description updated successfully",
+      });
+      
+      onUpdate?.();
+      setIsEditingDescription(false);
+    } catch (error: any) {
+      console.error('Error updating description:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update description",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isEditing) {
     return (
       <div className="space-y-2">
@@ -30,15 +69,21 @@ const CardDescription = ({
           value={editedDescription}
           onChange={(e) => setEditedDescription(e.target.value)}
           placeholder="Enter description..."
-          className="min-h-[100px]"
+          className="min-h-[100px] resize-none"
+          disabled={isSaving}
         />
         <div className="flex space-x-2">
           <Button
             size="sm"
-            onClick={handleSaveClick}
+            onClick={handleSave}
+            disabled={isSaving}
             className="flex items-center gap-2"
           >
-            <Save className="h-4 w-4" />
+            {isSaving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
             Save
           </Button>
           <Button
@@ -48,7 +93,9 @@ const CardDescription = ({
               setEditedDescription(description || '');
               setIsEditingDescription(false);
             }}
+            disabled={isSaving}
           >
+            <X className="h-4 w-4 mr-2" />
             Cancel
           </Button>
         </div>
@@ -65,14 +112,16 @@ const CardDescription = ({
       ) : (
         <p className="text-sm text-muted-foreground italic">No description available</p>
       )}
-      <Button
-        size="sm"
-        variant="ghost"
-        className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity"
-        onClick={() => setIsEditingDescription(true)}
-      >
-        <Pencil className="h-4 w-4" />
-      </Button>
+      {isAdmin && (
+        <Button
+          size="sm"
+          variant="ghost"
+          className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={() => setIsEditingDescription(true)}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 };

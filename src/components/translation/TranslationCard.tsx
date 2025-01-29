@@ -98,6 +98,7 @@ const TranslationCard = ({
 
       <div className="mt-4">
         <CardDescription
+          translationId={translationId}
           description={description}
           isEditing={isEditingDescription}
           editedDescription={editedDescription}
@@ -105,6 +106,7 @@ const TranslationCard = ({
           setIsEditingDescription={setIsEditingDescription}
           handleSaveClick={handleSaveClick}
           searchQuery={searchQuery}
+          onUpdate={onUpdate}
         />
       </div>
 
