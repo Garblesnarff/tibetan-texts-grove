@@ -43,12 +43,14 @@ export const ViewCountManager = ({ translationId, viewCount, onUpdate }: ViewCou
         .eq('id', translationId)
         .single();
 
+      const metadata = translation?.metadata || {};
+
       const { error } = await supabase
         .from('translations')
         .update({ 
           view_count: newCount,
           metadata: {
-            ...(translation?.metadata || {}),
+            ...metadata,
             lastManualViewUpdate: new Date().toISOString(),
             lastManualViewUpdateBy: user?.email
           }
