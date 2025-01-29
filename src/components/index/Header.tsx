@@ -1,18 +1,29 @@
 import { AdminUpload } from "@/components/AdminUpload";
 import { Link } from "react-router-dom";
-import { Home } from "lucide-react";
+import { Home, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Header() {
+  const { isAdmin } = useAuth();
+
   return (
     <div className="relative mb-8 text-center">
-      <div className="absolute left-0 top-0">
+      <div className="absolute left-0 top-0 flex gap-2">
         <Link to="/">
           <Button variant="ghost" size="icon" className="hover:bg-tibetan-brown/10">
             <Home className="h-5 w-5 text-tibetan-brown" />
             <span className="sr-only">Return to Translation Hub</span>
           </Button>
         </Link>
+        {isAdmin && (
+          <Link to="/admin">
+            <Button variant="ghost" size="icon" className="hover:bg-tibetan-brown/10">
+              <Settings className="h-5 w-5 text-tibetan-brown" />
+              <span className="sr-only">Admin Dashboard</span>
+            </Button>
+          </Link>
+        )}
       </div>
       <h1 className="mb-2 font-tibetan text-4xl font-bold text-tibetan-maroon">
         བོད་ཀྱི་དཔེ་མཛོད།
