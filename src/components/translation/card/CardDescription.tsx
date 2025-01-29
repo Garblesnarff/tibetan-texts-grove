@@ -103,7 +103,7 @@ const CardDescription = ({
   }
 
   return (
-    <div className="relative group">
+    <div className="relative">
       {description ? (
         <p className="text-sm text-muted-foreground">
           {searchQuery ? highlightText(description, searchQuery) : description}
@@ -115,7 +115,7 @@ const CardDescription = ({
         <Button
           size="sm"
           variant="ghost"
-          className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 bg-[#F97316] hover:bg-[#F97316]/80"
+          className="absolute top-0 right-0 h-8 w-8 bg-[#F97316] hover:bg-[#F97316]/80"
           onClick={() => setIsEditingDescription(true)}
         >
           <Pencil className="h-4 w-4 text-white" />
