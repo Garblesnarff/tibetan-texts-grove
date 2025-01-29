@@ -104,7 +104,6 @@ const TranslationCard = ({
           editedDescription={editedDescription}
           setEditedDescription={setEditedDescription}
           setIsEditingDescription={setIsEditingDescription}
-          handleSaveClick={handleSaveClick}
           searchQuery={searchQuery}
           onUpdate={onUpdate}
         />
