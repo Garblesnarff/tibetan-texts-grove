@@ -17,8 +17,8 @@ const PDFViewerEnhanced: React.FC<PDFViewerEnhancedProps> = ({ url, title }) => 
   const { pdf, isLoading, loadingProgress, error, handleRetry } = usePDFDocument(url);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [zoom, setZoom] = useState(1.2); // Increased initial zoom for better readability
-  const [isFitToWidth, setIsFitToWidth] = useState(true); // Default to fit-to-width
+  const [zoom, setZoom] = useState(1.2);
+  const [isFitToWidth, setIsFitToWidth] = useState(true);
 
   useEffect(() => {
     if (pdf) {
@@ -42,7 +42,7 @@ const PDFViewerEnhanced: React.FC<PDFViewerEnhancedProps> = ({ url, title }) => 
   const toggleFitToWidth = () => {
     setIsFitToWidth(prev => !prev);
     if (!isFitToWidth) {
-      setZoom(1.2); // Reset zoom when switching to fit-to-width
+      setZoom(1.2);
     }
   };
   
@@ -71,9 +71,9 @@ const PDFViewerEnhanced: React.FC<PDFViewerEnhancedProps> = ({ url, title }) => 
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="font-semibold text-tibetan-brown">{title}</h4>
+    <div className="space-y-4 h-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-4">
+        <h4 className="font-semibold text-tibetan-brown text-lg">{title}</h4>
         <PDFControls
           zoom={zoom}
           isLoading={isLoading}
@@ -85,10 +85,10 @@ const PDFViewerEnhanced: React.FC<PDFViewerEnhancedProps> = ({ url, title }) => 
         />
       </div>
 
-      <div className="relative border rounded-lg bg-white p-4">
+      <div className="relative border rounded-lg bg-white p-2 sm:p-4 h-[calc(100%-4rem)]">
         {isLoading && <PDFLoadingOverlay loadingProgress={loadingProgress} />}
 
-        <ScrollArea className="h-[700px] w-full">
+        <ScrollArea className="h-full w-full">
           <div className="flex justify-center min-h-full">
             <PDFCanvas
               pdf={pdf}

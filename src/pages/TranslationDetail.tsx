@@ -51,28 +51,32 @@ export default function TranslationDetail() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
       <CategoryBreadcrumb />
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6 lg:p-8">
         <TranslationHeader 
           translation={translation!} 
           isLoading={isLoading}
         />
         
         {!isLoading && translation && (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mt-6">
             {translation.source_file_path && (
-              <PDFViewerEnhanced
-                title="Tibetan Source"
-                url={`${STORAGE_URL}/${translation.source_file_path}`}
-              />
+              <div className="w-full min-h-[600px] lg:min-h-[700px]">
+                <PDFViewerEnhanced
+                  title="Tibetan Source"
+                  url={`${STORAGE_URL}/${translation.source_file_path}`}
+                />
+              </div>
             )}
             
             {translation.translation_file_path && (
-              <PDFViewerEnhanced
-                title="English Translation"
-                url={`${STORAGE_URL}/${translation.translation_file_path}`}
-              />
+              <div className="w-full min-h-[600px] lg:min-h-[700px]">
+                <PDFViewerEnhanced
+                  title="English Translation"
+                  url={`${STORAGE_URL}/${translation.translation_file_path}`}
+                />
+              </div>
             )}
           </div>
         )}
