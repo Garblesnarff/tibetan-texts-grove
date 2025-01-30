@@ -14,9 +14,15 @@ interface TranslationViewerProps {
   translations: Translation[];
   onDelete: (id: string) => Promise<void>;
   searchQuery?: string;
+  showRelevance?: boolean;
 }
 
-const TranslationViewer = ({ translations, onDelete, searchQuery }: TranslationViewerProps) => {
+const TranslationViewer = ({ 
+  translations, 
+  onDelete, 
+  searchQuery,
+  showRelevance = false 
+}: TranslationViewerProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [categories, setCategories] = React.useState<Array<{ id: string; title: string }>>([]);
@@ -96,7 +102,7 @@ const TranslationViewer = ({ translations, onDelete, searchQuery }: TranslationV
         onEditingChange={setIsEditing}
       />
       <div className="pt-10">
-        <TranslationMetadata translation={currentTranslation} />
+        <TranslationMetadata translation={currentTranslation} showRelevance={showRelevance} />
         <TranslationCard
           code={currentTranslation.title.split(' ')[0]}
           englishTitle={currentTranslation.title}
