@@ -1,11 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Command } from "cmdk";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, RefreshCcw, WifiOff } from "lucide-react";
 import { CorrectionSuggestions } from "./suggestions/CorrectionSuggestions";
 import { RelatedSearches } from "./suggestions/RelatedSearches";
 import { SearchHistory } from "./suggestions/SearchHistory";
+import { ErrorState } from "./suggestions/ErrorState";
+import { OfflineState } from "./suggestions/OfflineState";
+import { LoadingAndEmptyStates } from "./suggestions/LoadingAndEmptyStates";
 import { SearchSuggestion } from "@/hooks/useSearchSuggestions";
 
 interface SearchSuggestionsProps {
@@ -59,31 +60,9 @@ export function SearchSuggestions({
         <Command className="rounded-lg">
           <ScrollArea className="max-h-[300px] overflow-auto">
             {error ? (
-              <div className="p-4 text-center">
-                <div className="flex items-center justify-center gap-2 text-destructive mb-2">
-                  <AlertCircle className="h-4 w-4" />
-                  <span>{error}</span>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onRetry}
-                  className="mt-2"
-                >
-                  <RefreshCcw className="h-4 w-4 mr-2" />
-                  Retry
-                </Button>
-              </div>
+              <ErrorState error={error} onRetry={onRetry} />
             ) : isOffline ? (
-              <div className="p-4 text-center">
-                <div className="flex items-center justify-center gap-2 text-muted-foreground mb-2">
-                  <WifiOff className="h-4 w-4" />
-                  <span>You are offline</span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Search suggestions will be available when you're back online
-                </p>
-              </div>
+              <OfflineState />
             ) : (
               <>
                 {searchQuery && (
@@ -108,22 +87,12 @@ export function SearchSuggestions({
                   onClearHistoryItem={onClearHistoryItem}
                 />
 
-                {isLoading && (
-                  <div className="p-4 text-center text-sm text-muted-foreground animate-pulse">
-                    Loading suggestions...
-                  </div>
-                )}
-
-                {!isLoading && !error && searchQuery && safetyCheckedSuggestions.length === 0 && (
-                  <div className="p-4 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      No suggestions found
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Try a different search term
-                    </p>
-                  </div>
-                )}
+                <LoadingAndEmptyStates
+                  isLoading={isLoading}
+                  hasError={!!error}
+                  hasQuery={!!searchQuery}
+                  suggestionsCount={safetyCheckedSuggestions.length}
+                />
               </>
             )}
           </ScrollArea>
