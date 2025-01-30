@@ -981,6 +981,36 @@ export type Database = {
         }
         Relationships: []
       }
+      search_suggestions: {
+        Row: {
+          created_at: string | null
+          id: string
+          original_term: string
+          suggested_term: string
+          type: string
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          original_term: string
+          suggested_term: string
+          type: string
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          original_term?: string
+          suggested_term?: string
+          type?: string
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
       sync_status: {
         Row: {
           agent_id: string
