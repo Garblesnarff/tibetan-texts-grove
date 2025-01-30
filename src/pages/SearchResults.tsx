@@ -6,6 +6,7 @@ import { SearchStats } from "@/components/search/SearchStats";
 import { ActiveFilters } from "@/components/filtering/ActiveFilters";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useSearchResults } from "@/hooks/useSearchResults";
+import { SortConfig } from "@/types/sorting";
 
 export default function SearchResults() {
   const navigate = useNavigate();
@@ -35,7 +36,6 @@ export default function SearchResults() {
 
   const handleClearSearch = () => {
     setSearchQuery("");
-    setSearchResults([]);
     navigate("/");
   };
 
