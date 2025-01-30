@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Command } from "cmdk";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, RefreshCcw } from "lucide-react";
 import { CorrectionSuggestions } from "./suggestions/CorrectionSuggestions";
 import { RelatedSearches } from "./suggestions/RelatedSearches";
 import { SearchHistory } from "./suggestions/SearchHistory";
@@ -14,9 +16,11 @@ interface SearchSuggestionsProps {
   }>;
   history: Array<{ term: string; timestamp: number }>;
   isLoading: boolean;
+  error: string | null;
   onSelect: (term: string) => void;
   onClearHistory: () => void;
   onClearHistoryItem: (term: string) => void;
+  onRetry: () => void;
   visible: boolean;
 }
 
@@ -25,9 +29,11 @@ export function SearchSuggestions({
   suggestions,
   history,
   isLoading,
+  error,
   onSelect,
   onClearHistory,
   onClearHistoryItem,
+  onRetry,
   visible
 }: SearchSuggestionsProps) {
   if (!visible) return null;
@@ -46,38 +52,63 @@ export function SearchSuggestions({
       >
         <Command className="rounded-lg">
           <ScrollArea className="max-h-[300px] overflow-auto">
-            {searchQuery && (
+            {error ? (
+              <div className="p-4 text-center">
+                <div className="flex items-center justify-center gap-2 text-destructive mb-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{error}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onRetry}
+                  className="mt-2"
+                >
+                  <RefreshCcw className="h-4 w-4 mr-2" />
+                  Retry
+                </Button>
+              </div>
+            ) : (
               <>
-                <CorrectionSuggestions
-                  corrections={corrections}
-                  searchQuery={searchQuery}
+                {searchQuery && (
+                  <>
+                    <CorrectionSuggestions
+                      corrections={corrections}
+                      searchQuery={searchQuery}
+                      onSelect={onSelect}
+                    />
+                    <RelatedSearches
+                      relatedSearches={relatedSearches}
+                      searchQuery={searchQuery}
+                      onSelect={onSelect}
+                    />
+                  </>
+                )}
+
+                <SearchHistory
+                  history={history}
                   onSelect={onSelect}
+                  onClearHistory={onClearHistory}
+                  onClearHistoryItem={onClearHistoryItem}
                 />
-                <RelatedSearches
-                  relatedSearches={relatedSearches}
-                  searchQuery={searchQuery}
-                  onSelect={onSelect}
-                />
+
+                {isLoading && (
+                  <div className="p-4 text-center text-sm text-muted-foreground animate-pulse">
+                    Loading suggestions...
+                  </div>
+                )}
+
+                {!isLoading && !error && searchQuery && suggestions.length === 0 && (
+                  <div className="p-4 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      No suggestions found
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Try a different search term
+                    </p>
+                  </div>
+                )}
               </>
-            )}
-
-            <SearchHistory
-              history={history}
-              onSelect={onSelect}
-              onClearHistory={onClearHistory}
-              onClearHistoryItem={onClearHistoryItem}
-            />
-
-            {isLoading && (
-              <div className="p-4 text-center text-sm text-muted-foreground animate-pulse">
-                Loading suggestions...
-              </div>
-            )}
-
-            {!isLoading && searchQuery && suggestions.length === 0 && (
-              <div className="p-4 text-center text-sm text-muted-foreground">
-                No suggestions found
-              </div>
             )}
           </ScrollArea>
         </Command>

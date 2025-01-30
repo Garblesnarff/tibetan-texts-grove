@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,9 +20,11 @@ export function SearchInput({ value, onChange, onClear }: SearchInputProps) {
     suggestions,
     history,
     isLoading,
+    error,
     addToHistory,
     clearHistory,
-    clearHistoryItem
+    clearHistoryItem,
+    retryFetch
   } = useSearchSuggestions(value);
 
   useOnClickOutside(containerRef, () => setIsFocused(false));
@@ -65,9 +67,11 @@ export function SearchInput({ value, onChange, onClear }: SearchInputProps) {
         suggestions={suggestions}
         history={history}
         isLoading={isLoading}
+        error={error}
         onSelect={handleSelect}
         onClearHistory={clearHistory}
         onClearHistoryItem={clearHistoryItem}
+        onRetry={retryFetch}
         visible={isFocused}
       />
     </div>
