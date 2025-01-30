@@ -21,6 +21,7 @@ export function SearchInput({ value, onChange, onClear }: SearchInputProps) {
     history,
     isLoading,
     error,
+    isOffline,
     addToHistory,
     clearHistory,
     clearHistoryItem,
@@ -68,6 +69,7 @@ export function SearchInput({ value, onChange, onClear }: SearchInputProps) {
         history={history}
         isLoading={isLoading}
         error={error}
+        isOffline={isOffline}
         onSelect={handleSelect}
         onClearHistory={clearHistory}
         onClearHistoryItem={clearHistoryItem}

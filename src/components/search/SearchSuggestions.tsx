@@ -6,14 +6,11 @@ import { AlertCircle, RefreshCcw, WifiOff } from "lucide-react";
 import { CorrectionSuggestions } from "./suggestions/CorrectionSuggestions";
 import { RelatedSearches } from "./suggestions/RelatedSearches";
 import { SearchHistory } from "./suggestions/SearchHistory";
+import { SearchSuggestion } from "@/hooks/useSearchSuggestions";
 
 interface SearchSuggestionsProps {
   searchQuery: string;
-  suggestions: Array<{
-    id: string;
-    suggested_term: string;
-    type: 'correction' | 'related';
-  }>;
+  suggestions: SearchSuggestion[];
   history: Array<{ term: string; timestamp: number }>;
   isLoading: boolean;
   error: string | null;
