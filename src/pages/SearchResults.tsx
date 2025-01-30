@@ -5,6 +5,7 @@ import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 import { SearchInput } from "@/components/search/SearchInput";
 import { SearchControls } from "@/components/search/SearchControls";
 import { SearchStats } from "@/components/search/SearchStats";
+import { ActiveFilters } from "@/components/filtering/ActiveFilters";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Translation } from "@/types/translation";
@@ -23,6 +24,9 @@ export default function SearchResults() {
   const [isSearching, setIsSearching] = useState(false);
   const [currentSort, setCurrentSort] = useState<string>("created_at:desc");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [searchStats, setSearchStats] = useState({ count: 0, time: 0 });
   const [availableTags, setAvailableTags] = useState<{ tag: string; count: number; }[]>([]);
   const { toast } = useToast();
@@ -61,10 +65,10 @@ export default function SearchResults() {
     fetchTags();
   }, [translations]);
 
-  // Handle search with tag filtering
+  // Handle search with filtering
   useEffect(() => {
     const searchTranslations = async () => {
-      if (!searchQuery.trim() && selectedTags.length === 0) {
+      if (!searchQuery.trim() && selectedTags.length === 0 && !selectedCategory && !startDate && !endDate) {
         setSearchResults([]);
         setSearchStats({ count: 0, time: 0 });
         return;
@@ -87,6 +91,16 @@ export default function SearchResults() {
 
         if (selectedTags.length > 0) {
           query = query.contains('tags', selectedTags);
+        }
+
+        if (selectedCategory) {
+          query = query.eq('category_id', selectedCategory);
+        }
+
+        if (startDate && endDate) {
+          query = query
+            .gte('created_at', startDate.toISOString())
+            .lte('created_at', endDate.toISOString());
         }
 
         const { data, error } = await query
@@ -116,7 +130,7 @@ export default function SearchResults() {
 
     const debounceTimeout = setTimeout(searchTranslations, 300);
     return () => clearTimeout(debounceTimeout);
-  }, [searchQuery, selectedTags, currentSort, toast]);
+  }, [searchQuery, selectedTags, selectedCategory, startDate, endDate, currentSort, toast]);
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -144,6 +158,13 @@ export default function SearchResults() {
     setSelectedTags(selectedTags.filter(t => t !== tag));
   };
 
+  const handleClearAll = () => {
+    setSelectedTags([]);
+    setSelectedCategory(null);
+    setStartDate(null);
+    setEndDate(null);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="space-y-4">
@@ -157,16 +178,39 @@ export default function SearchResults() {
           <SearchControls
             availableTags={availableTags}
             selectedTags={selectedTags}
+            selectedCategory={selectedCategory}
+            startDate={startDate}
+            endDate={endDate}
             onTagSelect={handleTagSelect}
             onTagRemove={handleTagRemove}
+            onCategoryChange={setSelectedCategory}
+            onDateChange={(start, end) => {
+              setStartDate(start);
+              setEndDate(end);
+            }}
             onSortChange={handleSortChange}
             currentSort={currentSort}
           />
           
+          <ActiveFilters
+            selectedTags={selectedTags}
+            selectedCategory={selectedCategory}
+            startDate={startDate}
+            endDate={endDate}
+            resultCount={searchStats.count}
+            onClearTag={handleTagRemove}
+            onClearCategory={() => setSelectedCategory(null)}
+            onClearDates={() => {
+              setStartDate(null);
+              setEndDate(null);
+            }}
+            onClearAll={handleClearAll}
+          />
+
           <SearchStats
             count={searchStats.count}
             time={searchStats.time}
-            showStats={!!(searchQuery || selectedTags.length > 0)}
+            showStats={!!(searchQuery || selectedTags.length > 0 || selectedCategory || startDate)}
           />
         </div>
 
