@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface SearchSuggestion {
+export interface SearchSuggestion {
   id: string;
   original_term: string;
   suggested_term: string;
@@ -18,8 +18,6 @@ interface SearchHistory {
 
 export const useSearchSuggestions = (searchQuery: string) => {
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
-  const [corrections, setCorrections] = useState<string[]>([]);
-  const [relatedSearches, setRelatedSearches] = useState<string[]>([]);
   const [history, setHistory] = useState<SearchHistory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,29 +28,6 @@ export const useSearchSuggestions = (searchQuery: string) => {
       setHistory(JSON.parse(savedHistory));
     }
   }, []);
-
-  // Save search to history
-  const addToHistory = (term: string) => {
-    const newHistory = [
-      { term, timestamp: Date.now() },
-      ...history.filter(h => h.term !== term).slice(0, 9)
-    ];
-    setHistory(newHistory);
-    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
-  };
-
-  // Clear search history
-  const clearHistory = () => {
-    setHistory([]);
-    localStorage.removeItem('searchHistory');
-  };
-
-  // Clear single history item
-  const clearHistoryItem = (term: string) => {
-    const newHistory = history.filter(h => h.term !== term);
-    setHistory(newHistory);
-    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
-  };
 
   // Fetch suggestions from Supabase
   useEffect(() => {
@@ -67,26 +42,21 @@ export const useSearchSuggestions = (searchQuery: string) => {
         const { data, error } = await supabase
           .from('search_suggestions')
           .select('*')
-          .ilike('original_term', `%${searchQuery}%`)
+          .or(`original_term.ilike.%${searchQuery}%,suggested_term.ilike.%${searchQuery}%`)
           .order('usage_count', { ascending: false })
           .limit(5);
 
         if (error) throw error;
 
-        // Validate and type-cast the suggestions
-        const validSuggestions = (data || []).filter((item): item is SearchSuggestion => 
-          typeof item.id === 'string' &&
-          typeof item.original_term === 'string' &&
-          typeof item.suggested_term === 'string' &&
-          (item.type === 'correction' || item.type === 'related') &&
-          typeof item.usage_count === 'number' &&
-          typeof item.created_at === 'string' &&
-          typeof item.updated_at === 'string'
+        // Validate suggestion types
+        const validSuggestions = data.filter((item): item is SearchSuggestion => 
+          item.type === 'correction' || item.type === 'related'
         );
 
         setSuggestions(validSuggestions);
       } catch (error) {
         console.error('Error fetching suggestions:', error);
+        setSuggestions([]);
       } finally {
         setIsLoading(false);
       }
@@ -96,10 +66,29 @@ export const useSearchSuggestions = (searchQuery: string) => {
     return () => clearTimeout(debounceTimeout);
   }, [searchQuery]);
 
+  const addToHistory = (term: string) => {
+    const newHistory = [
+      { term, timestamp: Date.now() },
+      ...history.filter(h => h.term !== term)
+    ].slice(0, 10); // Keep only 10 most recent searches
+    
+    setHistory(newHistory);
+    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+    localStorage.removeItem('searchHistory');
+  };
+
+  const clearHistoryItem = (term: string) => {
+    const newHistory = history.filter(h => h.term !== term);
+    setHistory(newHistory);
+    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+  };
+
   return {
     suggestions,
-    corrections,
-    relatedSearches,
     history,
     isLoading,
     addToHistory,
