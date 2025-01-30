@@ -1392,8 +1392,9 @@ export type Database = {
           original_term: string
           suggested_term: string
           category_match: boolean
-          tag_match: boolean
-          view_count: number
+          tag_similarity: number
+          view_count_proximity: number
+          historical_usage: number
         }
         Returns: number
       }

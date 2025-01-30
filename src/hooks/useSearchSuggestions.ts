@@ -15,9 +15,13 @@ export interface SearchSuggestion {
   relevance_score: number;
   created_at: string;
   updated_at: string;
+  category_id?: string | null;
+  category_title?: string;
+  tag_similarity?: number;
+  view_count_proximity?: number;
 }
 
-export const useSearchSuggestions = (searchQuery: string) => {
+export const useSearchSuggestions = (searchQuery: string, selectedCategory?: string | null) => {
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,18 +54,67 @@ export const useSearchSuggestions = (searchQuery: string) => {
           return;
         }
 
-        const { data, error: supabaseError } = await supabase
-          .from('search_suggestions')
-          .select('*')
-          .or(`original_term.ilike.%${term}%,suggested_term.ilike.%${term}%`)
-          .order('relevance_score', { ascending: false })
-          .limit(5);
+        // Fetch suggestions with enhanced scoring
+        const { data: translations, error: translationsError } = await supabase
+          .from('translations')
+          .select(`
+            id,
+            title,
+            category_id,
+            tags,
+            view_count,
+            categories!inner (
+              id,
+              title
+            )
+          `)
+          .textSearch('search_vector', term)
+          .limit(20);
 
-        if (supabaseError) throw supabaseError;
+        if (translationsError) throw translationsError;
 
-        const typedData = (data || []) as SearchSuggestion[];
-        setSuggestions(typedData);
-        cacheSuggestions(term, typedData);
+        // Process translations to generate suggestions
+        const processedSuggestions: SearchSuggestion[] = [];
+        
+        if (translations) {
+          for (const translation of translations) {
+            const categoryMatch = selectedCategory ? translation.category_id === selectedCategory : false;
+            const tagSimilarity = translation.tags ? calculateTagSimilarity(translation.tags, term) : 0;
+            const viewCountProximity = calculateViewCountProximity(translation.view_count);
+
+            const score = await supabase.rpc('calculate_suggestion_score', {
+              original_term: term,
+              suggested_term: translation.title,
+              category_match: categoryMatch,
+              tag_similarity: tagSimilarity,
+              view_count_proximity: viewCountProximity,
+              historical_usage: 1 // Default to 1, update based on actual usage
+            });
+
+            processedSuggestions.push({
+              id: translation.id,
+              original_term: term,
+              suggested_term: translation.title,
+              type: 'related',
+              usage_count: 1,
+              relevance_score: score,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              category_id: translation.category_id,
+              category_title: translation.categories?.title,
+              tag_similarity: tagSimilarity,
+              view_count_proximity: viewCountProximity
+            });
+          }
+        }
+
+        // Sort by relevance score and limit to top 5
+        const topSuggestions = processedSuggestions
+          .sort((a, b) => b.relevance_score - a.relevance_score)
+          .slice(0, 5);
+
+        setSuggestions(topSuggestions);
+        cacheSuggestions(term, topSuggestions);
       } catch (err) {
         console.error('Error fetching suggestions:', err);
         setError('Failed to fetch suggestions. Please try again.');
@@ -74,8 +127,26 @@ export const useSearchSuggestions = (searchQuery: string) => {
         setIsLoading(false);
       }
     }, 300),
-    [isOffline, toast]
+    [selectedCategory, isOffline, toast]
   );
+
+  const calculateTagSimilarity = (tags: string[], searchTerm: string): number => {
+    if (!tags || tags.length === 0) return 0;
+    
+    const searchTerms = searchTerm.toLowerCase().split(' ');
+    const matchingTags = tags.filter(tag => 
+      searchTerms.some(term => tag.toLowerCase().includes(term))
+    );
+    
+    return matchingTags.length / tags.length;
+  };
+
+  const calculateViewCountProximity = (viewCount: number): number => {
+    const averageViewCount = 100; // You might want to calculate this dynamically
+    const maxDifference = 1000;
+    const difference = Math.abs(viewCount - averageViewCount);
+    return Math.max(0, 1 - (difference / maxDifference));
+  };
 
   useEffect(() => {
     fetchSuggestions(searchQuery);

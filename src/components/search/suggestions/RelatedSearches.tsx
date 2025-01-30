@@ -1,7 +1,8 @@
 import { Command } from "cmdk";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, FolderOpen, Hash } from "lucide-react";
 import { motion } from "framer-motion";
 import { SearchSuggestion } from "@/hooks/useSearchSuggestions";
+import { Badge } from "@/components/ui/badge";
 
 interface RelatedSearchesProps {
   relatedSearches: SearchSuggestion[];
@@ -31,10 +32,24 @@ export function RelatedSearches({
           <Command.Item
             value={related.suggested_term}
             onSelect={() => onSelect(related.suggested_term)}
-            className="flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm"
+            className="flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm group"
           >
             <ArrowRight className="h-4 w-4 text-muted-foreground" />
             <span className="flex-1">{related.suggested_term}</span>
+            <div className="flex items-center gap-1">
+              {related.category_title && (
+                <Badge variant="outline" className="text-xs">
+                  <FolderOpen className="h-3 w-3 mr-1" />
+                  {related.category_title}
+                </Badge>
+              )}
+              {related.tag_similarity && related.tag_similarity > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  <Hash className="h-3 w-3 mr-1" />
+                  {Math.round(related.tag_similarity * 100)}% match
+                </Badge>
+              )}
+            </div>
           </Command.Item>
         </motion.div>
       ))}

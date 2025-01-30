@@ -10,9 +10,10 @@ interface SearchInputProps {
   value: string;
   onChange: (value: string) => void;
   onClear: () => void;
+  selectedCategory?: string | null;
 }
 
-export function SearchInput({ value, onChange, onClear }: SearchInputProps) {
+export function SearchInput({ value, onChange, onClear, selectedCategory }: SearchInputProps) {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -26,7 +27,7 @@ export function SearchInput({ value, onChange, onClear }: SearchInputProps) {
     clearHistory,
     clearHistoryItem,
     retryFetch
-  } = useSearchSuggestions(value);
+  } = useSearchSuggestions(value, selectedCategory);
 
   useOnClickOutside(containerRef, () => setIsFocused(false));
 
