@@ -1196,6 +1196,13 @@ export type Database = {
             foreignKeyName: "translation_views_translation_id_fkey"
             columns: ["translation_id"]
             isOneToOne: false
+            referencedRelation: "translation_scores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "translation_views_translation_id_fkey"
+            columns: ["translation_id"]
+            isOneToOne: false
             referencedRelation: "translations"
             referencedColumns: ["id"]
           },
@@ -1403,7 +1410,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      translation_scores: {
+        Row: {
+          base_score: number | null
+          category_id: string | null
+          created_at: string | null
+          featured: boolean | null
+          id: string | null
+          title: string | null
+          view_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translations_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       binary_quantize:
@@ -1419,6 +1445,17 @@ export type Database = {
             }
             Returns: unknown
           }
+      calculate_relevance_score: {
+        Args: {
+          title_match_score: number
+          tag_match_score: number
+          days_old: number
+          view_count: number
+          is_featured: boolean
+          category_match_score: number
+        }
+        Returns: number
+      }
       calculate_suggestion_score: {
         Args: {
           original_term: string

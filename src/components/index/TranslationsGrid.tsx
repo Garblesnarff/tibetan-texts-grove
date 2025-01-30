@@ -14,6 +14,7 @@ interface TranslationsGridProps {
   searchQuery?: string;
   activeCategory?: string;
   error?: Error;
+  showRelevance?: boolean;
 }
 
 export const TranslationsGrid = memo(({ 
@@ -22,7 +23,8 @@ export const TranslationsGrid = memo(({
   isLoading,
   searchQuery,
   activeCategory,
-  error
+  error,
+  showRelevance = false
 }: TranslationsGridProps) => {
   if (error) {
     return (
@@ -72,6 +74,7 @@ export const TranslationsGrid = memo(({
               translations={group.translations}
               onDelete={onDelete}
               searchQuery={searchQuery}
+              showRelevance={showRelevance}
             />
           </motion.div>
         ))}
