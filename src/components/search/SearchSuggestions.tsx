@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Command } from "cmdk";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, RefreshCcw } from "lucide-react";
+import { AlertCircle, RefreshCcw, WifiOff } from "lucide-react";
 import { CorrectionSuggestions } from "./suggestions/CorrectionSuggestions";
 import { RelatedSearches } from "./suggestions/RelatedSearches";
 import { SearchHistory } from "./suggestions/SearchHistory";
@@ -17,6 +17,7 @@ interface SearchSuggestionsProps {
   history: Array<{ term: string; timestamp: number }>;
   isLoading: boolean;
   error: string | null;
+  isOffline: boolean;
   onSelect: (term: string) => void;
   onClearHistory: () => void;
   onClearHistoryItem: (term: string) => void;
@@ -30,6 +31,7 @@ export function SearchSuggestions({
   history,
   isLoading,
   error,
+  isOffline,
   onSelect,
   onClearHistory,
   onClearHistoryItem,
@@ -67,6 +69,16 @@ export function SearchSuggestions({
                   <RefreshCcw className="h-4 w-4 mr-2" />
                   Retry
                 </Button>
+              </div>
+            ) : isOffline ? (
+              <div className="p-4 text-center">
+                <div className="flex items-center justify-center gap-2 text-muted-foreground mb-2">
+                  <WifiOff className="h-4 w-4" />
+                  <span>You are offline</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Search suggestions will be available when you're back online
+                </p>
               </div>
             ) : (
               <>

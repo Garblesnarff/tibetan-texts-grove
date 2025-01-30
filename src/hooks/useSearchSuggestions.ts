@@ -33,7 +33,22 @@ export const useSearchSuggestions = (searchQuery: string) => {
   const [history, setHistory] = useState<SearchHistory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const { toast } = useToast();
+
+  // Handle online/offline status
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Load search history from localStorage
   useEffect(() => {
@@ -85,6 +100,11 @@ export const useSearchSuggestions = (searchQuery: string) => {
         return;
       }
 
+      if (isOffline) {
+        setError('You are currently offline. Search suggestions are not available.');
+        return;
+      }
+
       setIsLoading(true);
       setError(null);
 
@@ -97,6 +117,13 @@ export const useSearchSuggestions = (searchQuery: string) => {
           return;
         }
 
+        const { data: categoryData } = await supabase
+          .from('translations')
+          .select('category_id')
+          .textSearch('search_vector', term)
+          .limit(1)
+          .single();
+
         const { data, error: supabaseError } = await supabase
           .from('search_suggestions')
           .select('*')
@@ -106,12 +133,35 @@ export const useSearchSuggestions = (searchQuery: string) => {
 
         if (supabaseError) throw supabaseError;
 
-        const validSuggestions = data.filter((item): item is SearchSuggestion => 
+        let suggestions = data.filter((item): item is SearchSuggestion => 
           item.type === 'correction' || item.type === 'related'
         );
 
-        setSuggestions(validSuggestions);
-        cacheSuggestions(term, validSuggestions);
+        // If we have a category, fetch related terms from the same category
+        if (categoryData?.category_id) {
+          const { data: relatedData } = await supabase
+            .from('translations')
+            .select('title')
+            .eq('category_id', categoryData.category_id)
+            .limit(SUGGESTION_LIMIT);
+
+          if (relatedData) {
+            const relatedSuggestions = relatedData.map(item => ({
+              id: crypto.randomUUID(),
+              original_term: term,
+              suggested_term: item.title,
+              type: 'related' as const,
+              usage_count: 0,
+              relevance_score: 1.0,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }));
+            suggestions = [...suggestions, ...relatedSuggestions].slice(0, SUGGESTION_LIMIT);
+          }
+        }
+
+        setSuggestions(suggestions);
+        cacheSuggestions(term, suggestions);
       } catch (err) {
         console.error('Error fetching suggestions:', err);
         setError('Failed to fetch suggestions. Please try again.');
@@ -124,7 +174,7 @@ export const useSearchSuggestions = (searchQuery: string) => {
         setIsLoading(false);
       }
     }, DEBOUNCE_DELAY),
-    []
+    [isOffline, toast]
   );
 
   useEffect(() => {
@@ -183,6 +233,7 @@ export const useSearchSuggestions = (searchQuery: string) => {
     history,
     isLoading,
     error,
+    isOffline,
     addToHistory,
     clearHistory,
     clearHistoryItem,

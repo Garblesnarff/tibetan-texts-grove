@@ -986,6 +986,7 @@ export type Database = {
           created_at: string | null
           id: string
           original_term: string
+          relevance_score: number | null
           suggested_term: string
           type: string
           updated_at: string | null
@@ -995,6 +996,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           original_term: string
+          relevance_score?: number | null
           suggested_term: string
           type: string
           updated_at?: string | null
@@ -1004,6 +1006,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           original_term?: string
+          relevance_score?: number | null
           suggested_term?: string
           type?: string
           updated_at?: string | null
@@ -1384,6 +1387,16 @@ export type Database = {
             }
             Returns: unknown
           }
+      calculate_suggestion_score: {
+        Args: {
+          original_term: string
+          suggested_term: string
+          category_match: boolean
+          tag_match: boolean
+          view_count: number
+        }
+        Returns: number
+      }
       create_tools_table: {
         Args: Record<PropertyKey, never>
         Returns: undefined

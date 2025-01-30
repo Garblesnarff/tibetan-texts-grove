@@ -1,7 +1,9 @@
 import { Command } from "cmdk";
-import { Clock, X } from "lucide-react";
+import { Clock, Trash2, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { formatDistanceToNow } from 'date-fns';
+import { Separator } from "@/components/ui/separator";
 
 interface SearchHistoryProps {
   history: Array<{ term: string; timestamp: number }>;
@@ -10,55 +12,61 @@ interface SearchHistoryProps {
   onClearHistoryItem: (term: string) => void;
 }
 
-export const SearchHistory = ({
+export function SearchHistory({
   history,
   onSelect,
   onClearHistory,
   onClearHistoryItem,
-}: SearchHistoryProps) => {
+}: SearchHistoryProps) {
   if (history.length === 0) return null;
 
   return (
-    <div className="px-2 py-3">
+    <div className="px-1 py-2">
       <div className="flex items-center justify-between px-2 mb-2">
-        <p className="text-sm text-muted-foreground">Recent searches</p>
+        <p className="text-xs text-muted-foreground">Recent searches</p>
         <Button
           variant="ghost"
           size="sm"
           onClick={onClearHistory}
-          className="h-auto p-1 hover:bg-accent"
+          className="h-auto px-2 py-1 text-xs hover:bg-destructive/10 hover:text-destructive"
         >
+          <Trash2 className="h-3 w-3 mr-1" />
           Clear all
         </Button>
       </div>
-      {history.map(({ term, timestamp }) => (
-        <Command.Item
-          key={`${term}-${timestamp}`}
-          onSelect={() => onSelect(term)}
-          className="flex items-center justify-between px-2 py-1.5 hover:bg-accent rounded-sm cursor-pointer group"
-        >
-          <div className="flex items-center flex-1">
-            <Clock className="w-4 h-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
-            <div className="flex flex-col">
-              <span>{term}</span>
-              <span className="text-xs text-muted-foreground">
-                {formatDistanceToNow(timestamp, { addSuffix: true })}
-              </span>
-            </div>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClearHistoryItem(term);
-            }}
-            className="h-auto p-1 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-opacity"
+      <div className="space-y-1">
+        {history.map((item, index) => (
+          <motion.div
+            key={`${item.term}-${item.timestamp}`}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
           >
-            <X className="w-4 h-4" />
-          </Button>
-        </Command.Item>
-      ))}
+            <Command.Item
+              value={item.term}
+              onSelect={() => onSelect(item.term)}
+              className="flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm group"
+            >
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span className="flex-1">{item.term}</span>
+              <span className="text-xs text-muted-foreground">
+                {format(item.timestamp, "MMM d, h:mm a")}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClearHistoryItem(item.term);
+                }}
+                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </Command.Item>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
-};
+}
