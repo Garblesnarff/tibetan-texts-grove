@@ -7,6 +7,8 @@ interface SearchSuggestion {
   suggested_term: string;
   type: 'correction' | 'related';
   usage_count: number;
+  created_at: string;
+  updated_at: string;
 }
 
 interface SearchHistory {
@@ -73,7 +75,13 @@ export const useSearchSuggestions = (searchQuery: string) => {
 
         // Validate and type-cast the suggestions
         const validSuggestions = (data || []).filter((item): item is SearchSuggestion => 
-          item.type === 'correction' || item.type === 'related'
+          typeof item.id === 'string' &&
+          typeof item.original_term === 'string' &&
+          typeof item.suggested_term === 'string' &&
+          (item.type === 'correction' || item.type === 'related') &&
+          typeof item.usage_count === 'number' &&
+          typeof item.created_at === 'string' &&
+          typeof item.updated_at === 'string'
         );
 
         setSuggestions(validSuggestions);
