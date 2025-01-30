@@ -1,3 +1,5 @@
+import { SearchSuggestion } from '@/hooks/useSearchSuggestions';
+
 const CACHE_EXPIRY = 60 * 60 * 1000; // 1 hour
 
 interface CachedSuggestions {
