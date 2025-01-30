@@ -82,7 +82,8 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
             const tagSimilarity = translation.tags ? calculateTagSimilarity(translation.tags, term) : 0;
             const viewCountProximity = calculateViewCountProximity(translation.view_count);
 
-            const score = await supabase.rpc('calculate_suggestion_score', {
+            // Call RPC function and handle response properly
+            const { data: scoreData, error: scoreError } = await supabase.rpc('calculate_suggestion_score', {
               original_term: term,
               suggested_term: translation.title,
               category_match: categoryMatch,
@@ -90,6 +91,13 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
               view_count_proximity: viewCountProximity,
               historical_usage: 1 // Default to 1, update based on actual usage
             });
+
+            if (scoreError) {
+              console.error('Error calculating score:', scoreError);
+              continue;
+            }
+
+            const score = scoreData || 0; // Use 0 as fallback if no score returned
 
             processedSuggestions.push({
               id: translation.id,
