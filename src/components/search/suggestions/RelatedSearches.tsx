@@ -1,19 +1,21 @@
 import { Command } from "cmdk";
 import { ArrowRight, FolderOpen, Hash } from "lucide-react";
 import { motion } from "framer-motion";
-import { SearchSuggestion } from "@/hooks/useSearchSuggestions";
+import { SearchSuggestion } from "@/types/suggestions";
 import { Badge } from "@/components/ui/badge";
 
 interface RelatedSearchesProps {
   relatedSearches: SearchSuggestion[];
   searchQuery: string;
   onSelect: (term: string) => void;
+  selectedIndex: number;
 }
 
 export function RelatedSearches({
   relatedSearches,
   searchQuery,
   onSelect,
+  selectedIndex,
 }: RelatedSearchesProps) {
   if (relatedSearches.length === 0) return null;
 
@@ -32,7 +34,9 @@ export function RelatedSearches({
           <Command.Item
             value={related.suggested_term}
             onSelect={() => onSelect(related.suggested_term)}
-            className="flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm group"
+            className={`flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm group ${
+              selectedIndex === index ? "bg-accent" : ""
+            }`}
           >
             <ArrowRight className="h-4 w-4 text-muted-foreground" />
             <span className="flex-1">{related.suggested_term}</span>

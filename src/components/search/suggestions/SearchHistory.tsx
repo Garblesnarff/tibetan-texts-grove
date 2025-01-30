@@ -3,13 +3,13 @@ import { Clock, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 interface SearchHistoryProps {
   history: Array<{ term: string; timestamp: number }>;
   onSelect: (term: string) => void;
   onClearHistory: () => void;
   onClearHistoryItem: (term: string) => void;
+  selectedIndex: number;
 }
 
 export function SearchHistory({
@@ -17,6 +17,7 @@ export function SearchHistory({
   onSelect,
   onClearHistory,
   onClearHistoryItem,
+  selectedIndex,
 }: SearchHistoryProps) {
   if (history.length === 0) return null;
 
@@ -45,7 +46,9 @@ export function SearchHistory({
             <Command.Item
               value={item.term}
               onSelect={() => onSelect(item.term)}
-              className="flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm group"
+              className={`flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm group ${
+                selectedIndex === index ? "bg-accent" : ""
+              }`}
             >
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span className="flex-1">{item.term}</span>

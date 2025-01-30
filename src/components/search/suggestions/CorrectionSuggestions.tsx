@@ -1,18 +1,20 @@
 import { Command } from "cmdk";
 import { Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
-import { SearchSuggestion } from "@/hooks/useSearchSuggestions";
+import { SearchSuggestion } from "@/types/suggestions";
 
 interface CorrectionSuggestionsProps {
   corrections: SearchSuggestion[];
   searchQuery: string;
   onSelect: (term: string) => void;
+  selectedIndex: number;
 }
 
 export function CorrectionSuggestions({
   corrections,
   searchQuery,
   onSelect,
+  selectedIndex,
 }: CorrectionSuggestionsProps) {
   if (corrections.length === 0) return null;
 
@@ -21,7 +23,7 @@ export function CorrectionSuggestions({
       <p className="px-2 text-xs text-muted-foreground mb-2">
         Did you mean:
       </p>
-      {corrections.map((correction) => (
+      {corrections.map((correction, index) => (
         <motion.div
           key={correction.id}
           initial={{ opacity: 0, y: -10 }}
@@ -31,7 +33,9 @@ export function CorrectionSuggestions({
           <Command.Item
             value={correction.suggested_term}
             onSelect={() => onSelect(correction.suggested_term)}
-            className="flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm"
+            className={`flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm ${
+              selectedIndex === index ? "bg-accent" : ""
+            }`}
           >
             <Sparkles className="h-4 w-4 text-muted-foreground" />
             <span className="flex-1">{correction.suggested_term}</span>
