@@ -70,7 +70,13 @@ export const useSearchSuggestions = (searchQuery: string) => {
           .limit(5);
 
         if (error) throw error;
-        setSuggestions(data || []);
+
+        // Validate and type-cast the suggestions
+        const validSuggestions = (data || []).filter((item): item is SearchSuggestion => 
+          item.type === 'correction' || item.type === 'related'
+        );
+
+        setSuggestions(validSuggestions);
       } catch (error) {
         console.error('Error fetching suggestions:', error);
       } finally {
