@@ -1014,6 +1014,38 @@ export type Database = {
         }
         Relationships: []
       }
+      suggestion_analytics: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          id: string
+          suggestion_id: string | null
+          user_ip: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          id?: string
+          suggestion_id?: string | null
+          user_ip?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          id?: string
+          suggestion_id?: string | null
+          user_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggestion_analytics_suggestion_id_fkey"
+            columns: ["suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "search_suggestions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sync_status: {
         Row: {
           agent_id: string

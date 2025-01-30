@@ -7,7 +7,8 @@ import { SearchHistory } from "./suggestions/SearchHistory";
 import { ErrorState } from "./suggestions/ErrorState";
 import { OfflineState } from "./suggestions/OfflineState";
 import { LoadingAndEmptyStates } from "./suggestions/LoadingAndEmptyStates";
-import { SearchSuggestion } from "@/hooks/useSearchSuggestions";
+import { SearchSuggestion } from "@/types/suggestions";
+import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 
 interface SearchSuggestionsProps {
   searchQuery: string;
@@ -36,16 +37,15 @@ export function SearchSuggestions({
   onRetry,
   visible
 }: SearchSuggestionsProps) {
+  const { selectedIndex, setSelectedIndex, handleKeyDown } = useKeyboardNavigation(
+    suggestions.length + history.length
+  );
+
   if (!visible) return null;
 
-  // Ensure suggestions is always an array
   const safetyCheckedSuggestions = Array.isArray(suggestions) ? suggestions : [];
-  
-  // Filter suggestions with null check
   const corrections = safetyCheckedSuggestions.filter(s => s && s.type === 'correction');
   const relatedSearches = safetyCheckedSuggestions.filter(s => s && s.type === 'related');
-
-  // Ensure history is always an array
   const safetyCheckedHistory = Array.isArray(history) ? history : [];
 
   return (
@@ -56,6 +56,7 @@ export function SearchSuggestions({
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.2 }}
         className="absolute top-full left-0 right-0 mt-2 rounded-lg border bg-background shadow-lg z-50"
+        onKeyDown={handleKeyDown}
       >
         <Command className="rounded-lg">
           <ScrollArea className="max-h-[300px] overflow-auto">
@@ -71,11 +72,13 @@ export function SearchSuggestions({
                       corrections={corrections}
                       searchQuery={searchQuery}
                       onSelect={onSelect}
+                      selectedIndex={selectedIndex}
                     />
                     <RelatedSearches
                       relatedSearches={relatedSearches}
                       searchQuery={searchQuery}
                       onSelect={onSelect}
+                      selectedIndex={selectedIndex - corrections.length}
                     />
                   </>
                 )}
@@ -85,6 +88,7 @@ export function SearchSuggestions({
                   onSelect={onSelect}
                   onClearHistory={onClearHistory}
                   onClearHistoryItem={onClearHistoryItem}
+                  selectedIndex={selectedIndex - corrections.length - relatedSearches.length}
                 />
 
                 <LoadingAndEmptyStates
