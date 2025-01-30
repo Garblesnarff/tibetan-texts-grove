@@ -37,15 +37,15 @@ export function SearchSuggestions({
   onRetry,
   visible
 }: SearchSuggestionsProps) {
-  const { selectedIndex, setSelectedIndex, handleKeyDown } = useKeyboardNavigation(
-    suggestions.length + history.length
+  const { selectedIndex, handleKeyDown } = useKeyboardNavigation(
+    (suggestions?.length || 0) + (history?.length || 0)
   );
 
   if (!visible) return null;
 
   const safetyCheckedSuggestions = Array.isArray(suggestions) ? suggestions : [];
-  const corrections = safetyCheckedSuggestions.filter(s => s && s.type === 'correction');
-  const relatedSearches = safetyCheckedSuggestions.filter(s => s && s.type === 'related');
+  const corrections = safetyCheckedSuggestions.filter(s => s && s.type === 'correction') || [];
+  const relatedSearches = safetyCheckedSuggestions.filter(s => s && s.type === 'related') || [];
   const safetyCheckedHistory = Array.isArray(history) ? history : [];
 
   return (
@@ -59,47 +59,49 @@ export function SearchSuggestions({
         onKeyDown={handleKeyDown}
       >
         <Command className="rounded-lg">
-          <ScrollArea className="max-h-[300px] overflow-auto">
-            {error ? (
-              <ErrorState error={error} onRetry={onRetry} />
-            ) : isOffline ? (
-              <OfflineState />
-            ) : (
-              <>
-                {searchQuery && (
-                  <>
-                    <CorrectionSuggestions
-                      corrections={corrections}
-                      searchQuery={searchQuery}
-                      onSelect={onSelect}
-                      selectedIndex={selectedIndex}
-                    />
-                    <RelatedSearches
-                      relatedSearches={relatedSearches}
-                      searchQuery={searchQuery}
-                      onSelect={onSelect}
-                      selectedIndex={selectedIndex - corrections.length}
-                    />
-                  </>
-                )}
+          <Command.List>
+            <ScrollArea className="max-h-[300px] overflow-auto">
+              {error ? (
+                <ErrorState error={error} onRetry={onRetry} />
+              ) : isOffline ? (
+                <OfflineState />
+              ) : (
+                <>
+                  {searchQuery && (
+                    <>
+                      <CorrectionSuggestions
+                        corrections={corrections}
+                        searchQuery={searchQuery}
+                        onSelect={onSelect}
+                        selectedIndex={selectedIndex}
+                      />
+                      <RelatedSearches
+                        relatedSearches={relatedSearches}
+                        searchQuery={searchQuery}
+                        onSelect={onSelect}
+                        selectedIndex={selectedIndex - corrections.length}
+                      />
+                    </>
+                  )}
 
-                <SearchHistory
-                  history={safetyCheckedHistory}
-                  onSelect={onSelect}
-                  onClearHistory={onClearHistory}
-                  onClearHistoryItem={onClearHistoryItem}
-                  selectedIndex={selectedIndex - corrections.length - relatedSearches.length}
-                />
+                  <SearchHistory
+                    history={safetyCheckedHistory}
+                    onSelect={onSelect}
+                    onClearHistory={onClearHistory}
+                    onClearHistoryItem={onClearHistoryItem}
+                    selectedIndex={selectedIndex - corrections.length - relatedSearches.length}
+                  />
 
-                <LoadingAndEmptyStates
-                  isLoading={isLoading}
-                  hasError={!!error}
-                  hasQuery={!!searchQuery}
-                  suggestionsCount={safetyCheckedSuggestions.length}
-                />
-              </>
-            )}
-          </ScrollArea>
+                  <LoadingAndEmptyStates
+                    isLoading={isLoading}
+                    hasError={!!error}
+                    hasQuery={!!searchQuery}
+                    suggestionsCount={safetyCheckedSuggestions.length}
+                  />
+                </>
+              )}
+            </ScrollArea>
+          </Command.List>
         </Command>
       </motion.div>
     </AnimatePresence>
