@@ -24,8 +24,8 @@ interface SearchSuggestionsProps {
 
 export function SearchSuggestions({
   searchQuery,
-  suggestions,
-  history,
+  suggestions = [],
+  history = [],
   isLoading,
   error,
   isOffline,
@@ -37,8 +37,8 @@ export function SearchSuggestions({
 }: SearchSuggestionsProps) {
   if (!visible) return null;
 
-  const corrections = suggestions.filter(s => s.type === 'correction');
-  const relatedSearches = suggestions.filter(s => s.type === 'related');
+  const corrections = (suggestions || []).filter(s => s.type === 'correction');
+  const relatedSearches = (suggestions || []).filter(s => s.type === 'related');
 
   return (
     <AnimatePresence>

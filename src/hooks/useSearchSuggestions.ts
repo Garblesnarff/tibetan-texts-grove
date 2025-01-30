@@ -6,9 +6,6 @@ import { useOnlineStatus } from './useOnlineStatus';
 import { useSearchHistory } from './useSearchHistory';
 import { getCachedSuggestions, cacheSuggestions } from '@/utils/suggestionCache';
 
-const SUGGESTION_LIMIT = 5;
-const DEBOUNCE_DELAY = 300;
-
 export interface SearchSuggestion {
   id: string;
   original_term: string;
@@ -53,50 +50,18 @@ export const useSearchSuggestions = (searchQuery: string) => {
           return;
         }
 
-        const { data: categoryData } = await supabase
-          .from('translations')
-          .select('category_id')
-          .textSearch('search_vector', term)
-          .limit(1)
-          .single();
-
         const { data, error: supabaseError } = await supabase
           .from('search_suggestions')
           .select('*')
           .or(`original_term.ilike.%${term}%,suggested_term.ilike.%${term}%`)
           .order('relevance_score', { ascending: false })
-          .limit(SUGGESTION_LIMIT);
+          .limit(5);
 
         if (supabaseError) throw supabaseError;
 
-        let suggestions = data.filter((item): item is SearchSuggestion => 
-          item.type === 'correction' || item.type === 'related'
-        );
-
-        if (categoryData?.category_id) {
-          const { data: relatedData } = await supabase
-            .from('translations')
-            .select('title')
-            .eq('category_id', categoryData.category_id)
-            .limit(SUGGESTION_LIMIT);
-
-          if (relatedData) {
-            const relatedSuggestions: SearchSuggestion[] = relatedData.map(item => ({
-              id: crypto.randomUUID(),
-              original_term: term,
-              suggested_term: item.title,
-              type: 'related',
-              usage_count: 0,
-              relevance_score: 1.0,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            }));
-            suggestions = [...suggestions, ...relatedSuggestions].slice(0, SUGGESTION_LIMIT);
-          }
-        }
-
-        setSuggestions(suggestions);
-        cacheSuggestions(term, suggestions);
+        const typedData = (data || []) as SearchSuggestion[];
+        setSuggestions(typedData);
+        cacheSuggestions(term, typedData);
       } catch (err) {
         console.error('Error fetching suggestions:', err);
         setError('Failed to fetch suggestions. Please try again.');
@@ -108,7 +73,7 @@ export const useSearchSuggestions = (searchQuery: string) => {
       } finally {
         setIsLoading(false);
       }
-    }, DEBOUNCE_DELAY),
+    }, 300),
     [isOffline, toast]
   );
 
@@ -126,8 +91,8 @@ export const useSearchSuggestions = (searchQuery: string) => {
   };
 
   return {
-    suggestions,
-    history,
+    suggestions: suggestions || [],
+    history: history || [],
     isLoading,
     error,
     isOffline,
