@@ -37,8 +37,15 @@ export function SearchSuggestions({
 }: SearchSuggestionsProps) {
   if (!visible) return null;
 
-  const corrections = (suggestions || []).filter(s => s.type === 'correction');
-  const relatedSearches = (suggestions || []).filter(s => s.type === 'related');
+  // Ensure suggestions is always an array
+  const safetyCheckedSuggestions = Array.isArray(suggestions) ? suggestions : [];
+  
+  // Filter suggestions with null check
+  const corrections = safetyCheckedSuggestions.filter(s => s && s.type === 'correction');
+  const relatedSearches = safetyCheckedSuggestions.filter(s => s && s.type === 'related');
+
+  // Ensure history is always an array
+  const safetyCheckedHistory = Array.isArray(history) ? history : [];
 
   return (
     <AnimatePresence>
@@ -95,7 +102,7 @@ export function SearchSuggestions({
                 )}
 
                 <SearchHistory
-                  history={history}
+                  history={safetyCheckedHistory}
                   onSelect={onSelect}
                   onClearHistory={onClearHistory}
                   onClearHistoryItem={onClearHistoryItem}
@@ -107,7 +114,7 @@ export function SearchSuggestions({
                   </div>
                 )}
 
-                {!isLoading && !error && searchQuery && suggestions.length === 0 && (
+                {!isLoading && !error && searchQuery && safetyCheckedSuggestions.length === 0 && (
                   <div className="p-4 text-center">
                     <p className="text-sm text-muted-foreground">
                       No suggestions found
