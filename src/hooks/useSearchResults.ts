@@ -5,23 +5,41 @@ import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 import { SortConfig } from "@/types/sorting";
 import { groupTranslations } from "@/utils/translationUtils";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 export const useSearchResults = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [searchResults, setSearchResults] = useState<GroupedTranslation[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [currentSort, setCurrentSort] = useState<string>("created_at:desc");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [currentSort, setCurrentSort] = useState<string>(searchParams.get("sort") || "created_at:desc");
+  const [selectedTags, setSelectedTags] = useState<string[]>(searchParams.get("tags")?.split(",").filter(Boolean) || []);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get("category") || null);
+  const [startDate, setStartDate] = useState<Date | null>(searchParams.get("start") ? new Date(searchParams.get("start")!) : null);
+  const [endDate, setEndDate] = useState<Date | null>(searchParams.get("end") ? new Date(searchParams.get("end")!) : null);
   const [searchStats, setSearchStats] = useState({ count: 0, time: 0 });
   const [availableTags, setAvailableTags] = useState<{ tag: string; count: number; }[]>([]);
+  const [isLoadingTags, setIsLoadingTags] = useState(false);
   const { toast } = useToast();
+
+  // Update URL parameters when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("q", searchQuery);
+    if (currentSort) params.set("sort", currentSort);
+    if (selectedTags.length > 0) params.set("tags", selectedTags.join(","));
+    if (selectedCategory) params.set("category", selectedCategory);
+    if (startDate) params.set("start", startDate.toISOString());
+    if (endDate) params.set("end", endDate.toISOString());
+    
+    setSearchParams(params);
+  }, [searchQuery, currentSort, selectedTags, selectedCategory, startDate, endDate]);
 
   // Fetch available tags
   useEffect(() => {
     const fetchTags = async () => {
+      setIsLoadingTags(true);
       try {
         const { data, error } = await supabase
           .from('translations')
@@ -47,6 +65,8 @@ export const useSearchResults = () => {
         setAvailableTags(formattedTags);
       } catch (error: any) {
         console.error('Error fetching tags:', error);
+      } finally {
+        setIsLoadingTags(false);
       }
     };
 
@@ -136,6 +156,7 @@ export const useSearchResults = () => {
     endDate,
     setEndDate,
     searchStats,
-    availableTags
+    availableTags,
+    isLoadingTags
   };
 };

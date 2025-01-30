@@ -5,6 +5,7 @@ import { EmptyState } from "./EmptyState";
 import { memo } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TranslationsGridProps {
   translations: GroupedTranslation[];
@@ -50,16 +51,32 @@ export const TranslationsGrid = memo(({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-      {translations.map((group) => (
-        <TranslationViewer 
-          key={group.code} 
-          translations={group.translations}
-          onDelete={onDelete}
-          searchQuery={searchQuery}
-        />
-      ))}
-    </div>
+    <AnimatePresence mode="wait">
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
+      >
+        {translations.map((group) => (
+          <motion.div
+            key={group.code}
+            layout
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.2 }}
+          >
+            <TranslationViewer 
+              translations={group.translations}
+              onDelete={onDelete}
+              searchQuery={searchQuery}
+            />
+          </motion.div>
+        ))}
+      </motion.div>
+    </AnimatePresence>
   );
 });
 
