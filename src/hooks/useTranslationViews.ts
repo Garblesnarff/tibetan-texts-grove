@@ -14,11 +14,17 @@ export const useTranslationViews = (translationId: string, onViewCountUpdate: (n
             translation_id: translationId,
             viewer_ip: 'anonymous' // For privacy, we're using a placeholder
           })
+          .select()
           .single();
 
-        // Ignore unique constraint violations as this means the view was already recorded
+        // Only log errors that aren't duplicate key violations
         if (error && !error.message.includes('duplicate key value')) {
           console.error('Error recording view:', error);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to record view"
+          });
         }
       } catch (error) {
         console.error('Error in recordView:', error);
@@ -50,5 +56,5 @@ export const useTranslationViews = (translationId: string, onViewCountUpdate: (n
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [translationId, onViewCountUpdate]);
+  }, [translationId, onViewCountUpdate, toast]);
 };
