@@ -1,3 +1,5 @@
+import { Json } from "../shared/json";
+
 export interface SearchSuggestions {
   Row: {
     id: string;
