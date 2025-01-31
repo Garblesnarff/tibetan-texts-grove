@@ -19,7 +19,6 @@ export interface Translations {
     featured: boolean | null;
     source_author: string | null;
     source_url: string | null;
-    relevance_score: number | null;
   };
   Insert: {
     id?: string;
@@ -39,7 +38,6 @@ export interface Translations {
     featured?: boolean | null;
     source_author?: string | null;
     source_url?: string | null;
-    relevance_score?: number | null;
   };
   Update: {
     id?: string;
@@ -59,6 +57,26 @@ export interface Translations {
     featured?: boolean | null;
     source_author?: string | null;
     source_url?: string | null;
-    relevance_score?: number | null;
+  };
+}
+
+export interface TranslationViews {
+  Row: {
+    id: string;
+    translation_id: string;
+    viewer_ip: string;
+    viewed_at: string | null;
+  };
+  Insert: {
+    id?: string;
+    translation_id: string;
+    viewer_ip: string;
+    viewed_at?: string | null;
+  };
+  Update: {
+    id?: string;
+    translation_id?: string;
+    viewer_ip?: string;
+    viewed_at?: string | null;
   };
 }

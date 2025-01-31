@@ -4,53 +4,53 @@ export interface SearchSuggestions {
     original_term: string;
     suggested_term: string;
     type: string;
-    usage_count: number | null;
-    created_at: string | null;
-    updated_at: string | null;
-    relevance_score: number | null;
+    usage_count: number;
+    created_at: string;
+    updated_at: string;
+    relevance_score: number;
   };
   Insert: {
     id?: string;
     original_term: string;
     suggested_term: string;
     type: string;
-    usage_count?: number | null;
-    created_at?: string | null;
-    updated_at?: string | null;
-    relevance_score?: number | null;
+    usage_count?: number;
+    created_at?: string;
+    updated_at?: string;
+    relevance_score?: number;
   };
   Update: {
     id?: string;
     original_term?: string;
     suggested_term?: string;
     type?: string;
-    usage_count?: number | null;
-    created_at?: string | null;
-    updated_at?: string | null;
-    relevance_score?: number | null;
+    usage_count?: number;
+    created_at?: string;
+    updated_at?: string;
+    relevance_score?: number;
   };
 }
 
 export interface SuggestionAnalytics {
   Row: {
     id: string;
-    suggestion_id: string | null;
+    suggestion_id: string;
     action_type: string;
     user_ip: string | null;
-    created_at: string | null;
+    created_at: string;
   };
   Insert: {
     id?: string;
-    suggestion_id?: string | null;
+    suggestion_id: string;
     action_type: string;
     user_ip?: string | null;
-    created_at?: string | null;
+    created_at?: string;
   };
   Update: {
     id?: string;
-    suggestion_id?: string | null;
+    suggestion_id?: string;
     action_type?: string;
     user_ip?: string | null;
-    created_at?: string | null;
+    created_at?: string;
   };
 }
