@@ -113,11 +113,12 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
           )
         `);
 
-      query = query
-        .or(`title.ilike.${formattedQuery}`)
-        .or(`tibetan_title.ilike.${formattedQuery}`)
-        .or(`description.ilike.${formattedQuery}`)
-        .limit(20);
+      query = query.or([
+        { title: { ilike: formattedQuery } },
+        { tibetan_title: { ilike: formattedQuery } },
+        { description: { ilike: formattedQuery } }
+      ].map(condition => `${Object.keys(condition)[0]}.ilike.${Object.values(condition)[0].ilike}`).join(','))
+      .limit(20);
 
       const { data: translations, error: translationsError } = await query;
 
