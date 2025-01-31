@@ -39,101 +39,107 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
     };
   }, [selectedCategory]);
 
-  useEffect(() => {
-    const fetchSuggestions = async (term: string) => {
-      if (!term.trim() || term.length < 2) {
-        setSuggestions([]);
-        setError(null);
-        return;
-      }
-
-      if (isOffline) {
-        setError('You are currently offline. Search suggestions are not available.');
-        return;
-      }
-
-      setIsLoading(true);
+  const fetchSuggestionsImpl = async (term: string) => {
+    if (!term.trim() || term.length < 2) {
+      setSuggestions([]);
       setError(null);
+      return;
+    }
 
-      try {
-        const cached = getCachedSuggestions(term);
-        if (cached) {
-          setSuggestions(cached);
-          setIsLoading(false);
-          return;
-        }
+    if (isOffline) {
+      setError('You are currently offline. Search suggestions are not available.');
+      return;
+    }
 
-        const formattedQuery = formatSearchTerm(term);
-        const { data: translations, error: translationsError } = await supabase
-          .from('translations')
-          .select(`
-            id,
-            title,
-            category_id,
-            tags,
-            view_count,
-            categories!inner (
-              id,
-              title
-            )
-          `)
-          .or(`title.ilike.${formattedQuery}`)
-          .or(`tibetan_title.ilike.${formattedQuery}`)
-          .or(`description.ilike.${formattedQuery}`)
-          .limit(20);
+    setIsLoading(true);
+    setError(null);
 
-        if (translationsError) throw translationsError;
-
-        const processedSuggestions: SearchSuggestion[] = [];
-        
-        if (translations) {
-          for (const translation of translations) {
-            const suggestion: SearchSuggestion = {
-              id: translation.id,
-              original_term: term,
-              suggested_term: translation.title,
-              type: 'related',
-              usage_count: 1,
-              relevance_score: 0,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              category_id: translation.category_id,
-              category_title: translation.categories?.title,
-              tag_similarity: translation.tags ? calculateTagSimilarity(translation.tags, term) : 0,
-              view_count_proximity: calculateViewCountProximity(translation.view_count)
-            };
-
-            const score = calculateScore(suggestion);
-            suggestion.relevance_score = score.totalScore;
-            processedSuggestions.push(suggestion);
-          }
-        }
-
-        const sortedSuggestions = processedSuggestions
-          .sort((a, b) => b.relevance_score - a.relevance_score)
-          .slice(0, 5);
-
-        setSuggestions(sortedSuggestions);
-        cacheSuggestions(term, sortedSuggestions);
-        
-      } catch (err) {
-        console.error('Error fetching suggestions:', err);
-        setError('Failed to fetch suggestions. Please try again.');
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to fetch search suggestions. Please try again."
-        });
-      } finally {
+    try {
+      const cached = getCachedSuggestions(term);
+      if (cached) {
+        setSuggestions(cached);
         setIsLoading(false);
+        return;
       }
-    };
 
+      const formattedQuery = formatSearchTerm(term);
+      const { data: translations, error: translationsError } = await supabase
+        .from('translations')
+        .select(`
+          id,
+          title,
+          category_id,
+          tags,
+          view_count,
+          categories!inner(
+            id,
+            title
+          )
+        `)
+        .or(`title.ilike.${formattedQuery}`)
+        .or(`tibetan_title.ilike.${formattedQuery}`)
+        .or(`description.ilike.${formattedQuery}`)
+        .limit(20);
+
+      if (translationsError) throw translationsError;
+
+      const processedSuggestions: SearchSuggestion[] = [];
+      
+      if (translations) {
+        for (const translation of translations) {
+          const suggestion: SearchSuggestion = {
+            id: translation.id,
+            original_term: term,
+            suggested_term: translation.title,
+            type: 'related',
+            usage_count: 1,
+            relevance_score: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            category_id: translation.category_id,
+            category_title: translation.categories?.title,
+            tag_similarity: translation.tags ? calculateTagSimilarity(translation.tags, term) : 0,
+            view_count_proximity: calculateViewCountProximity(translation.view_count)
+          };
+
+          const score = calculateScore(suggestion);
+          suggestion.relevance_score = score.totalScore;
+          processedSuggestions.push(suggestion);
+        }
+      }
+
+      const sortedSuggestions = processedSuggestions
+        .sort((a, b) => b.relevance_score - a.relevance_score)
+        .slice(0, 5);
+
+      setSuggestions(sortedSuggestions);
+      cacheSuggestions(term, sortedSuggestions);
+      
+    } catch (err) {
+      console.error('Error fetching suggestions:', err);
+      setError('Failed to fetch suggestions. Please try again.');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch search suggestions. Please try again."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Create a debounced version of fetchSuggestionsImpl
+  const fetchSuggestions = useCallback(
+    debounce(fetchSuggestionsImpl, 300),
+    [selectedCategory, isOffline, toast, calculateScore]
+  );
+
+  useEffect(() => {
     fetchSuggestions(searchQuery);
     return () => {
       fetchSuggestions.cancel();
     };
-  }, [searchQuery, selectedCategory, isOffline, toast, calculateScore]);
+  }, [searchQuery, fetchSuggestions]);
 
   const calculateTagSimilarity = useCallback((tags: string[], searchTerm: string): number => {
     if (!tags || tags.length === 0) return 0;
@@ -160,9 +166,9 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
 
   const retryFetch = useCallback(() => {
     if (searchQuery) {
-      fetchSuggestions(searchQuery);
+      fetchSuggestionsImpl(searchQuery);
     }
-  }, [searchQuery, fetchSuggestions]);
+  }, [searchQuery]);
 
   return {
     suggestions: suggestions || [],
