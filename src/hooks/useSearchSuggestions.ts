@@ -15,6 +15,56 @@ const formatSearchTerm = (term: string): string => {
   return `%${escaped}%`;
 };
 
+// Utility function to calculate similarity between tags and search term
+const calculateTagSimilarity = (tags: string[], searchTerm: string): number => {
+  if (!tags || tags.length === 0) return 0;
+  
+  const termWords = searchTerm.toLowerCase().split(' ');
+  let matchCount = 0;
+  
+  tags.forEach(tag => {
+    termWords.forEach(word => {
+      if (tag.toLowerCase().includes(word)) {
+        matchCount++;
+      }
+    });
+  });
+  
+  return matchCount / Math.max(termWords.length, tags.length);
+};
+
+// Utility function to calculate view count proximity score
+const calculateViewCountProximity = (viewCount: number): number => {
+  if (!viewCount) return 0;
+  // Normalize view count to a 0-1 scale, with diminishing returns after 1000 views
+  return Math.min(viewCount / 1000, 1);
+};
+
+// Calculate overall suggestion score
+const calculateScore = (suggestion: SearchSuggestion) => {
+  const titleMatchScore = suggestion.suggested_term.toLowerCase().includes(suggestion.original_term.toLowerCase()) ? 1 : 0;
+  const tagScore = suggestion.tag_similarity || 0;
+  const viewCountScore = suggestion.view_count_proximity || 0;
+  const categoryScore = suggestion.category_title ? 0.5 : 0;
+
+  const totalScore = (
+    titleMatchScore * 2.0 +  // Title matches have highest weight
+    tagScore * 1.5 +         // Tag similarity is important
+    viewCountScore * 0.8 +   // View count provides social proof
+    categoryScore            // Category match gives a small boost
+  ) / 5.3;                   // Normalize to 0-1 range
+
+  return {
+    totalScore,
+    components: {
+      titleMatchScore,
+      tagScore,
+      viewCountScore,
+      categoryScore
+    }
+  };
+};
+
 export const useSearchSuggestions = (searchQuery: string, selectedCategory?: string | null) => {
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
