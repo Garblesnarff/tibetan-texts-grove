@@ -7,6 +7,15 @@ import { SortConfig } from "@/types/sorting";
 import { groupTranslations } from "@/utils/translationUtils";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
+const formatSearchTerm = (term: string): string => {
+  // Remove special characters and replace with spaces
+  const cleaned = term.replace(/[&|!(),:]/g, ' ');
+  // Split into words and filter out empty strings
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  // Join words with & for AND operation, wrap each in :* for prefix matching
+  return words.map(word => `${word}:*`).join(' & ');
+};
+
 export const useSearchResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -93,8 +102,9 @@ export const useSearchResults = () => {
           .select('*')
           .is('category_id', null);
 
-        if (searchQuery) {
-          query = query.textSearch('search_vector', searchQuery);
+        if (searchQuery.trim()) {
+          const formattedQuery = formatSearchTerm(searchQuery);
+          query = query.textSearch('search_vector', formattedQuery);
         }
 
         if (selectedTags.length > 0) {
