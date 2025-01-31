@@ -62,12 +62,11 @@ export const useSearchResults = () => {
           .select('*, categories!inner(id,title)');
 
         if (searchQuery.trim()) {
-          const filters = [
-            { title: { ilike: formattedQuery } },
-            { tibetan_title: { ilike: formattedQuery } },
-            { description: { ilike: formattedQuery } }
-          ];
-          query = query.or(filters.map(filter => JSON.stringify(filter)).join(','));
+          query = query.or(
+            `title.ilike.${formattedQuery},` +
+            `tibetan_title.ilike.${formattedQuery},` +
+            `description.ilike.${formattedQuery}`
+          );
         }
 
         if (selectedTags.length > 0) {
