@@ -8,23 +8,38 @@ export const useTranslationViews = (translationId: string, onViewCountUpdate: (n
   useEffect(() => {
     const recordView = async () => {
       try {
-        const { error } = await supabase
+        // First check if a view already exists
+        const { data: existingView, error: checkError } = await supabase
           .from('translation_views')
-          .insert({
-            translation_id: translationId,
-            viewer_ip: 'anonymous' // For privacy, we're using a placeholder
-          })
-          .select()
-          .single();
+          .select('id')
+          .eq('translation_id', translationId)
+          .eq('viewer_ip', 'anonymous')
+          .maybeSingle();
 
-        // Only log errors that aren't duplicate key violations
-        if (error && !error.message.includes('duplicate key value')) {
-          console.error('Error recording view:', error);
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to record view"
-          });
+        if (checkError) {
+          console.error('Error checking existing view:', checkError);
+          return;
+        }
+
+        // Only insert if no existing view is found
+        if (!existingView) {
+          const { error: insertError } = await supabase
+            .from('translation_views')
+            .insert({
+              translation_id: translationId,
+              viewer_ip: 'anonymous' // For privacy, we're using a placeholder
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Error recording view:', insertError);
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Failed to record view"
+            });
+          }
         }
       } catch (error) {
         console.error('Error in recordView:', error);
