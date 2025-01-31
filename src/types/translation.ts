@@ -18,6 +18,7 @@ export interface Translation {
   search_vector?: unknown;
   source_author?: string | null;
   source_url?: string | null;
+  relevance_score?: number;
 }
 
 export interface TranslationMetadata {
