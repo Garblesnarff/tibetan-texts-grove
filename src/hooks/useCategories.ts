@@ -13,10 +13,7 @@ export const useCategories = () => {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select<string, Categories['Row'] & { translations: { count: number }[] }>(`
-          *,
-          translations(count)
-        `)
+        .select<string, Categories['Row']>('*, translations(count)')
         .order('title');
 
       if (error) throw error;
