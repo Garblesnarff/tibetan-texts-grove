@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Category } from "@/types/category";
@@ -9,11 +9,11 @@ export const useCategories = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select<'categories', Categories['Row'] & { translation_count: { count: number }[] }>('*, translation_count:translations(count)')
+        .select('*, translations(count)')
         .order('title');
 
       if (error) throw error;
@@ -26,19 +26,20 @@ export const useCategories = () => {
           created_at: category.created_at,
           updated_at: category.updated_at,
           created_by: category.created_by,
-          translation_count: category.translation_count?.[0]?.count || 0
+          translation_count: category.translations?.[0]?.count || 0
         }));
 
         setCategories(transformedData);
       }
     } catch (error: any) {
+      console.error('Error fetching categories:', error);
       toast({
         variant: "destructive",
         title: "Error fetching categories",
         description: error.message
       });
     }
-  };
+  }, [toast]);
 
   const checkAdminStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();

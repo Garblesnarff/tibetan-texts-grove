@@ -35,7 +35,6 @@ const TranslationViewer = ({
     handleUpdate
   } = useTranslationState(translations[0]);
 
-  // Use the new hook for view tracking
   useTranslationViews(translations[0].id, async (newCount) => {
     await handleUpdate();
   });
@@ -44,7 +43,7 @@ const TranslationViewer = ({
     const fetchCategories = async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select<'categories', Categories['Row']>('id, title')
+        .select('id, title')
         .order('title');
       
       if (error) {

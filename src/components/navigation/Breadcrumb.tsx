@@ -21,7 +21,7 @@ export function CategoryBreadcrumb() {
       if (categoryId) {
         const { data, error } = await supabase
           .from('categories')
-          .select<'categories', Categories['Row']>('title')
+          .select('title')
           .eq('id', categoryId)
           .single();
 
