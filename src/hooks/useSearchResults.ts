@@ -8,12 +8,10 @@ import { groupTranslations } from "@/utils/translationUtils";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 const formatSearchTerm = (term: string): string => {
-  // Remove special characters and replace with spaces
-  const cleaned = term.replace(/[&|!(),:]/g, ' ');
-  // Split into words and filter out empty strings
-  const words = cleaned.split(/\s+/).filter(Boolean);
-  // Join words with & for AND operation, wrap each in :* for prefix matching
-  return words.map(word => `${word}:*`).join(' & ');
+  // Clean and normalize the search term for ilike pattern matching
+  const cleaned = term.trim().toLowerCase();
+  // Add wildcards for partial matching
+  return `%${cleaned}%`;
 };
 
 export const useSearchResults = () => {
@@ -104,7 +102,7 @@ export const useSearchResults = () => {
 
         if (searchQuery.trim()) {
           const formattedQuery = formatSearchTerm(searchQuery);
-          query = query.textSearch('search_vector', formattedQuery);
+          query = query.or(`title.ilike.${formattedQuery},tibetan_title.ilike.${formattedQuery},description.ilike.${formattedQuery}`);
         }
 
         if (selectedTags.length > 0) {
