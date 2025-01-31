@@ -9,7 +9,10 @@ import { SearchSuggestion } from '@/types/suggestions';
 import { useSuggestionAnalytics } from './useSuggestionAnalytics';
 
 const formatSearchTerm = (term: string): string => {
-  return term.trim().toLowerCase().replace(/[%_,]/g, '\\$&');
+  const escaped = term.trim()
+    .toLowerCase()
+    .replace(/[%_]/g, '\\$&');
+  return `%${escaped}%`;
 };
 
 // Utility function to calculate similarity between tags and search term
@@ -110,12 +113,11 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
           )
         `);
 
-      // Chain multiple .or() calls for each condition
-      query = query
-        .or(`title.ilike.%${formattedQuery}%`)
-        .or(`tibetan_title.ilike.%${formattedQuery}%`)
-        .or(`description.ilike.%${formattedQuery}%`)
-        .limit(20);
+      query = query.or(
+        `title.ilike.${formattedQuery},` +
+        `tibetan_title.ilike.${formattedQuery},` +
+        `description.ilike.${formattedQuery}`
+      ).limit(20);
 
       const { data: translations, error: translationsError } = await query;
 
