@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import debounce from 'lodash/debounce';
@@ -9,7 +9,7 @@ import { SearchSuggestion } from '@/types/suggestions';
 import { useSuggestionAnalytics } from './useSuggestionAnalytics';
 
 const formatSearchTerm = (term: string): string => {
-  return term.trim().toLowerCase().replace(/[%_]/g, '\\$&');
+  return term.trim().toLowerCase().replace(/[%_,]/g, '\\$&');
 };
 
 // Utility function to calculate similarity between tags and search term
@@ -95,7 +95,8 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
       }
 
       const formattedQuery = formatSearchTerm(term);
-      const { data: translations, error: translationsError } = await supabase
+      
+      let query = supabase
         .from('translations')
         .select(`
           id,
@@ -107,9 +108,16 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
             id,
             title
           )
-        `)
-        .or(`title.ilike.%${formattedQuery}%,tibetan_title.ilike.%${formattedQuery}%,description.ilike.%${formattedQuery}%`)
+        `);
+
+      // Chain multiple .or() calls for each condition
+      query = query
+        .or(`title.ilike.%${formattedQuery}%`)
+        .or(`tibetan_title.ilike.%${formattedQuery}%`)
+        .or(`description.ilike.%${formattedQuery}%`)
         .limit(20);
+
+      const { data: translations, error: translationsError } = await query;
 
       if (translationsError) throw translationsError;
 
@@ -128,7 +136,7 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
             updated_at: new Date().toISOString(),
             category_id: translation.category_id,
             category_title: translation.categories?.title,
-            tag_similarity: calculateTagSimilarity(translation.tags, term),
+            tag_similarity: calculateTagSimilarity(translation.tags || [], term),
             view_count_proximity: calculateViewCountProximity(translation.view_count)
           };
 
@@ -154,8 +162,8 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
     }
   };
 
-  const debouncedFetchSuggestions = useMemo(
-    () => debounce(fetchSuggestionsImpl, 300),
+  const debouncedFetchSuggestions = useCallback(
+    debounce(fetchSuggestionsImpl, 300),
     []
   );
 

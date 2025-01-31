@@ -7,8 +7,7 @@ import { groupTranslations } from "@/utils/translationUtils";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 const formatSearchTerm = (term: string): string => {
-  // Escape special characters and wrap in wildcards for partial matching
-  return `%${term.trim().toLowerCase().replace(/[%_]/g, '\\$&')}%`;
+  return term.trim().toLowerCase().replace(/[%_,]/g, '\\$&');
 };
 
 export const useSearchResults = () => {
@@ -60,7 +59,10 @@ export const useSearchResults = () => {
           .select('*, categories!inner(id,title)');
 
         if (searchQuery.trim()) {
-          query = query.or(`title.ilike.${formattedQuery},tibetan_title.ilike.${formattedQuery},description.ilike.${formattedQuery}`);
+          query = query
+            .or(`title.ilike.%${formattedQuery}%`)
+            .or(`tibetan_title.ilike.%${formattedQuery}%`)
+            .or(`description.ilike.%${formattedQuery}%`);
         }
 
         if (selectedTags.length > 0) {
