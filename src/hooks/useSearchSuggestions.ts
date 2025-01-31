@@ -39,8 +39,8 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
     };
   }, [selectedCategory]);
 
-  const fetchSuggestions = useCallback(
-    debounce(async (term: string) => {
+  useEffect(() => {
+    const fetchSuggestions = async (term: string) => {
       if (!term.trim() || term.length < 2) {
         setSuggestions([]);
         setError(null);
@@ -77,11 +77,9 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
               title
             )
           `)
-          .or([
-            `title.ilike.${formattedQuery}`,
-            `tibetan_title.ilike.${formattedQuery}`,
-            `description.ilike.${formattedQuery}`
-          ].join(','))
+          .or(`title.ilike.${formattedQuery}`)
+          .or(`tibetan_title.ilike.${formattedQuery}`)
+          .or(`description.ilike.${formattedQuery}`)
           .limit(20);
 
         if (translationsError) throw translationsError;
@@ -129,9 +127,13 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
       } finally {
         setIsLoading(false);
       }
-    }, 300),
-    [selectedCategory, isOffline, toast, calculateScore]
-  );
+    };
+
+    fetchSuggestions(searchQuery);
+    return () => {
+      fetchSuggestions.cancel();
+    };
+  }, [searchQuery, selectedCategory, isOffline, toast, calculateScore]);
 
   const calculateTagSimilarity = useCallback((tags: string[], searchTerm: string): number => {
     if (!tags || tags.length === 0) return 0;
@@ -150,13 +152,6 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
     const difference = Math.abs(viewCount - averageViewCount);
     return Math.max(0, 1 - (difference / maxDifference));
   }, []);
-
-  useEffect(() => {
-    fetchSuggestions(searchQuery);
-    return () => {
-      fetchSuggestions.cancel();
-    };
-  }, [searchQuery, fetchSuggestions]);
 
   const handleSuggestionSelect = useCallback(async (suggestion: SearchSuggestion) => {
     await trackSuggestionUsage(suggestion.id, 'selected');

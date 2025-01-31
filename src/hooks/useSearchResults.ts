@@ -8,9 +8,7 @@ import { groupTranslations } from "@/utils/translationUtils";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 const formatSearchTerm = (term: string): string => {
-  // Clean and normalize the search term for ilike pattern matching
   const cleaned = term.trim().toLowerCase();
-  // Add wildcards for partial matching
   return `%${cleaned}%`;
 };
 
@@ -80,7 +78,6 @@ export const useSearchResults = () => {
     fetchTags();
   }, []);
 
-  // Handle search with filtering
   useEffect(() => {
     const searchTranslations = async () => {
       if (!searchQuery.trim() && selectedTags.length === 0 && !selectedCategory && !startDate && !endDate) {
@@ -101,11 +98,10 @@ export const useSearchResults = () => {
 
         if (searchQuery.trim()) {
           const formattedQuery = formatSearchTerm(searchQuery);
-          query = query.or([
-            `title.ilike.${formattedQuery}`,
-            `tibetan_title.ilike.${formattedQuery}`,
-            `description.ilike.${formattedQuery}`
-          ].join(','));
+          query = query
+            .or(`title.ilike.${formattedQuery}`)
+            .or(`tibetan_title.ilike.${formattedQuery}`)
+            .or(`description.ilike.${formattedQuery}`);
         }
 
         if (selectedTags.length > 0) {
