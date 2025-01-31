@@ -77,7 +77,11 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
               title
             )
           `)
-          .or(`title.ilike.${formattedQuery},tibetan_title.ilike.${formattedQuery},description.ilike.${formattedQuery}`)
+          .or([
+            `title.ilike.${formattedQuery}`,
+            `tibetan_title.ilike.${formattedQuery}`,
+            `description.ilike.${formattedQuery}`
+          ].join(','))
           .limit(20);
 
         if (translationsError) throw translationsError;

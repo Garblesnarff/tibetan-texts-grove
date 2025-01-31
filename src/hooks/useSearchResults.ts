@@ -101,7 +101,11 @@ export const useSearchResults = () => {
 
         if (searchQuery.trim()) {
           const formattedQuery = formatSearchTerm(searchQuery);
-          query = query.or(`title.ilike.${formattedQuery},tibetan_title.ilike.${formattedQuery},description.ilike.${formattedQuery}`);
+          query = query.or([
+            `title.ilike.${formattedQuery}`,
+            `tibetan_title.ilike.${formattedQuery}`,
+            `description.ilike.${formattedQuery}`
+          ].join(','));
         }
 
         if (selectedTags.length > 0) {
