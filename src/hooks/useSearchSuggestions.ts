@@ -5,12 +5,11 @@ import debounce from 'lodash/debounce';
 import { useOnlineStatus } from './useOnlineStatus';
 import { useSearchHistory } from './useSearchHistory';
 import { getCachedSuggestions, cacheSuggestions } from '@/utils/suggestionCache';
-import { SearchSuggestion, SuggestionScore } from '@/types/suggestions';
+import { SearchSuggestion } from '@/types/suggestions';
 import { useSuggestionAnalytics } from './useSuggestionAnalytics';
 
 const formatSearchTerm = (term: string): string => {
-  const cleaned = term.trim().toLowerCase();
-  return `%${cleaned}%`;
+  return `%${term.trim().toLowerCase().replace(/[%_]/g, '\\$&')}%`;
 };
 
 export const useSearchSuggestions = (searchQuery: string, selectedCategory?: string | null) => {
@@ -21,23 +20,6 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
   const { history, addToHistory, clearHistory, clearHistoryItem } = useSearchHistory();
   const { toast } = useToast();
   const { trackSuggestionUsage } = useSuggestionAnalytics();
-
-  const calculateScore = useMemo(() => {
-    return (suggestion: SearchSuggestion): SuggestionScore => {
-      const categoryMatchScore = suggestion.category_id === selectedCategory ? 2.0 : 0.0;
-      const tagSimilarityScore = Math.min((suggestion.tag_similarity || 0) * 1.5, 1.5);
-      const viewCountScore = Math.min((suggestion.view_count_proximity || 0) * 1.0, 1.0);
-      const historicalUsageScore = Math.min((suggestion.usage_count / 10) * 0.5, 0.5);
-
-      return {
-        categoryMatchScore,
-        tagSimilarityScore,
-        viewCountScore,
-        historicalUsageScore,
-        totalScore: categoryMatchScore + tagSimilarityScore + viewCountScore + historicalUsageScore
-      };
-    };
-  }, [selectedCategory]);
 
   const fetchSuggestionsImpl = async (term: string) => {
     if (!term.trim() || term.length < 2) {
@@ -76,9 +58,7 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
             title
           )
         `)
-        .or(`title.ilike.${formattedQuery}`)
-        .or(`tibetan_title.ilike.${formattedQuery}`)
-        .or(`description.ilike.${formattedQuery}`)
+        .or(`title.ilike.${formattedQuery},tibetan_title.ilike.${formattedQuery},description.ilike.${formattedQuery}`)
         .limit(20);
 
       if (translationsError) throw translationsError;
@@ -108,12 +88,8 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
         }
       }
 
-      const sortedSuggestions = processedSuggestions
-        .sort((a, b) => b.relevance_score - a.relevance_score)
-        .slice(0, 5);
-
-      setSuggestions(sortedSuggestions);
-      cacheSuggestions(term, sortedSuggestions);
+      setSuggestions(processedSuggestions);
+      cacheSuggestions(term, processedSuggestions);
       
     } catch (err) {
       console.error('Error fetching suggestions:', err);
@@ -128,41 +104,17 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
     }
   };
 
-  // Create a debounced version of fetchSuggestionsImpl
-  const fetchSuggestions = useCallback(
-    debounce(fetchSuggestionsImpl, 300),
-    [selectedCategory, isOffline, toast, calculateScore]
+  const debouncedFetchSuggestions = useMemo(
+    () => debounce(fetchSuggestionsImpl, 300),
+    []
   );
 
   useEffect(() => {
-    fetchSuggestions(searchQuery);
+    debouncedFetchSuggestions(searchQuery);
     return () => {
-      fetchSuggestions.cancel();
+      debouncedFetchSuggestions.cancel();
     };
-  }, [searchQuery, fetchSuggestions]);
-
-  const calculateTagSimilarity = useCallback((tags: string[], searchTerm: string): number => {
-    if (!tags || tags.length === 0) return 0;
-    
-    const searchTerms = searchTerm.toLowerCase().split(' ');
-    const matchingTags = tags.filter(tag => 
-      searchTerms.some(term => tag.toLowerCase().includes(term))
-    );
-    
-    return matchingTags.length / tags.length;
-  }, []);
-
-  const calculateViewCountProximity = useCallback((viewCount: number): number => {
-    const averageViewCount = 100;
-    const maxDifference = 1000;
-    const difference = Math.abs(viewCount - averageViewCount);
-    return Math.max(0, 1 - (difference / maxDifference));
-  }, []);
-
-  const handleSuggestionSelect = useCallback(async (suggestion: SearchSuggestion) => {
-    await trackSuggestionUsage(suggestion.id, 'selected');
-    addToHistory(suggestion.suggested_term);
-  }, [trackSuggestionUsage, addToHistory]);
+  }, [searchQuery, debouncedFetchSuggestions]);
 
   const retryFetch = useCallback(() => {
     if (searchQuery) {
@@ -179,7 +131,6 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
     addToHistory,
     clearHistory,
     clearHistoryItem,
-    retryFetch,
-    handleSuggestionSelect
+    retryFetch
   };
 };

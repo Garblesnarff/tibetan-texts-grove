@@ -1,15 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
-import { SortConfig } from "@/types/sorting";
 import { groupTranslations } from "@/utils/translationUtils";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 const formatSearchTerm = (term: string): string => {
-  const cleaned = term.trim().toLowerCase();
-  return `%${cleaned}%`;
+  // Escape special characters and wrap in wildcards for partial matching
+  return `%${term.trim().toLowerCase().replace(/[%_]/g, '\\$&')}%`;
 };
 
 export const useSearchResults = () => {
@@ -41,43 +40,6 @@ export const useSearchResults = () => {
     setSearchParams(params);
   }, [searchQuery, currentSort, selectedTags, selectedCategory, startDate, endDate]);
 
-  // Fetch available tags
-  useEffect(() => {
-    const fetchTags = async () => {
-      setIsLoadingTags(true);
-      try {
-        const { data, error } = await supabase
-          .from('translations')
-          .select('tags')
-          .not('tags', 'eq', '{}');
-
-        if (error) throw error;
-
-        const tagCounts: { [key: string]: number } = {};
-        data.forEach(translation => {
-          if (translation.tags) {
-            translation.tags.forEach((tag: string) => {
-              tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-            });
-          }
-        });
-
-        const formattedTags = Object.entries(tagCounts).map(([tag, count]) => ({
-          tag,
-          count
-        }));
-
-        setAvailableTags(formattedTags);
-      } catch (error: any) {
-        console.error('Error fetching tags:', error);
-      } finally {
-        setIsLoadingTags(false);
-      }
-    };
-
-    fetchTags();
-  }, []);
-
   useEffect(() => {
     const searchTranslations = async () => {
       if (!searchQuery.trim() && selectedTags.length === 0 && !selectedCategory && !startDate && !endDate) {
@@ -91,17 +53,14 @@ export const useSearchResults = () => {
       
       try {
         const [field, direction] = currentSort.split(':');
+        const formattedQuery = formatSearchTerm(searchQuery);
         
         let query = supabase
           .from('translations')
           .select('*, categories!inner(id,title)');
 
         if (searchQuery.trim()) {
-          const formattedQuery = formatSearchTerm(searchQuery);
-          query = query
-            .or(`title.ilike.${formattedQuery}`)
-            .or(`tibetan_title.ilike.${formattedQuery}`)
-            .or(`description.ilike.${formattedQuery}`);
+          query = query.or(`title.ilike.${formattedQuery},tibetan_title.ilike.${formattedQuery},description.ilike.${formattedQuery}`);
         }
 
         if (selectedTags.length > 0) {
