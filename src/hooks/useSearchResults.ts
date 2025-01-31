@@ -8,12 +8,29 @@ import { groupTranslations } from "@/utils/translationUtils";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 const formatSearchTerm = (term: string): string => {
-  // Remove special characters and replace with spaces
-  const cleaned = term.replace(/[&|!(),:]/g, ' ');
-  // Split into words and filter out empty strings
-  const words = cleaned.split(/\s+/).filter(Boolean);
-  // Join words with & for AND operation, wrap each in :* for prefix matching
-  return words.map(word => `${word}:*`).join(' & ');
+  if (!term) return '';
+  
+  // Remove special characters and normalize spaces
+  const cleaned = term
+    .replace(/[&|!():,\.]/g, ' ')  // Remove PostgreSQL tsquery special chars
+    .replace(/\s+/g, ' ')          // Normalize spaces
+    .trim();
+    
+  if (!cleaned) return '';
+  
+  // Split into words, filter empty strings, and format each word
+  const words = cleaned
+    .split(' ')
+    .filter(Boolean)
+    .map(word => {
+      // Escape any remaining special characters
+      const escaped = word.replace(/['"]/, '');
+      // Add prefix matching
+      return `${escaped}:*`;
+    });
+    
+  // Join with & operator for AND logic between words
+  return words.join(' & ');
 };
 
 export const useSearchResults = () => {
@@ -104,7 +121,9 @@ export const useSearchResults = () => {
 
         if (searchQuery.trim()) {
           const formattedQuery = formatSearchTerm(searchQuery);
-          query = query.textSearch('search_vector', formattedQuery);
+          if (formattedQuery) {
+            query = query.textSearch('search_vector', formattedQuery);
+          }
         }
 
         if (selectedTags.length > 0) {
