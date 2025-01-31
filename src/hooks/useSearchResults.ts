@@ -7,10 +7,7 @@ import { groupTranslations } from "@/utils/translationUtils";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 const formatSearchTerm = (term: string): string => {
-  return term.trim()
-    .toLowerCase()
-    .replace(/%/g, '\\%')
-    .replace(/_/g, '\\_');
+  return term.trim().toLowerCase();
 };
 
 export const useSearchResults = () => {
@@ -55,36 +52,42 @@ export const useSearchResults = () => {
       
       try {
         const [field, direction] = currentSort.split(':');
-        const formattedQuery = `%${formatSearchTerm(searchQuery)}%`;
         
         let query = supabase
           .from('translations')
           .select('*, categories!inner(id,title)');
 
+        // Handle search query
         if (searchQuery.trim()) {
+          const formattedTerm = `%${formatSearchTerm(searchQuery)}%`;
           query = query.or(
-            `title.ilike.${formattedQuery},` +
-            `tibetan_title.ilike.${formattedQuery},` +
-            `description.ilike.${formattedQuery}`
+            `title.ilike.${formattedTerm},` +
+            `tibetan_title.ilike.${formattedTerm},` +
+            `description.ilike.${formattedTerm}`
           );
         }
 
+        // Handle tag filtering
         if (selectedTags.length > 0) {
           query = query.contains('tags', selectedTags);
         }
 
+        // Handle category filtering
         if (selectedCategory) {
           query = query.eq('category_id', selectedCategory);
         }
 
+        // Handle date range filtering
         if (startDate && endDate) {
           query = query
             .gte('created_at', startDate.toISOString())
             .lte('created_at', endDate.toISOString());
         }
 
-        const { data, error } = await query
-          .order(field, { ascending: direction === 'asc' });
+        // Apply sorting
+        query = query.order(field, { ascending: direction === 'asc' });
+
+        const { data, error } = await query;
 
         if (error) throw error;
 
