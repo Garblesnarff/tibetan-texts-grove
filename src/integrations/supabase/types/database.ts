@@ -1,4 +1,4 @@
-import { Categories, Translations, TranslationViews, SearchSuggestions, SuggestionAnalytics } from './tables';
+import type { Categories, Translations, TranslationViews, SearchSuggestions, SuggestionAnalytics } from './tables';
 
 export interface Database {
   public: {

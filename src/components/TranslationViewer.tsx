@@ -9,7 +9,7 @@ import { ViewerContainer } from "./translation/viewer/ViewerContainer";
 import { TranslationMetadata } from "./translation/viewer/TranslationMetadata";
 import { useTranslationState } from "./translation/viewer/useTranslationState";
 import { useTranslationViews } from "@/hooks/useTranslationViews";
-import { Categories } from "@/integrations/supabase/types/tables";
+import type { Categories } from "@/integrations/supabase/types/tables";
 
 interface TranslationViewerProps {
   translations: Translation[];
@@ -43,7 +43,7 @@ const TranslationViewer = ({
     const fetchCategories = async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select('id, title')
+        .select<string, Categories['Row']>('id, title')
         .order('title');
       
       if (error) {

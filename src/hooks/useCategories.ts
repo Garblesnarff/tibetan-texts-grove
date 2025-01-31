@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Category } from "@/types/category";
-import { Categories } from "@/integrations/supabase/types/tables";
+import type { Categories } from "@/integrations/supabase/types/tables";
 
 export const useCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -13,7 +13,10 @@ export const useCategories = () => {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select('*, translations(count)')
+        .select<string, Categories['Row'] & { translations: { count: number }[] }>(`
+          *,
+          translations(count)
+        `)
         .order('title');
 
       if (error) throw error;

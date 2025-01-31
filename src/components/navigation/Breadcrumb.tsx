@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Categories } from "@/integrations/supabase/types/tables";
+import type { Categories } from "@/integrations/supabase/types/tables";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -21,7 +21,7 @@ export function CategoryBreadcrumb() {
       if (categoryId) {
         const { data, error } = await supabase
           .from('categories')
-          .select('title')
+          .select<string, Categories['Row']>('title')
           .eq('id', categoryId)
           .single();
 
