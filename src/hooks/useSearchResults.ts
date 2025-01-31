@@ -11,7 +11,7 @@ const formatSearchTerm = (term: string): string => {
   if (!term) return '';
   
   try {
-    // First, clean up the search term
+    // Clean up the search term
     let cleaned = term
       .toLowerCase()
       .replace(/[&|!():,\.]/g, ' ') // Remove special chars
@@ -31,16 +31,13 @@ const formatSearchTerm = (term: string): string => {
           .replace(/[^\w\s-]/g, '')
           .trim();
           
-        // Only return valid words
         return escaped ? escaped : null;
       })
       .filter(Boolean);  // Remove null values
       
     if (words.length === 0) return '';
     
-    // Create the tsquery expression with proper prefix matching
-    // Join with & for AND logic and wrap each term for prefix matching
-    return words.map(word => `${word}:*`).join(' & ');
+    return words.join(' ');
     
   } catch (error) {
     console.error('Error formatting search term:', error);
@@ -64,7 +61,6 @@ export const useSearchResults = () => {
   const [isLoadingTags, setIsLoadingTags] = useState(false);
   const { toast } = useToast();
 
-  // Update URL parameters when filters change
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
@@ -77,7 +73,6 @@ export const useSearchResults = () => {
     setSearchParams(params);
   }, [searchQuery, currentSort, selectedTags, selectedCategory, startDate, endDate]);
 
-  // Fetch available tags
   useEffect(() => {
     const fetchTags = async () => {
       setIsLoadingTags(true);
@@ -136,13 +131,11 @@ export const useSearchResults = () => {
 
         if (searchQuery.trim()) {
           const formattedQuery = formatSearchTerm(searchQuery);
-          console.log('Formatted search query:', formattedQuery); // Debug log
+          console.log('Formatted search query:', formattedQuery);
           
           if (formattedQuery) {
-            query = query.textSearch('search_vector', formattedQuery, {
-              config: 'english',
-              type: 'websearch'  // Use websearch for more forgiving syntax
-            });
+            // Use ilike for more flexible text matching
+            query = query.or(`title.ilike.%${formattedQuery}%,tibetan_title.ilike.%${formattedQuery}%,description.ilike.%${formattedQuery}%`);
           }
         }
 
