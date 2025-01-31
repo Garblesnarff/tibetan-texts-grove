@@ -12,9 +12,9 @@ export default function SearchResults() {
   const navigate = useNavigate();
   const { handleDelete } = useTranslations();
   const {
+    searchResults,
     searchQuery,
     setSearchQuery,
-    searchResults,
     isSearching,
     currentSort,
     setCurrentSort,

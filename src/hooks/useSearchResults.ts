@@ -2,12 +2,21 @@ import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Translation } from "@/types/translation";
-import type { Translations } from "@/integrations/supabase/types/tables";
+import { parseTranslation } from "@/types/translation";
+import { groupTranslations } from "@/utils/translationUtils";
+import { GroupedTranslation } from "@/types/groupedTranslation";
 
 export const useSearchResults = () => {
   const [searchResults, setSearchResults] = useState<Translation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentSort, setCurrentSort] = useState("relevance:desc");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const { toast } = useToast();
 
   const fetchSearchResults = useCallback(async (query: string) => {
@@ -22,7 +31,8 @@ export const useSearchResults = () => {
 
       if (error) throw error;
 
-      setSearchResults(data || []);
+      const parsedResults = (data || []).map(parseTranslation);
+      setSearchResults(parsedResults);
     } catch (error: any) {
       console.error('Error in fetchSearchResults:', error);
       setError(error.message);
@@ -36,10 +46,30 @@ export const useSearchResults = () => {
     }
   }, [toast]);
 
+  const searchStats = {
+    count: searchResults.length,
+    time: 0
+  };
+
   return {
-    searchResults,
+    searchResults: groupTranslations(searchResults),
     loading,
     error,
-    fetchSearchResults
+    fetchSearchResults,
+    searchQuery,
+    setSearchQuery,
+    currentSort,
+    setCurrentSort,
+    selectedTags,
+    setSelectedTags,
+    selectedCategory,
+    setSelectedCategory,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    searchStats,
+    availableTags,
+    isSearching: loading
   };
 };
