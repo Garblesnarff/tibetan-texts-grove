@@ -1,5 +1,3 @@
-import { Json } from "../shared/json";
-
 export interface Translations {
   Row: {
     id: string;
@@ -7,7 +5,7 @@ export interface Translations {
     tibetan_title: string | null;
     source_file_path: string | null;
     translation_file_path: string | null;
-    metadata: Json | null;
+    metadata: Record<string, any> | null;
     created_at: string | null;
     updated_at: string | null;
     created_by: string | null;
@@ -26,7 +24,7 @@ export interface Translations {
     tibetan_title?: string | null;
     source_file_path?: string | null;
     translation_file_path?: string | null;
-    metadata?: Json | null;
+    metadata?: Record<string, any> | null;
     created_at?: string | null;
     updated_at?: string | null;
     created_by?: string | null;
@@ -45,7 +43,7 @@ export interface Translations {
     tibetan_title?: string | null;
     source_file_path?: string | null;
     translation_file_path?: string | null;
-    metadata?: Json | null;
+    metadata?: Record<string, any> | null;
     created_at?: string | null;
     updated_at?: string | null;
     created_by?: string | null;
