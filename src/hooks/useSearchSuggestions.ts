@@ -9,13 +9,12 @@ import { SearchSuggestion } from '@/types/suggestions';
 import { useSuggestionAnalytics } from './useSuggestionAnalytics';
 
 const formatSearchTerm = (term: string): string => {
-  return `%${term.trim()
+  return term.trim()
     .toLowerCase()
     .replace(/%/g, '\\%')
-    .replace(/_/g, '\\_')}%`;
+    .replace(/_/g, '\\_');
 };
 
-// Utility function to calculate similarity between tags and search term
 const calculateTagSimilarity = (tags: string[], searchTerm: string): number => {
   if (!tags || tags.length === 0) return 0;
   
@@ -97,7 +96,7 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
         return;
       }
 
-      const formattedQuery = formatSearchTerm(term);
+      const formattedQuery = `%${formatSearchTerm(term)}%`;
       
       let query = supabase
         .from('translations')
@@ -113,12 +112,12 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
           )
         `);
 
-      const conditions = [
-        `title.ilike.${formattedQuery}`,
-        `tibetan_title.ilike.${formattedQuery}`,
-        `description.ilike.${formattedQuery}`
+      const filters = [
+        { title: { ilike: formattedQuery } },
+        { tibetan_title: { ilike: formattedQuery } },
+        { description: { ilike: formattedQuery } }
       ];
-      query = query.or(conditions.join(',')).limit(20);
+      query = query.or(filters.map(filter => JSON.stringify(filter)).join(',')).limit(20);
 
       const { data: translations, error: translationsError } = await query;
 

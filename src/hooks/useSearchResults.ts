@@ -7,10 +7,10 @@ import { groupTranslations } from "@/utils/translationUtils";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 const formatSearchTerm = (term: string): string => {
-  return `%${term.trim()
+  return term.trim()
     .toLowerCase()
     .replace(/%/g, '\\%')
-    .replace(/_/g, '\\_')}%`;
+    .replace(/_/g, '\\_');
 };
 
 export const useSearchResults = () => {
@@ -55,19 +55,19 @@ export const useSearchResults = () => {
       
       try {
         const [field, direction] = currentSort.split(':');
-        const formattedQuery = formatSearchTerm(searchQuery);
+        const formattedQuery = `%${formatSearchTerm(searchQuery)}%`;
         
         let query = supabase
           .from('translations')
           .select('*, categories!inner(id,title)');
 
         if (searchQuery.trim()) {
-          const conditions = [
-            `title.ilike.${formattedQuery}`,
-            `tibetan_title.ilike.${formattedQuery}`,
-            `description.ilike.${formattedQuery}`
+          const filters = [
+            { title: { ilike: formattedQuery } },
+            { tibetan_title: { ilike: formattedQuery } },
+            { description: { ilike: formattedQuery } }
           ];
-          query = query.or(conditions.join(','));
+          query = query.or(filters.map(filter => JSON.stringify(filter)).join(','));
         }
 
         if (selectedTags.length > 0) {
