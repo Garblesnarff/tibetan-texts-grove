@@ -9,7 +9,6 @@ import { ViewerContainer } from "./translation/viewer/ViewerContainer";
 import { TranslationMetadata } from "./translation/viewer/TranslationMetadata";
 import { useTranslationState } from "./translation/viewer/useTranslationState";
 import { useTranslationViews } from "@/hooks/useTranslationViews";
-import type { Categories } from "@/integrations/supabase/types/tables";
 
 interface TranslationViewerProps {
   translations: Translation[];
@@ -26,7 +25,7 @@ const TranslationViewer = ({
 }: TranslationViewerProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [categories, setCategories] = React.useState<Categories['Row'][]>([]);
+  const [categories, setCategories] = React.useState<Array<{ id: string; title: string }>>([]);
   
   const {
     currentTranslation,
@@ -35,7 +34,8 @@ const TranslationViewer = ({
     handleUpdate
   } = useTranslationState(translations[0]);
 
-  useTranslationViews(translations[0].id, async () => {
+  // Use the new hook for view tracking
+  useTranslationViews(translations[0].id, async (newCount) => {
     await handleUpdate();
   });
 
@@ -43,7 +43,7 @@ const TranslationViewer = ({
     const fetchCategories = async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select<string, Categories['Row']>('*')
+        .select('id, title')
         .order('title');
       
       if (error) {
@@ -51,9 +51,7 @@ const TranslationViewer = ({
         return;
       }
       
-      if (data) {
-        setCategories(data);
-      }
+      setCategories(data || []);
     };
 
     fetchCategories();

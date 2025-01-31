@@ -1,45 +1,44 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Category } from "@/types/category";
-import type { Categories } from "@/integrations/supabase/types/tables";
 
 export const useCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
 
-  const fetchCategories = useCallback(async () => {
+  const fetchCategories = async () => {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select<string, Categories['Row']>('*, translations(count)')
+        .select(`
+          *,
+          translation_count: translations(count)
+        `)
         .order('title');
 
       if (error) throw error;
 
-      if (data) {
-        const transformedData: Category[] = data.map(category => ({
-          id: category.id,
-          title: category.title,
-          description: category.description,
-          created_at: category.created_at,
-          updated_at: category.updated_at,
-          created_by: category.created_by,
-          translation_count: category.translations?.[0]?.count || 0
-        }));
+      const transformedData = data.map(category => ({
+        id: category.id,
+        title: category.title,
+        description: category.description,
+        created_at: category.created_at,
+        updated_at: category.updated_at,
+        created_by: category.created_by,
+        translation_count: category.translation_count?.[0]?.count || 0
+      }));
 
-        setCategories(transformedData);
-      }
+      setCategories(transformedData);
     } catch (error: any) {
-      console.error('Error fetching categories:', error);
       toast({
         variant: "destructive",
         title: "Error fetching categories",
         description: error.message
       });
     }
-  }, [toast]);
+  };
 
   const checkAdminStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();

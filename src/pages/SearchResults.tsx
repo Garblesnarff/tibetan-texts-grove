@@ -12,9 +12,9 @@ export default function SearchResults() {
   const navigate = useNavigate();
   const { handleDelete } = useTranslations();
   const {
-    searchResults,
     searchQuery,
     setSearchQuery,
+    searchResults,
     isSearching,
     currentSort,
     setCurrentSort,
@@ -60,14 +60,6 @@ export default function SearchResults() {
     setEndDate(null);
   };
 
-  // Transform tags array to required format for TagFilter
-  const formattedTags = availableTags.map(tag => ({
-    tag,
-    count: searchResults.filter(group => 
-      group.translations.some(t => t.tags?.includes(tag))
-    ).length
-  }));
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="space-y-4">
@@ -79,7 +71,7 @@ export default function SearchResults() {
           />
           
           <SearchControls
-            availableTags={formattedTags}
+            availableTags={availableTags}
             selectedTags={selectedTags}
             selectedCategory={selectedCategory}
             startDate={startDate}
