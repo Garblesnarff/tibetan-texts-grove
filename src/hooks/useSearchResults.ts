@@ -8,41 +8,12 @@ import { groupTranslations } from "@/utils/translationUtils";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 const formatSearchTerm = (term: string): string => {
-  if (!term) return '';
-  
-  try {
-    // Clean up the search term
-    let cleaned = term
-      .toLowerCase()
-      .replace(/[&|!():,\.]/g, ' ') // Remove special chars
-      .replace(/\s+/g, ' ')         // Normalize spaces
-      .trim();
-      
-    if (!cleaned) return '';
-    
-    // Split into words and process each
-    const words = cleaned
-      .split(' ')
-      .filter(Boolean)
-      .map(word => {
-        // Remove special characters except alphanumeric and hyphens
-        const escaped = word
-          .replace(/['"]/g, '')
-          .replace(/[^\w\s-]/g, '')
-          .trim();
-          
-        return escaped ? escaped : null;
-      })
-      .filter(Boolean);  // Remove null values
-      
-    if (words.length === 0) return '';
-    
-    return words.join(' ');
-    
-  } catch (error) {
-    console.error('Error formatting search term:', error);
-    return '';
-  }
+  // Remove special characters and replace with spaces
+  const cleaned = term.replace(/[&|!(),:]/g, ' ');
+  // Split into words and filter out empty strings
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  // Join words with & for AND operation, wrap each in :* for prefix matching
+  return words.map(word => `${word}:*`).join(' & ');
 };
 
 export const useSearchResults = () => {
@@ -61,6 +32,7 @@ export const useSearchResults = () => {
   const [isLoadingTags, setIsLoadingTags] = useState(false);
   const { toast } = useToast();
 
+  // Update URL parameters when filters change
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
@@ -73,6 +45,7 @@ export const useSearchResults = () => {
     setSearchParams(params);
   }, [searchQuery, currentSort, selectedTags, selectedCategory, startDate, endDate]);
 
+  // Fetch available tags
   useEffect(() => {
     const fetchTags = async () => {
       setIsLoadingTags(true);
@@ -131,12 +104,7 @@ export const useSearchResults = () => {
 
         if (searchQuery.trim()) {
           const formattedQuery = formatSearchTerm(searchQuery);
-          console.log('Formatted search query:', formattedQuery);
-          
-          if (formattedQuery) {
-            // Use ilike for more flexible text matching
-            query = query.or(`title.ilike.%${formattedQuery}%,tibetan_title.ilike.%${formattedQuery}%,description.ilike.%${formattedQuery}%`);
-          }
+          query = query.textSearch('search_vector', formattedQuery);
         }
 
         if (selectedTags.length > 0) {
