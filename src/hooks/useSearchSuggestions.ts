@@ -8,6 +8,11 @@ import { getCachedSuggestions, cacheSuggestions } from '@/utils/suggestionCache'
 import { SearchSuggestion, SuggestionScore } from '@/types/suggestions';
 import { useSuggestionAnalytics } from './useSuggestionAnalytics';
 
+const formatSearchTerm = (term: string): string => {
+  const cleaned = term.trim().toLowerCase();
+  return `%${cleaned}%`;
+};
+
 export const useSearchSuggestions = (searchQuery: string, selectedCategory?: string | null) => {
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,6 +63,7 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
           return;
         }
 
+        const formattedQuery = formatSearchTerm(term);
         const { data: translations, error: translationsError } = await supabase
           .from('translations')
           .select(`
@@ -71,7 +77,7 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
               title
             )
           `)
-          .textSearch('search_vector', term)
+          .or(`title.ilike.${formattedQuery},tibetan_title.ilike.${formattedQuery},description.ilike.${formattedQuery}`)
           .limit(20);
 
         if (translationsError) throw translationsError;

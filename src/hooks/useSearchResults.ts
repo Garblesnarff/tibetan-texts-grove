@@ -97,8 +97,7 @@ export const useSearchResults = () => {
         
         let query = supabase
           .from('translations')
-          .select('*')
-          .is('category_id', null);
+          .select('*, categories!inner(id,title)');
 
         if (searchQuery.trim()) {
           const formattedQuery = formatSearchTerm(searchQuery);
