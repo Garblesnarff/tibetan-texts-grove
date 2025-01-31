@@ -10,27 +10,38 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 const formatSearchTerm = (term: string): string => {
   if (!term) return '';
   
-  // Remove special characters and normalize spaces
-  const cleaned = term
-    .replace(/[&|!():,\.]/g, ' ')  // Remove PostgreSQL tsquery special chars
-    .replace(/\s+/g, ' ')          // Normalize spaces
-    .trim();
+  try {
+    // First, clean up basic special characters and normalize whitespace
+    let cleaned = term
+      .replace(/[&|!():,\.]/g, ' ')  // Remove PostgreSQL tsquery special chars
+      .replace(/\s+/g, ' ')          // Normalize multiple spaces to single space
+      .trim();
+      
+    if (!cleaned) return '';
     
-  if (!cleaned) return '';
-  
-  // Split into words, filter empty strings, and format each word
-  const words = cleaned
-    .split(' ')
-    .filter(Boolean)
-    .map(word => {
-      // Escape any remaining special characters
-      const escaped = word.replace(/['"]/, '');
-      // Add prefix matching
-      return `${escaped}:*`;
-    });
+    // Split into words and process each
+    const words = cleaned
+      .split(' ')
+      .filter(Boolean)
+      .map(word => {
+        // Remove any remaining special characters
+        const escaped = word
+          .replace(/['"]/g, '')           // Remove quotes
+          .replace(/[^\w\s-]/g, '')       // Remove any other special chars except hyphens
+          .toLowerCase();                  // Normalize to lowercase
+          
+        return escaped ? `${escaped}:*` : null;  // Add prefix matching
+      })
+      .filter(Boolean);  // Remove any null values
+      
+    if (words.length === 0) return '';
     
-  // Join with & operator for AND logic between words
-  return words.join(' & ');
+    // Join with & operator for AND logic between words
+    return words.join(' & ');
+  } catch (error) {
+    console.error('Error formatting search term:', error);
+    return '';
+  }
 };
 
 export const useSearchResults = () => {
@@ -121,8 +132,11 @@ export const useSearchResults = () => {
 
         if (searchQuery.trim()) {
           const formattedQuery = formatSearchTerm(searchQuery);
+          console.log('Formatted search query:', formattedQuery); // Debug log
           if (formattedQuery) {
-            query = query.textSearch('search_vector', formattedQuery);
+            query = query.textSearch('search_vector', formattedQuery, {
+              config: 'english'  // Explicitly specify the text search configuration
+            });
           }
         }
 
