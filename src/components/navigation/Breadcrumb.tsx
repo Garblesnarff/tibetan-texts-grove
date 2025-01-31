@@ -19,9 +19,9 @@ export function CategoryBreadcrumb() {
     const fetchCategory = async () => {
       if (categoryId) {
         const { data, error } = await supabase
-          .from("categories")
-          .select("title")
-          .eq("id", categoryId)
+          .from('categories')
+          .select<'categories', Categories['Row']>('title')
+          .eq('id', categoryId)
           .single();
 
         if (!error && data) {

@@ -9,6 +9,7 @@ import { ViewerContainer } from "./translation/viewer/ViewerContainer";
 import { TranslationMetadata } from "./translation/viewer/TranslationMetadata";
 import { useTranslationState } from "./translation/viewer/useTranslationState";
 import { useTranslationViews } from "@/hooks/useTranslationViews";
+import { Categories } from "@/integrations/supabase/types/tables";
 
 interface TranslationViewerProps {
   translations: Translation[];
@@ -25,7 +26,7 @@ const TranslationViewer = ({
 }: TranslationViewerProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [categories, setCategories] = React.useState<Array<{ id: string; title: string }>>([]);
+  const [categories, setCategories] = React.useState<Categories['Row'][]>([]);
   
   const {
     currentTranslation,
@@ -43,7 +44,7 @@ const TranslationViewer = ({
     const fetchCategories = async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select('id, title')
+        .select<'categories', Categories['Row']>('id, title')
         .order('title');
       
       if (error) {
@@ -51,7 +52,9 @@ const TranslationViewer = ({
         return;
       }
       
-      setCategories(data || []);
+      if (data) {
+        setCategories(data);
+      }
     };
 
     fetchCategories();

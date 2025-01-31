@@ -6,6 +6,7 @@ import { GroupedTranslation } from "@/types/groupedTranslation";
 import { SortConfig } from "@/types/sorting";
 import { groupTranslations } from "@/utils/translationUtils";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { Translations } from "@/integrations/supabase/types/tables";
 
 export const useSearchResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -90,7 +91,7 @@ export const useSearchResults = () => {
         
         let query = supabase
           .from('translations')
-          .select('*')
+          .select<'translations', Translations['Row']>('*')
           .is('category_id', null);
 
         if (searchQuery) {
@@ -116,14 +117,16 @@ export const useSearchResults = () => {
 
         if (error) throw error;
 
-        const groupedResults = groupTranslations(data as Translation[]);
-        const endTime = performance.now();
-        
-        setSearchResults(groupedResults);
-        setSearchStats({
-          count: data.length,
-          time: Math.round(endTime - startTime) / 1000
-        });
+        if (data) {
+          const groupedResults = groupTranslations(data as Translation[]);
+          const endTime = performance.now();
+          
+          setSearchResults(groupedResults);
+          setSearchStats({
+            count: data.length,
+            time: Math.round(endTime - startTime) / 1000
+          });
+        }
       } catch (error: any) {
         console.error('Search error:', error);
         toast({

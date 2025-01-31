@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Category } from "@/types/category";
+import { Categories } from "@/integrations/supabase/types/tables";
 
 export const useCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -12,7 +13,7 @@ export const useCategories = () => {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select(`
+        .select<'categories', Categories['Row']>(`
           *,
           translation_count: translations(count)
         `)
@@ -20,17 +21,19 @@ export const useCategories = () => {
 
       if (error) throw error;
 
-      const transformedData = data.map(category => ({
-        id: category.id,
-        title: category.title,
-        description: category.description,
-        created_at: category.created_at,
-        updated_at: category.updated_at,
-        created_by: category.created_by,
-        translation_count: category.translation_count?.[0]?.count || 0
-      }));
+      if (data) {
+        const transformedData: Category[] = data.map(category => ({
+          id: category.id,
+          title: category.title,
+          description: category.description,
+          created_at: category.created_at,
+          updated_at: category.updated_at,
+          created_by: category.created_by,
+          translation_count: category.translation_count?.[0]?.count || 0
+        }));
 
-      setCategories(transformedData);
+        setCategories(transformedData);
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
