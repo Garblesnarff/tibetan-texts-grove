@@ -11,10 +11,11 @@ const formatSearchTerm = (term: string): string => {
   if (!term) return '';
   
   try {
-    // First, clean up basic special characters and normalize whitespace
+    // First, clean up the search term
     let cleaned = term
-      .replace(/[&|!():,\.]/g, ' ')  // Remove PostgreSQL tsquery special chars
-      .replace(/\s+/g, ' ')          // Normalize multiple spaces to single space
+      .toLowerCase()
+      .replace(/[&|!():,\.]/g, ' ') // Remove special chars
+      .replace(/\s+/g, ' ')         // Normalize spaces
       .trim();
       
     if (!cleaned) return '';
@@ -24,20 +25,23 @@ const formatSearchTerm = (term: string): string => {
       .split(' ')
       .filter(Boolean)
       .map(word => {
-        // Remove any remaining special characters
+        // Remove special characters except alphanumeric and hyphens
         const escaped = word
-          .replace(/['"]/g, '')           // Remove quotes
-          .replace(/[^\w\s-]/g, '')       // Remove any other special chars except hyphens
-          .toLowerCase();                  // Normalize to lowercase
+          .replace(/['"]/g, '')
+          .replace(/[^\w\s-]/g, '')
+          .trim();
           
-        return escaped ? `${escaped}:*` : null;  // Add prefix matching
+        // Only return valid words
+        return escaped ? escaped : null;
       })
-      .filter(Boolean);  // Remove any null values
+      .filter(Boolean);  // Remove null values
       
     if (words.length === 0) return '';
     
-    // Join with & operator for AND logic between words
-    return words.join(' & ');
+    // Create the tsquery expression with proper prefix matching
+    // Join with & for AND logic and wrap each term for prefix matching
+    return words.map(word => `${word}:*`).join(' & ');
+    
   } catch (error) {
     console.error('Error formatting search term:', error);
     return '';
@@ -133,9 +137,11 @@ export const useSearchResults = () => {
         if (searchQuery.trim()) {
           const formattedQuery = formatSearchTerm(searchQuery);
           console.log('Formatted search query:', formattedQuery); // Debug log
+          
           if (formattedQuery) {
             query = query.textSearch('search_vector', formattedQuery, {
-              config: 'english'  // Explicitly specify the text search configuration
+              config: 'english',
+              type: 'websearch'  // Use websearch for more forgiving syntax
             });
           }
         }
