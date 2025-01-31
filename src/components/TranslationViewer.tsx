@@ -9,6 +9,7 @@ import { ViewerContainer } from "./translation/viewer/ViewerContainer";
 import { TranslationMetadata } from "./translation/viewer/TranslationMetadata";
 import { useTranslationState } from "./translation/viewer/useTranslationState";
 import { useTranslationViews } from "@/hooks/useTranslationViews";
+import { VersionHistory } from "./translation/viewer/VersionHistory";
 
 interface TranslationViewerProps {
   translations: Translation[];
@@ -29,9 +30,11 @@ const TranslationViewer = ({
   
   const {
     currentTranslation,
+    currentVersion,
     isEditing,
     setIsEditing,
-    handleUpdate
+    handleUpdate,
+    handleVersionSelect
   } = useTranslationState(translations[0]);
 
   // Use the new hook for view tracking
@@ -121,6 +124,15 @@ const TranslationViewer = ({
           onEditingChange={setIsEditing}
           searchQuery={searchQuery}
         />
+        {!isEditing && (
+          <div className="mt-6">
+            <VersionHistory
+              translationId={translations[0].id}
+              currentVersion={currentVersion}
+              onVersionSelect={handleVersionSelect}
+            />
+          </div>
+        )}
       </div>
     </ViewerContainer>
   );

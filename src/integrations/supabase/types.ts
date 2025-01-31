@@ -1172,6 +1172,57 @@ export type Database = {
           },
         ]
       }
+      translation_versions: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          tibetan_title: string | null
+          title: string
+          translation_id: string
+          version_number: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          tibetan_title?: string | null
+          title: string
+          translation_id: string
+          version_number: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          tibetan_title?: string | null
+          title?: string
+          translation_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_versions_translation_id_fkey"
+            columns: ["translation_id"]
+            isOneToOne: false
+            referencedRelation: "translation_scores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "translation_versions_translation_id_fkey"
+            columns: ["translation_id"]
+            isOneToOne: false
+            referencedRelation: "translations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       translation_views: {
         Row: {
           id: string
