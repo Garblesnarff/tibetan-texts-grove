@@ -1,5 +1,3 @@
-import { Json } from "../shared/json";
-
 export interface Categories {
   Row: {
     id: string;
