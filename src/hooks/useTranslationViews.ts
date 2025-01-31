@@ -16,7 +16,8 @@ export const useTranslationViews = (translationId: string, onViewCountUpdate: (n
           })
           .single();
 
-        if (error && !error.message.includes('unique constraint')) {
+        // Ignore unique constraint violations as this means the view was already recorded
+        if (error && !error.message.includes('duplicate key value')) {
           console.error('Error recording view:', error);
         }
       } catch (error) {
