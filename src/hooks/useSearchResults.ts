@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Translation } from "@/types/translation";
-import { GroupedTranslation } from "@/types/groupedTranslation";
-import { groupTranslations } from "@/utils/translationUtils";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { SortConfig } from "@/types/sorting";
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import debounce from 'lodash/debounce';
+import { useOnlineStatus } from './useOnlineStatus';
+import { useSearchHistory } from './useSearchHistory';
+import { Translation } from '@/types/translation';
+import { GroupedTranslation } from '@/types/groupedTranslation';
+import { groupTranslations } from '@/utils/translationUtils';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 const formatSearchTerm = (term: string): string => {
   if (!term?.trim()) return '';
@@ -64,14 +66,10 @@ export const useSearchResults = () => {
           .from('translations')
           .select('*, categories!inner(id,title)');
 
-        // Handle search query with proper filter objects
+        // Handle search query with proper filter syntax
         if (searchQuery.trim()) {
           const formattedTerm = formatSearchTerm(searchQuery);
-          query = query.or([
-            `title.ilike.${formattedTerm}`,
-            `tibetan_title.ilike.${formattedTerm}`,
-            `description.ilike.${formattedTerm}`
-          ].join(','));
+          query = query.or('title.ilike,tibetan_title.ilike,description.ilike', formattedTerm);
         }
 
         // Handle tag filtering

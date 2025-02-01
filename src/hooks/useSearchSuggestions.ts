@@ -47,7 +47,7 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
         return;
       }
 
-      const formattedQuery = `%${formatSearchTerm(term)}%`;
+      const formattedTerm = `%${formatSearchTerm(term)}%`;
       
       let query = supabase
         .from('translations')
@@ -63,11 +63,9 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
           )
         `);
 
-      query = query.or(
-        `title.ilike.${formattedQuery},` +
-        `tibetan_title.ilike.${formattedQuery},` +
-        `description.ilike.${formattedQuery}`
-      ).limit(20);
+      // Update query construction to use proper filter syntax
+      query = query.or('title.ilike,tibetan_title.ilike,description.ilike', formattedTerm)
+        .limit(20);
 
       const { data: translations, error: translationsError } = await query;
 
