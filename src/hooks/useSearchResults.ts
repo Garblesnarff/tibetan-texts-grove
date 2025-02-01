@@ -1,18 +1,20 @@
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import debounce from 'lodash/debounce';
-import { useOnlineStatus } from './useOnlineStatus';
-import { useSearchHistory } from './useSearchHistory';
-import { Translation } from '@/types/translation';
-import { GroupedTranslation } from '@/types/groupedTranslation';
-import { groupTranslations } from '@/utils/translationUtils';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Translation } from "@/types/translation";
+import { GroupedTranslation } from "@/types/groupedTranslation";
+import { groupTranslations } from "@/utils/translationUtils";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { SortConfig } from "@/types/sorting";
 
 const formatSearchTerm = (term: string): string => {
   if (!term?.trim()) return '';
-  return term.trim()
-    .replace(/[\\%_]/g, '\\$&');
+  
+  // Escape special characters that could interfere with ILIKE
+  const escaped = term.trim()
+    .replace(/[\\%_]/g, '\\$&'); // Escape backslash, percent, and underscore
+  
+  return `%${escaped}%`;
 };
 
 export const useSearchResults = () => {
@@ -31,6 +33,7 @@ export const useSearchResults = () => {
   const [isLoadingTags, setIsLoadingTags] = useState(false);
   const { toast } = useToast();
 
+  // Update URL parameters when filters change
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
@@ -61,12 +64,14 @@ export const useSearchResults = () => {
           .from('translations')
           .select('*, categories!inner(id,title)');
 
-        // Handle search query with proper filter syntax
+        // Handle search query with proper filter objects
         if (searchQuery.trim()) {
           const formattedTerm = formatSearchTerm(searchQuery);
-          query = query.ilike('title', `%${formattedTerm}%`)
-                      .or(`tibetan_title.ilike.%${formattedTerm}%`)
-                      .or(`description.ilike.%${formattedTerm}%`);
+          query = query.or([
+            `title.ilike.${formattedTerm}`,
+            `tibetan_title.ilike.${formattedTerm}`,
+            `description.ilike.${formattedTerm}`
+          ].join(','));
         }
 
         // Handle tag filtering
