@@ -44,17 +44,24 @@ export const PDFCanvas: React.FC<PDFCanvasProps> = ({
           scale = (containerWidth - padding) / viewport.width;
         }
 
-        // Create new viewport with the calculated scale
-        const scaledViewport = page.getViewport({ scale });
+        // Create new viewport with the calculated scale and explicit rotation
+        const scaledViewport = page.getViewport({ 
+          scale,
+          rotation: 0 // Ensure correct orientation
+        });
 
         // Set canvas dimensions
         canvas.height = scaledViewport.height;
         canvas.width = scaledViewport.width;
 
-        // Render the page
+        // Reset any existing transformations
+        context.setTransform(1, 0, 0, 1, 0, 0);
+
+        // Render the page with explicit transform matrix
         await page.render({
           canvasContext: context,
           viewport: scaledViewport,
+          transform: [1, 0, 0, 1, 0, 0] // Identity matrix to maintain orientation
         }).promise;
 
       } catch (err) {
