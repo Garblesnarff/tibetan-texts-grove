@@ -13,10 +13,8 @@ const formatSearchTerm = (term: string): string => {
   if (!term?.trim()) return '';
   
   // Escape special characters that could interfere with ILIKE
-  const escaped = term.trim()
+  return term.trim()
     .replace(/[\\%_]/g, '\\$&'); // Escape backslash, percent, and underscore
-  
-  return `%${escaped}%`;
 };
 
 export const useSearchResults = () => {
@@ -69,11 +67,7 @@ export const useSearchResults = () => {
         // Handle search query with proper filter syntax
         if (searchQuery.trim()) {
           const formattedTerm = formatSearchTerm(searchQuery);
-          query = query.or([
-            { title: { ilike: formattedTerm } },
-            { tibetan_title: { ilike: formattedTerm } },
-            { description: { ilike: formattedTerm } }
-          ]);
+          query = query.or(`title.ilike.%${formattedTerm}%,tibetan_title.ilike.%${formattedTerm}%,description.ilike.%${formattedTerm}%`);
         }
 
         // Handle tag filtering
