@@ -62,7 +62,7 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
           )
         `);
 
-      query = query.or('title.ilike,tibetan_title.ilike,description.ilike', `%${formattedTerm}%`).limit(20);
+      query = query.or(`title.ilike.%${formattedTerm}%,tibetan_title.ilike.%${formattedTerm}%,description.ilike.%${formattedTerm}%`).limit(20);
 
       const { data: translations, error: translationsError } = await query;
 
