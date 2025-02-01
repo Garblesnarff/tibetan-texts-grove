@@ -67,7 +67,12 @@ export const useSearchResults = () => {
         // Handle search query with proper filter syntax
         if (searchQuery.trim()) {
           const formattedTerm = formatSearchTerm(searchQuery);
-          query = query.or(`title.ilike.%${formattedTerm}%,tibetan_title.ilike.%${formattedTerm}%,description.ilike.%${formattedTerm}%`);
+          const searchConditions = [
+            `title.ilike.%${formattedTerm}%`,
+            `tibetan_title.ilike.%${formattedTerm}%`,
+            `description.ilike.%${formattedTerm}%`
+          ];
+          query = query.or(searchConditions);
         }
 
         // Handle tag filtering
