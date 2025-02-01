@@ -11,6 +11,7 @@ import { SortOption, SortConfig } from "@/types/sorting";
 
 const sortOptions: SortOption[] = [
   { label: "Best Match", value: "relevance:desc" },
+  { label: "Combined Score", value: "combined_score:desc" },
   { label: "Newest First", value: "created_at:desc" },
   { label: "Oldest First", value: "created_at:asc" },
   { label: "Most Viewed", value: "view_count:desc" },
@@ -44,6 +45,7 @@ export const SortingControls = ({
   const getSortIcon = (value: string) => {
     switch (value.split(':')[0]) {
       case 'relevance': return Star;
+      case 'combined_score': return Filter;
       case 'created_at': return Clock;
       case 'view_count': return Eye;
       case 'title': return value.includes(':asc') ? SortAsc : SortDesc;
