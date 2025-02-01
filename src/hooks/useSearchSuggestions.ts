@@ -65,12 +65,11 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
         `);
 
       // Update query construction to use proper filter syntax
-      const searchConditions = [
-        `title.ilike.%${formattedTerm}%`,
-        `tibetan_title.ilike.%${formattedTerm}%`,
-        `description.ilike.%${formattedTerm}%`
-      ];
-      query = query.or(searchConditions).limit(20);
+      query = query.or([
+        { title: { ilike: `%${formattedTerm}%` } },
+        { tibetan_title: { ilike: `%${formattedTerm}%` } },
+        { description: { ilike: `%${formattedTerm}%` } }
+      ]).limit(20);
 
       const { data: translations, error: translationsError } = await query;
 
