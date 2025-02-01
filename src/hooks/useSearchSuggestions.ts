@@ -10,10 +10,8 @@ import { useSuggestionAnalytics } from './useSuggestionAnalytics';
 
 const formatSearchTerm = (term: string): string => {
   if (!term?.trim()) return '';
-  
-  // Escape special characters that could interfere with ILIKE
   return term.trim()
-    .replace(/[\\%_]/g, '\\$&'); // Escape backslash, percent, and underscore
+    .replace(/[\\%_]/g, '\\$&');
 };
 
 export const useSearchSuggestions = (searchQuery: string, selectedCategory?: string | null) => {
@@ -64,12 +62,7 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
           )
         `);
 
-      // Update query construction to use proper filter syntax
-      query = query.or([
-        { title: { ilike: `%${formattedTerm}%` } },
-        { tibetan_title: { ilike: `%${formattedTerm}%` } },
-        { description: { ilike: `%${formattedTerm}%` } }
-      ]).limit(20);
+      query = query.or('title.ilike,tibetan_title.ilike,description.ilike', `%${formattedTerm}%`).limit(20);
 
       const { data: translations, error: translationsError } = await query;
 
@@ -164,14 +157,11 @@ const calculateTagSimilarity = (tags: string[], searchTerm: string): number => {
   return matchCount / Math.max(termWords.length, tags.length);
 };
 
-// Utility function to calculate view count proximity score
 const calculateViewCountProximity = (viewCount: number): number => {
   if (!viewCount) return 0;
-  // Normalize view count to a 0-1 scale, with diminishing returns after 1000 views
   return Math.min(viewCount / 1000, 1);
 };
 
-// Calculate overall suggestion score
 const calculateScore = (suggestion: SearchSuggestion) => {
   const titleMatchScore = suggestion.suggested_term.toLowerCase().includes(suggestion.original_term.toLowerCase()) ? 1 : 0;
   const tagScore = suggestion.tag_similarity || 0;
@@ -179,11 +169,11 @@ const calculateScore = (suggestion: SearchSuggestion) => {
   const categoryScore = suggestion.category_title ? 0.5 : 0;
 
   const totalScore = (
-    titleMatchScore * 2.0 +  // Title matches have highest weight
-    tagScore * 1.5 +         // Tag similarity is important
-    viewCountScore * 0.8 +   // View count provides social proof
-    categoryScore            // Category match gives a small boost
-  ) / 5.3;                   // Normalize to 0-1 range
+    titleMatchScore * 2.0 +
+    tagScore * 1.5 +
+    viewCountScore * 0.8 +
+    categoryScore
+  ) / 5.3;
 
   return {
     totalScore,

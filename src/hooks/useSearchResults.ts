@@ -11,10 +11,8 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 
 const formatSearchTerm = (term: string): string => {
   if (!term?.trim()) return '';
-  
-  // Escape special characters that could interfere with ILIKE
   return term.trim()
-    .replace(/[\\%_]/g, '\\$&'); // Escape backslash, percent, and underscore
+    .replace(/[\\%_]/g, '\\$&');
 };
 
 export const useSearchResults = () => {
@@ -33,7 +31,6 @@ export const useSearchResults = () => {
   const [isLoadingTags, setIsLoadingTags] = useState(false);
   const { toast } = useToast();
 
-  // Update URL parameters when filters change
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
@@ -67,11 +64,7 @@ export const useSearchResults = () => {
         // Handle search query with proper filter syntax
         if (searchQuery.trim()) {
           const formattedTerm = formatSearchTerm(searchQuery);
-          query = query.or([
-            { title: { ilike: `%${formattedTerm}%` } },
-            { tibetan_title: { ilike: `%${formattedTerm}%` } },
-            { description: { ilike: `%${formattedTerm}%` } }
-          ]);
+          query = query.or('title.ilike,tibetan_title.ilike,description.ilike', `%${formattedTerm}%`);
         }
 
         // Handle tag filtering
