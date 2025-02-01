@@ -9,10 +9,7 @@ import { SearchSuggestion } from '@/types/suggestions';
 import { useSuggestionAnalytics } from './useSuggestionAnalytics';
 
 const formatSearchTerm = (term: string): string => {
-  return term.trim()
-    .toLowerCase()
-    .replace(/%/g, '\\%')
-    .replace(/_/g, '\\_');
+  return term.trim();
 };
 
 export const useSearchSuggestions = (searchQuery: string, selectedCategory?: string | null) => {
@@ -47,7 +44,7 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
         return;
       }
 
-      const formattedQuery = `%${formatSearchTerm(term)}%`;
+      const formattedTerm = formatSearchTerm(term);
       
       let query = supabase
         .from('translations')
@@ -63,11 +60,11 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
           )
         `);
 
-      query = query.or(
-        `title.ilike.${formattedQuery},` +
-        `tibetan_title.ilike.${formattedQuery},` +
-        `description.ilike.${formattedQuery}`
-      ).limit(20);
+      // Use full-text search instead of ILIKE
+      query = query.textSearch('search_vector', formattedTerm, {
+        type: 'websearch',
+        config: 'english'
+      }).limit(20);
 
       const { data: translations, error: translationsError } = await query;
 
