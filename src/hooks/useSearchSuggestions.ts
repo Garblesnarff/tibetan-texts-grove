@@ -64,8 +64,8 @@ export const useSearchSuggestions = (searchQuery: string, selectedCategory?: str
 
       if (formattedTerm) {
         query = query.ilike('title', `%${formattedTerm}%`)
-                    .or('tibetan_title.ilike', `%${formattedTerm}%`)
-                    .or('description.ilike', `%${formattedTerm}%`)
+                    .or(`tibetan_title.ilike.%${formattedTerm}%`)
+                    .or(`description.ilike.%${formattedTerm}%`)
                     .limit(20);
       }
 
