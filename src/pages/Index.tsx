@@ -4,11 +4,6 @@ import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 import { SearchInput } from "@/components/search/SearchInput";
 import { SortingControls } from "@/components/sorting/SortingControls";
 import { TagFilter } from "@/components/filtering/TagFilter";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { Translation } from "@/types/translation";
-import { GroupedTranslation } from "@/types/groupedTranslation";
-import { groupTranslations } from "@/utils/translationUtils";
 import { QuickFilters } from "@/components/filtering/QuickFilters";
 import { SortConfig } from "@/types/sorting";
 import { HomeSection } from "@/components/index/HomeSection";
@@ -42,18 +37,18 @@ export default function Index() {
     handleDelete: handleDeletePopular
   } = useTranslations();
 
-  // Regular search and filter states
+  // Search states
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<GroupedTranslation[]>([]);
+  const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [currentSort, setCurrentSort] = useState<string>("created_at:desc");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<{ tag: string; count: number; }[]>([]);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const { toast } = useToast();
 
   // Fetch data for each section on mount
   useEffect(() => {
+    console.log('Fetching initial data for sections');
     fetchFeatured({ featured: true, limit: 4 });
     fetchRecent({ sortBy: 'created_at:desc', limit: 4 });
     fetchPopular({ sortBy: 'view_count:desc', limit: 4 });
@@ -62,24 +57,6 @@ export default function Index() {
   // Handle sort change
   const handleSortChange = (config: SortConfig) => {
     setCurrentSort(`${config.field}:${config.direction}`);
-  };
-
-  // Create async delete handlers for each section
-  const handleFeaturedDelete = async (id: string) => {
-    await handleDeleteFeatured(id);
-  };
-
-  const handleRecentDelete = async (id: string) => {
-    await handleDeleteRecent(id);
-  };
-
-  const handlePopularDelete = async (id: string) => {
-    await handleDeletePopular(id);
-  };
-
-  const handleSearchDelete = async (id: string) => {
-    // Implement search results delete logic if needed
-    return Promise.resolve();
   };
 
   return (
@@ -114,12 +91,19 @@ export default function Index() {
         />
       </div>
 
-      {!searchQuery && !selectedTags.length && !activeFilters.length && (
+      {searchQuery ? (
+        <TranslationsGrid
+          translations={searchResults}
+          onDelete={handleDeleteFeatured}
+          isLoading={isSearching}
+          searchQuery={searchQuery}
+        />
+      ) : (
         <>
           <HomeSection title="Featured Translations" icon={Star}>
             <TranslationsGrid
               translations={featuredTranslations}
-              onDelete={handleFeaturedDelete}
+              onDelete={handleDeleteFeatured}
               isLoading={featuredLoading}
               error={featuredError}
             />
@@ -128,7 +112,7 @@ export default function Index() {
           <HomeSection title="Recently Added" icon={Clock}>
             <TranslationsGrid
               translations={recentTranslations}
-              onDelete={handleRecentDelete}
+              onDelete={handleDeleteRecent}
               isLoading={recentLoading}
               error={recentError}
             />
@@ -137,21 +121,12 @@ export default function Index() {
           <HomeSection title="Most Popular" icon={Eye}>
             <TranslationsGrid
               translations={popularTranslations}
-              onDelete={handlePopularDelete}
+              onDelete={handleDeletePopular}
               isLoading={popularLoading}
               error={popularError}
             />
           </HomeSection>
         </>
-      )}
-
-      {(searchQuery || selectedTags.length > 0 || activeFilters.length > 0) && (
-        <TranslationsGrid
-          translations={searchResults}
-          onDelete={handleSearchDelete}
-          isLoading={isSearching}
-          searchQuery={searchQuery}
-        />
       )}
     </div>
   );

@@ -14,35 +14,39 @@ export const useTranslations = () => {
 
   const fetchTranslations = useCallback(async (options: TranslationQueryOptions = {}) => {
     try {
+      console.log('Fetching translations with options:', options);
       setLoading(true);
       setError(null);
 
       let query = supabase
         .from('translations')
-        .select('*')
-        .is('category_id', null);
+        .select('*');
 
       if (options.featured !== undefined) {
+        console.log('Filtering by featured:', options.featured);
         query = query.eq('featured', options.featured);
-      }
-
-      if (options.sortBy) {
-        const [field, direction] = options.sortBy.split(':');
-        query = query.order(field, { ascending: direction === 'asc' });
-      }
-
-      if (options.limit) {
-        query = query.limit(options.limit);
       }
 
       if (options.categoryId) {
         query = query.eq('category_id', options.categoryId);
       }
 
+      if (options.sortBy) {
+        const [field, direction] = options.sortBy.split(':');
+        console.log('Sorting by:', field, direction);
+        query = query.order(field, { ascending: direction === 'asc' });
+      }
+
+      if (options.limit) {
+        console.log('Limiting results to:', options.limit);
+        query = query.limit(options.limit);
+      }
+
       const { data, error } = await query;
 
       if (error) throw error;
       
+      console.log('Fetched translations:', data);
       const groupedData = groupTranslations(data as Translation[]);
       setTranslations(groupedData);
     } catch (error: any) {
@@ -75,7 +79,6 @@ export const useTranslations = () => {
         description: "Translation deleted successfully",
       });
 
-      // Refresh the translations after deletion
       fetchTranslations();
     } catch (error: any) {
       console.error('Error deleting translation:', error);
