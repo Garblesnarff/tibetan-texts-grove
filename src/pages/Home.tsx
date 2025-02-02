@@ -18,19 +18,36 @@ export default function Home() {
   const {
     translations: featuredTranslations,
     loading: featuredLoading,
-    handleDelete,
+    error: featuredError,
+    handleDelete: handleFeaturedDelete,
     fetchTranslations: fetchFeatured
-  } = useTranslations();
+  } = useTranslations({
+    filters: { featured: true },
+    limit: 4,
+    orderBy: { column: 'created_at', order: 'desc' }
+  });
 
   const {
     translations: recentTranslations,
     loading: recentLoading,
-  } = useTranslations();
+    error: recentError,
+    handleDelete: handleRecentDelete,
+    fetchTranslations: fetchRecent
+  } = useTranslations({
+    limit: 6,
+    orderBy: { column: 'created_at', order: 'desc' }
+  });
 
   const {
     translations: popularTranslations,
     loading: popularLoading,
-  } = useTranslations();
+    error: popularError,
+    handleDelete: handlePopularDelete,
+    fetchTranslations: fetchPopular
+  } = useTranslations({
+    limit: 6,
+    orderBy: { column: 'view_count', order: 'desc' }
+  });
 
   const handleSearch = (value: string) => {
     if (value.trim()) {
@@ -52,10 +69,6 @@ export default function Home() {
     );
   };
 
-  const handleClear = () => {
-    setSearchQuery("");
-  };
-
   return (
     <div className="container mx-auto px-4">
       <div className="flex justify-between items-center mb-6">
@@ -68,7 +81,6 @@ export default function Home() {
             className="ml-auto hover:bg-tibetan-brown/10"
           >
             <Settings className="h-5 w-5 text-tibetan-brown" />
-            <span className="sr-only">Admin Settings</span>
           </Button>
         )}
       </div>
@@ -78,7 +90,7 @@ export default function Home() {
           value={searchQuery}
           onChange={setSearchQuery}
           onKeyDown={handleKeyDown}
-          onClear={handleClear}
+          onClear={() => setSearchQuery("")}
         />
       </div>
 
@@ -91,9 +103,10 @@ export default function Home() {
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-4 text-tibetan-brown">Featured Translations</h2>
         <TranslationsGrid
-          translations={featuredTranslations.filter(t => t.featured).slice(0, 4)}
+          translations={featuredTranslations}
           isLoading={featuredLoading}
-          onDelete={handleDelete}
+          error={featuredError}
+          onDelete={handleFeaturedDelete}
         />
       </section>
 
@@ -101,11 +114,10 @@ export default function Home() {
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-4 text-tibetan-brown">Recently Added</h2>
         <TranslationsGrid
-          translations={recentTranslations.sort((a, b) => 
-            new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
-          ).slice(0, 6)}
+          translations={recentTranslations}
           isLoading={recentLoading}
-          onDelete={handleDelete}
+          error={recentError}
+          onDelete={handleRecentDelete}
         />
       </section>
 
@@ -113,11 +125,10 @@ export default function Home() {
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-4 text-tibetan-brown">Most Popular</h2>
         <TranslationsGrid
-          translations={popularTranslations.sort((a, b) => 
-            (b.view_count || 0) - (a.view_count || 0)
-          ).slice(0, 6)}
+          translations={popularTranslations}
           isLoading={popularLoading}
-          onDelete={handleDelete}
+          error={popularError}
+          onDelete={handlePopularDelete}
         />
       </section>
     </div>
