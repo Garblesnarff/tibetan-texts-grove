@@ -5,9 +5,6 @@ import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 import { groupTranslations } from "@/utils/translationUtils";
 
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 second
-
 export interface TranslationQueryOptions {
   featured?: boolean;
   orderBy?: 'created_at' | 'view_count';
@@ -25,7 +22,7 @@ export const useTranslations = (options: TranslationQueryOptions = {}) => {
 
   const fetchWithRetry = async (attempt: number = 0) => {
     try {
-      console.log(`Attempting to fetch translations (attempt ${attempt + 1}/${MAX_RETRIES})`);
+      console.log(`Attempting to fetch translations (attempt ${attempt + 1}/3)`);
       console.log('Fetch options:', options);
 
       if (!supabase) {
@@ -56,6 +53,7 @@ export const useTranslations = (options: TranslationQueryOptions = {}) => {
         query = query.limit(options.limit);
       }
 
+      console.log('Executing Supabase query...');
       const { data, error: fetchError } = await query;
 
       if (fetchError) {
@@ -63,25 +61,33 @@ export const useTranslations = (options: TranslationQueryOptions = {}) => {
         throw fetchError;
       }
 
+      console.log('Raw response from Supabase:', data);
+
       if (!mounted.current) return;
       
-      console.log('Fetched translations:', data);
-      const groupedData = groupTranslations(data as Translation[]);
-      setTranslations(groupedData);
-      setError(null);
-      retryCount.current = 0;
+      if (data) {
+        console.log('Processing fetched translations...');
+        const groupedData = groupTranslations(data as Translation[]);
+        console.log('Grouped translations:', groupedData);
+        setTranslations(groupedData);
+        setError(null);
+        retryCount.current = 0;
+      } else {
+        console.log('No translations found');
+        setTranslations([]);
+      }
 
     } catch (err: any) {
       console.error(`Fetch attempt ${attempt + 1} failed:`, err);
 
       if (!mounted.current) return;
 
-      if (attempt < MAX_RETRIES - 1) {
-        console.log(`Retrying in ${RETRY_DELAY}ms...`);
+      if (attempt < 2) {
+        console.log(`Retrying in 1000ms...`);
         setTimeout(() => {
           retryCount.current = attempt + 1;
           fetchWithRetry(attempt + 1);
-        }, RETRY_DELAY);
+        }, 1000);
       } else {
         setError(err);
         toast({
@@ -98,13 +104,14 @@ export const useTranslations = (options: TranslationQueryOptions = {}) => {
   };
 
   const fetchTranslations = useCallback(async () => {
+    console.log('useTranslations effect triggered with options:', options);
     setLoading(true);
     setError(null);
     await fetchWithRetry();
   }, [toast, options]);
 
   useEffect(() => {
-    console.log('useTranslations effect triggered with options:', options);
+    mounted.current = true;
     fetchTranslations();
 
     return () => {

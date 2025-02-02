@@ -19,6 +19,8 @@ export default function CategoryPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<{ tag: string; count: number; }[]>([]);
 
+  console.log('CategoryPage: Current category ID from URL:', id);
+
   const {
     translations,
     loading: isLoading,
@@ -34,16 +36,32 @@ export default function CategoryPage() {
     const fetchCategory = async () => {
       try {
         console.log('Fetching category details for ID:', id);
+        if (!id) {
+          console.error('No category ID provided');
+          return;
+        }
+
         const { data, error } = await supabase
           .from('categories')
           .select('title')
           .eq('id', id)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching category:', error);
+          throw error;
+        }
+        
         if (data) {
           console.log('Category data:', data);
           setCategoryTitle(data.title);
+        } else {
+          console.log('No category found with ID:', id);
+          toast({
+            variant: "destructive",
+            title: "Category not found",
+            description: "The requested category could not be found."
+          });
         }
       } catch (err: any) {
         console.error('Error fetching category:', err);
@@ -126,12 +144,15 @@ export default function CategoryPage() {
   };
 
   if (error) {
+    console.error('Error in CategoryPage:', error);
     return (
       <div className="p-4 text-center">
         <p className="text-red-500">Error loading translations: {error.message}</p>
       </div>
     );
   }
+
+  console.log('CategoryPage: Rendering with translations:', translations);
 
   return (
     <div className="container mx-auto px-4 py-8">
