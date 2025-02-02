@@ -14,11 +14,6 @@ import { SortConfig } from "@/types/sorting";
 import { HomeSection } from "@/components/index/HomeSection";
 import { Star, Clock, Eye } from "lucide-react";
 
-interface TagCount {
-  tag: string;
-  count: number;
-}
-
 export default function Index() {
   // Featured translations
   const { 
@@ -53,11 +48,11 @@ export default function Index() {
   const [isSearching, setIsSearching] = useState(false);
   const [currentSort, setCurrentSort] = useState<string>("created_at:desc");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [availableTags, setAvailableTags] = useState<TagCount[]>([]);
+  const [availableTags, setAvailableTags] = useState<{ tag: string; count: number; }[]>([]);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const { toast } = useToast();
 
-  // Fetch data for each section
+  // Fetch data for each section on mount
   useEffect(() => {
     fetchFeatured({ featured: true, limit: 4 });
     fetchRecent({ sortBy: 'created_at:desc', limit: 4 });

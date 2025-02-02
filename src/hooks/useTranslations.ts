@@ -4,13 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 import { groupTranslations } from "@/utils/translationUtils";
-
-interface FetchOptions {
-  featured?: boolean;
-  sortBy?: string;
-  limit?: number;
-  categoryId?: string;
-}
+import { TranslationQueryOptions } from "@/types/queryOptions";
 
 export const useTranslations = () => {
   const [translations, setTranslations] = useState<GroupedTranslation[]>([]);
@@ -18,7 +12,7 @@ export const useTranslations = () => {
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
 
-  const fetchTranslations = useCallback(async (options: FetchOptions = {}) => {
+  const fetchTranslations = useCallback(async (options: TranslationQueryOptions = {}) => {
     try {
       setLoading(true);
       setError(null);
@@ -73,9 +67,6 @@ export const useTranslations = () => {
         .single();
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          throw new Error('Translation not found');
-        }
         throw error;
       }
 
@@ -84,13 +75,14 @@ export const useTranslations = () => {
         description: "Translation deleted successfully",
       });
 
+      // Refresh the translations after deletion
       fetchTranslations();
     } catch (error: any) {
       console.error('Error deleting translation:', error);
       toast({
         variant: "destructive",
         title: "Error deleting translation",
-        description: error.message || "An error occurred while deleting the translation"
+        description: error.message
       });
     }
   };
