@@ -10,8 +10,6 @@ import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 import { SortConfig } from "@/types/sorting";
 import { groupTranslations } from "@/utils/translationUtils";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 
 interface TagCount {
   tag: string;
@@ -19,9 +17,7 @@ interface TagCount {
 }
 
 export default function Index() {
-  console.log('Index component mounted');
-
-  const { translations, loading: initialLoading, error: translationsError, fetchTranslations, handleDelete } = useTranslations();
+  const { translations, loading: initialLoading, fetchTranslations, handleDelete } = useTranslations();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<GroupedTranslation[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -30,16 +26,10 @@ export default function Index() {
   const [availableTags, setAvailableTags] = useState<TagCount[]>([]);
   const { toast } = useToast();
 
-  // Fetch available tags
+  // Fetch available tags and their counts
   useEffect(() => {
-    console.log('Fetching tags');
     const fetchTags = async () => {
       try {
-        if (!supabase) {
-          console.error('Supabase client not initialized');
-          return;
-        }
-
         const { data, error } = await supabase
           .from('translations')
           .select('tags')
@@ -64,25 +54,15 @@ export default function Index() {
         setAvailableTags(formattedTags);
       } catch (error: any) {
         console.error('Error fetching tags:', error);
-        toast({
-          variant: "destructive",
-          title: "Error fetching tags",
-          description: error.message
-        });
       }
     };
 
     fetchTags();
-  }, [translations, toast]);
+  }, [translations]);
 
   const handleSortChange = async (sortConfig: SortConfig) => {
-    console.log('Handling sort change:', sortConfig);
     setIsSearching(true);
     try {
-      if (!supabase) {
-        throw new Error('Supabase client not initialized');
-      }
-
       let query = supabase
         .from('translations')
         .select('*')
@@ -118,7 +98,6 @@ export default function Index() {
 
   // Handle search with tag filtering
   useEffect(() => {
-    console.log('Search effect triggered:', { searchQuery, selectedTags });
     const searchTranslations = async () => {
       if (!searchQuery.trim() && selectedTags.length === 0) {
         setSearchResults([]);
@@ -127,10 +106,6 @@ export default function Index() {
 
       setIsSearching(true);
       try {
-        if (!supabase) {
-          throw new Error('Supabase client not initialized');
-        }
-
         const [field, direction] = currentSort.split(':');
         
         let query = supabase
@@ -187,17 +162,6 @@ export default function Index() {
   const displayedTranslations = searchQuery || selectedTags.length > 0 ? searchResults : translations;
   const isLoading = initialLoading || isSearching;
 
-  if (translationsError) {
-    return (
-      <Alert variant="destructive" className="mb-4">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load translations. Please try again later.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4">
@@ -224,7 +188,6 @@ export default function Index() {
         onDelete={handleDelete}
         isLoading={isLoading}
         searchQuery={searchQuery}
-        error={translationsError}
       />
     </div>
   );
