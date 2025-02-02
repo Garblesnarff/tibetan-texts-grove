@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { SearchSuggestions } from "./SearchSuggestions";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { useOnClickOutside } from "@/hooks/use-click-outside";
+import { useNavigate } from "react-router-dom";
 
 interface SearchInputProps {
   value: string;
@@ -17,6 +18,7 @@ interface SearchInputProps {
 export function SearchInput({ value, onChange, onClear, onKeyDown, selectedCategory }: SearchInputProps) {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   
   const {
     suggestions,
@@ -36,6 +38,7 @@ export function SearchInput({ value, onChange, onClear, onKeyDown, selectedCateg
     onChange(term);
     addToHistory(term);
     setIsFocused(false);
+    navigate(`/search?q=${encodeURIComponent(term)}`);
   };
 
   return (
