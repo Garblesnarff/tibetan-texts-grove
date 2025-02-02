@@ -32,7 +32,7 @@ export const useTranslations = (options: TranslationsOptions = {}) => {
         .from('translations')
         .select('*');
 
-      // Apply filters
+      // Apply filters if provided
       if (options.filters?.featured !== undefined) {
         query = query.eq('featured', options.filters.featured);
       }
@@ -41,14 +41,14 @@ export const useTranslations = (options: TranslationsOptions = {}) => {
         query = query.eq('category_id', options.filters.categoryId);
       }
 
-      // Apply sorting
+      // Apply sorting if provided
       if (options.orderBy) {
         query = query.order(options.orderBy.column, { 
           ascending: options.orderBy.order === 'asc' 
         });
       }
 
-      // Apply limit
+      // Apply limit if provided
       if (options.limit) {
         query = query.limit(options.limit);
       }
@@ -72,7 +72,6 @@ export const useTranslations = (options: TranslationsOptions = {}) => {
     }
   }, [options, toast]);
 
-  // Fetch translations on mount and when options change
   useEffect(() => {
     fetchTranslations();
   }, [fetchTranslations]);
