@@ -72,6 +72,11 @@ export const useTranslations = (options: TranslationsOptions = {}) => {
     }
   }, [options, toast]);
 
+  // Fetch translations on mount and when options change
+  useState(() => {
+    fetchTranslations();
+  }, [fetchTranslations]);
+
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
@@ -102,11 +107,6 @@ export const useTranslations = (options: TranslationsOptions = {}) => {
       });
     }
   };
-
-  // Fetch translations on mount and when options change
-  useState(() => {
-    fetchTranslations();
-  }, [fetchTranslations]);
 
   return {
     translations,
