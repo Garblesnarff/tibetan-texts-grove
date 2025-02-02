@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Translation } from "@/types/translation";
@@ -20,36 +20,51 @@ export const useTranslations = (options: TranslationQueryOptions = {}) => {
 
   const fetchTranslations = useCallback(async () => {
     try {
-      setLoading(true);
       console.log('Fetching translations with options:', options);
+      setLoading(true);
+      setError(null);
 
       let query = supabase
         .from('translations')
-        .select('*')
-        .is('category_id', null);
+        .select('*');
 
+      // Apply category filter if specified
+      if (options.category_id) {
+        console.log('Filtering by category:', options.category_id);
+        query = query.eq('category_id', options.category_id);
+      } else {
+        console.log('No category filter applied');
+        query = query.is('category_id', null);
+      }
+
+      // Apply featured filter
       if (options.featured) {
         query = query.eq('featured', true);
       }
 
+      // Apply ordering
       if (options.orderBy) {
         query = query.order(options.orderBy, { ascending: false });
       }
 
+      // Apply limit
       if (options.limit) {
         query = query.limit(options.limit);
       }
 
       const { data, error: fetchError } = await query;
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        console.error('Error fetching translations:', fetchError);
+        throw fetchError;
+      }
       
       console.log('Fetched translations:', data);
       const groupedData = groupTranslations(data as Translation[]);
       setTranslations(groupedData);
       setError(null);
     } catch (err: any) {
-      console.error('Error fetching translations:', err);
+      console.error('Error in fetchTranslations:', err);
       setError(err);
       toast({
         variant: "destructive",
@@ -60,6 +75,12 @@ export const useTranslations = (options: TranslationQueryOptions = {}) => {
       setLoading(false);
     }
   }, [options, toast]);
+
+  // Fetch translations on mount and when options change
+  useEffect(() => {
+    console.log('useTranslations effect triggered with options:', options);
+    fetchTranslations();
+  }, [fetchTranslations]);
 
   const handleDelete = async (id: string) => {
     try {
