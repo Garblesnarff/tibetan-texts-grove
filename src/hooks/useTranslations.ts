@@ -31,12 +31,30 @@ export const useTranslations = (options: TranslationQueryOptions = {}) => {
       }
 
       console.log('Executing Supabase query...');
-      const { data: fetchedData, error: fetchError } = await supabase
+      
+      // Start building the query
+      let query = supabase
         .from('translations')
-        .select('*')
-        .eq('category_id', options.category_id)
-        .order(options.orderBy || 'created_at', { ascending: false })
-        .limit(options.limit || 50);
+        .select('*');
+
+      // Only add category filter if category_id is defined
+      if (options.category_id !== undefined) {
+        query = query.eq('category_id', options.category_id);
+      }
+
+      // Add featured filter if specified
+      if (options.featured) {
+        query = query.eq('featured', true);
+      }
+
+      // Add ordering
+      query = query.order(options.orderBy || 'created_at', { ascending: false });
+
+      // Add limit
+      query = query.limit(options.limit || 50);
+
+      // Execute the query
+      const { data: fetchedData, error: fetchError } = await query;
 
       if (fetchError) {
         console.error('Error fetching translations:', fetchError);
