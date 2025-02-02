@@ -8,8 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
-import { SortConfig } from "@/types/sorting";
 import { groupTranslations } from "@/utils/translationUtils";
+import { QuickFilters } from "@/components/filtering/QuickFilters";
 
 interface TagCount {
   tag: string;
@@ -24,77 +24,63 @@ export default function Index() {
   const [currentSort, setCurrentSort] = useState<string>("created_at:desc");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<TagCount[]>([]);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const { toast } = useToast();
 
-  // Fetch available tags and their counts
+  // Handle quick filter changes
+  const handleFilterChange = (filterId: string) => {
+    setActiveFilters(prev => 
+      prev.includes(filterId) 
+        ? prev.filter(f => f !== filterId)
+        : [...prev, filterId]
+    );
+  };
+
+  // Fetch filtered translations based on active filters
   useEffect(() => {
-    const fetchTags = async () => {
+    const fetchFilteredTranslations = async () => {
       try {
-        const { data, error } = await supabase
+        setIsSearching(true);
+        let query = supabase
           .from('translations')
-          .select('tags')
-          .not('tags', 'eq', '{}');
+          .select('*')
+          .is('category_id', null);
+
+        // Apply filters
+        if (activeFilters.includes('featured')) {
+          query = query.eq('featured', true);
+        }
+        if (activeFilters.includes('recent')) {
+          query = query.order('created_at', { ascending: false }).limit(6);
+        }
+        if (activeFilters.includes('most-viewed')) {
+          query = query.order('view_count', { ascending: false }).limit(6);
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
-
-        const tagCounts: { [key: string]: number } = {};
-        data.forEach(translation => {
-          if (translation.tags) {
-            translation.tags.forEach((tag: string) => {
-              tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-            });
-          }
-        });
-
-        const formattedTags: TagCount[] = Object.entries(tagCounts).map(([tag, count]) => ({
-          tag,
-          count
-        }));
-
-        setAvailableTags(formattedTags);
+        
+        const groupedResults = groupTranslations(data as Translation[]);
+        setSearchResults(groupedResults);
       } catch (error: any) {
-        console.error('Error fetching tags:', error);
+        console.error('Filter error:', error);
+        toast({
+          variant: "destructive",
+          title: "Error filtering translations",
+          description: error.message
+        });
+      } finally {
+        setIsSearching(false);
       }
     };
 
-    fetchTags();
-  }, [translations]);
-
-  const handleSortChange = async (sortConfig: SortConfig) => {
-    setIsSearching(true);
-    try {
-      let query = supabase
-        .from('translations')
-        .select('*')
-        .is('category_id', null);
-
-      if (searchQuery) {
-        query = query.textSearch('search_vector', searchQuery);
-      }
-
-      if (selectedTags.length > 0) {
-        query = query.contains('tags', selectedTags);
-      }
-
-      const { data, error } = await query
-        .order(sortConfig.field, { ascending: sortConfig.direction === 'asc' });
-
-      if (error) throw error;
-      
-      const groupedResults = groupTranslations(data as Translation[]);
-      setSearchResults(groupedResults);
-      setCurrentSort(`${sortConfig.field}:${sortConfig.direction}`);
-    } catch (error: any) {
-      console.error('Sort error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error sorting translations",
-        description: error.message
-      });
-    } finally {
-      setIsSearching(false);
+    if (activeFilters.length > 0) {
+      fetchFilteredTranslations();
+    } else {
+      setSearchResults([]);
     }
-  };
+  }, [activeFilters, toast]);
 
   // Handle search with tag filtering
   useEffect(() => {
@@ -144,6 +130,40 @@ export default function Index() {
     return () => clearTimeout(debounceTimeout);
   }, [searchQuery, selectedTags, currentSort, toast]);
 
+  // Fetch available tags
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('translations')
+          .select('tags')
+          .not('tags', 'eq', '{}');
+
+        if (error) throw error;
+
+        const tagCounts: { [key: string]: number } = {};
+        data.forEach(translation => {
+          if (translation.tags) {
+            translation.tags.forEach((tag: string) => {
+              tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+            });
+          }
+        });
+
+        const formattedTags: TagCount[] = Object.entries(tagCounts).map(([tag, count]) => ({
+          tag,
+          count
+        }));
+
+        setAvailableTags(formattedTags);
+      } catch (error: any) {
+        console.error('Error fetching tags:', error);
+      }
+    };
+
+    fetchTags();
+  }, [translations]);
+
   const handleClearSearch = () => {
     setSearchQuery("");
     setSearchResults([]);
@@ -159,7 +179,9 @@ export default function Index() {
     setSelectedTags(selectedTags.filter(t => t !== tag));
   };
 
-  const displayedTranslations = searchQuery || selectedTags.length > 0 ? searchResults : translations;
+  const displayedTranslations = searchQuery || selectedTags.length > 0 || activeFilters.length > 0
+    ? searchResults 
+    : translations;
   const isLoading = initialLoading || isSearching;
 
   return (
@@ -181,6 +203,10 @@ export default function Index() {
           selectedTags={selectedTags}
           onTagSelect={handleTagSelect}
           onTagRemove={handleTagRemove}
+        />
+        <QuickFilters
+          onFilterChange={handleFilterChange}
+          activeFilters={activeFilters}
         />
       </div>
       <TranslationsGrid
