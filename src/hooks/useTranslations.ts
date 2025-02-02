@@ -24,50 +24,32 @@ export const useTranslations = (options: TranslationQueryOptions = {}) => {
     try {
       console.log(`Attempting to fetch translations (attempt ${attempt + 1}/3)`);
       console.log('Fetch options:', options);
+      console.log('Category ID being used:', options.category_id);
 
       if (!supabase) {
         throw new Error('Supabase client not initialized');
       }
 
-      let query = supabase
-        .from('translations')
-        .select('*');
-
-      if (options.category_id) {
-        console.log('Filtering by category:', options.category_id);
-        query = query.eq('category_id', options.category_id);
-      } else {
-        console.log('No category filter applied');
-        query = query.is('category_id', null);
-      }
-
-      if (options.featured) {
-        query = query.eq('featured', true);
-      }
-
-      if (options.orderBy) {
-        query = query.order(options.orderBy, { ascending: false });
-      }
-
-      if (options.limit) {
-        query = query.limit(options.limit);
-      }
-
       console.log('Executing Supabase query...');
-      const { data, error: fetchError } = await query;
+      const { data: fetchedData, error: fetchError } = await supabase
+        .from('translations')
+        .select('*')
+        .eq('category_id', options.category_id)
+        .order(options.orderBy || 'created_at', { ascending: false })
+        .limit(options.limit || 50);
 
       if (fetchError) {
         console.error('Error fetching translations:', fetchError);
         throw fetchError;
       }
 
-      console.log('Raw response from Supabase:', data);
+      console.log('Raw response from Supabase:', fetchedData);
 
       if (!mounted.current) return;
       
-      if (data) {
+      if (fetchedData) {
         console.log('Processing fetched translations...');
-        const groupedData = groupTranslations(data as Translation[]);
+        const groupedData = groupTranslations(fetchedData as Translation[]);
         console.log('Grouped translations:', groupedData);
         setTranslations(groupedData);
         setError(null);
