@@ -69,10 +69,45 @@ export const useTranslations = () => {
     }
   }, [toast]);
 
+  const handleDelete = async (id: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('translations')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Update local state to remove the deleted translation
+      setTranslations(prev => 
+        prev.map(group => ({
+          ...group,
+          translations: group.translations.filter(t => t.id !== id)
+        })).filter(group => group.translations.length > 0)
+      );
+
+      toast({
+        title: "Translation deleted",
+        description: "The translation has been successfully deleted."
+      });
+    } catch (error: any) {
+      console.error('Error deleting translation:', error);
+      toast({
+        variant: "destructive",
+        title: "Error deleting translation",
+        description: error.message
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     translations,
     loading,
     error,
-    fetchTranslations
+    fetchTranslations,
+    handleDelete
   };
 };
