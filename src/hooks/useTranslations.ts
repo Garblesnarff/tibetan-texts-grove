@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Translation } from "@/types/translation";
@@ -73,7 +73,7 @@ export const useTranslations = (options: TranslationsOptions = {}) => {
   }, [options, toast]);
 
   // Fetch translations on mount and when options change
-  useState(() => {
+  useEffect(() => {
     fetchTranslations();
   }, [fetchTranslations]);
 
