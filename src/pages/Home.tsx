@@ -18,22 +18,22 @@ export default function Home() {
   const {
     translations: featuredTranslations,
     loading: featuredLoading,
-    fetchTranslations: fetchFeatured,
-    handleDelete: handleDeleteFeatured
+    error: featuredError,
+    fetchTranslations: fetchFeatured
   } = useTranslations({ featured: true, limit: 4 });
 
   const {
     translations: recentTranslations,
     loading: recentLoading,
-    fetchTranslations: fetchRecent,
-    handleDelete: handleDeleteRecent
+    error: recentError,
+    fetchTranslations: fetchRecent
   } = useTranslations({ orderBy: 'created_at', limit: 6 });
 
   const {
     translations: popularTranslations,
     loading: popularLoading,
-    fetchTranslations: fetchPopular,
-    handleDelete: handleDeletePopular
+    error: popularError,
+    fetchTranslations: fetchPopular
   } = useTranslations({ orderBy: 'view_count', limit: 6 });
 
   useEffect(() => {
@@ -99,7 +99,8 @@ export default function Home() {
         <TranslationsGrid
           translations={featuredTranslations}
           isLoading={featuredLoading}
-          onDelete={handleDeleteFeatured}
+          error={featuredError}
+          onDelete={fetchFeatured}
         />
       </section>
 
@@ -109,7 +110,8 @@ export default function Home() {
         <TranslationsGrid
           translations={recentTranslations}
           isLoading={recentLoading}
-          onDelete={handleDeleteRecent}
+          error={recentError}
+          onDelete={fetchRecent}
         />
       </section>
 
@@ -119,7 +121,8 @@ export default function Home() {
         <TranslationsGrid
           translations={popularTranslations}
           isLoading={popularLoading}
-          onDelete={handleDeletePopular}
+          error={popularError}
+          onDelete={fetchPopular}
         />
       </section>
     </div>
