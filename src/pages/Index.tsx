@@ -10,6 +10,7 @@ import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 import { groupTranslations } from "@/utils/translationUtils";
 import { QuickFilters } from "@/components/filtering/QuickFilters";
+import { SortConfig } from "@/types/sorting";
 
 interface TagCount {
   tag: string;
@@ -36,7 +37,11 @@ export default function Index() {
     );
   };
 
-  // Fetch filtered translations based on active filters
+  // Add the missing handleSortChange function
+  const handleSortChange = (config: SortConfig) => {
+    setCurrentSort(`${config.field}:${config.direction}`);
+  };
+
   useEffect(() => {
     const fetchFilteredTranslations = async () => {
       try {
