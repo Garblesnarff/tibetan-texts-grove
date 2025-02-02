@@ -5,77 +5,83 @@ import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 import { groupTranslations } from "@/utils/translationUtils";
 
-/**
- * Custom hook for managing translations data and operations
- * Only returns uncategorized translations for the main page
- * @returns {Object} Object containing translations data and management functions
- */
-export const useTranslations = () => {
+export interface TranslationQueryOptions {
+  featured?: boolean;
+  orderBy?: 'created_at' | 'view_count';
+  limit?: number;
+  category_id?: string;
+}
+
+export const useTranslations = (options: TranslationQueryOptions = {}) => {
   const [translations, setTranslations] = useState<GroupedTranslation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
 
-  /**
-   * Fetches uncategorized translations from the database and groups them
-   * @returns {Promise<void>}
-   */
   const fetchTranslations = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      console.log('Fetching translations with options:', options);
+
+      let query = supabase
         .from('translations')
         .select('*')
-        .is('category_id', null)  // Only fetch translations without a category
-        .order('created_at', { ascending: false });
+        .is('category_id', null);
 
-      if (error) throw error;
+      if (options.featured) {
+        query = query.eq('featured', true);
+      }
+
+      if (options.orderBy) {
+        query = query.order(options.orderBy, { ascending: false });
+      }
+
+      if (options.limit) {
+        query = query.limit(options.limit);
+      }
+
+      const { data, error: fetchError } = await query;
+
+      if (fetchError) throw fetchError;
       
+      console.log('Fetched translations:', data);
       const groupedData = groupTranslations(data as Translation[]);
       setTranslations(groupedData);
-    } catch (error: any) {
-      console.error('Error fetching translations:', error);
+      setError(null);
+    } catch (err: any) {
+      console.error('Error fetching translations:', err);
+      setError(err);
       toast({
         variant: "destructive",
         title: "Error fetching translations",
-        description: error.message
+        description: err.message
       });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [options, toast]);
 
-  /**
-   * Handles the deletion of a translation
-   * @param {string} id - ID of the translation to be deleted
-   * @returns {Promise<void>}
-   */
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase
+      const { error: deleteError } = await supabase
         .from('translations')
         .delete()
-        .eq('id', id)
-        .single();
+        .eq('id', id);
 
-      if (error) {
-        if (error.code === 'PGRST116') {
-          throw new Error('Translation not found');
-        }
-        throw error;
-      }
+      if (deleteError) throw deleteError;
 
       toast({
         title: "Success",
         description: "Translation deleted successfully",
       });
 
-      // Refresh translations after successful deletion
       fetchTranslations();
-    } catch (error: any) {
-      console.error('Error deleting translation:', error);
+    } catch (err: any) {
+      console.error('Error deleting translation:', err);
       toast({
         variant: "destructive",
         title: "Error deleting translation",
-        description: error.message || "An error occurred while deleting the translation"
+        description: err.message
       });
     }
   };
@@ -83,6 +89,7 @@ export const useTranslations = () => {
   return {
     translations,
     loading,
+    error,
     fetchTranslations,
     handleDelete
   };
