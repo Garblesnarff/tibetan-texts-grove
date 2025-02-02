@@ -25,7 +25,8 @@ export default function Index() {
     translations: featuredTranslations,
     loading: featuredLoading,
     error: featuredError,
-    fetchTranslations: fetchFeatured
+    fetchTranslations: fetchFeatured,
+    handleDelete: handleDeleteFeatured
   } = useTranslations();
 
   // Recent translations
@@ -33,7 +34,8 @@ export default function Index() {
     translations: recentTranslations,
     loading: recentLoading,
     error: recentError,
-    fetchTranslations: fetchRecent
+    fetchTranslations: fetchRecent,
+    handleDelete: handleDeleteRecent
   } = useTranslations();
 
   // Popular translations
@@ -41,7 +43,8 @@ export default function Index() {
     translations: popularTranslations,
     loading: popularLoading,
     error: popularError,
-    fetchTranslations: fetchPopular
+    fetchTranslations: fetchPopular,
+    handleDelete: handleDeletePopular
   } = useTranslations();
 
   // Regular search and filter states
@@ -64,6 +67,24 @@ export default function Index() {
   // Handle sort change
   const handleSortChange = (config: SortConfig) => {
     setCurrentSort(`${config.field}:${config.direction}`);
+  };
+
+  // Create async delete handlers for each section
+  const handleFeaturedDelete = async (id: string) => {
+    await handleDeleteFeatured(id);
+  };
+
+  const handleRecentDelete = async (id: string) => {
+    await handleDeleteRecent(id);
+  };
+
+  const handlePopularDelete = async (id: string) => {
+    await handleDeletePopular(id);
+  };
+
+  const handleSearchDelete = async (id: string) => {
+    // Implement search results delete logic if needed
+    return Promise.resolve();
   };
 
   return (
@@ -103,7 +124,7 @@ export default function Index() {
           <HomeSection title="Featured Translations" icon={Star}>
             <TranslationsGrid
               translations={featuredTranslations}
-              onDelete={() => {}}
+              onDelete={handleFeaturedDelete}
               isLoading={featuredLoading}
               error={featuredError}
             />
@@ -112,7 +133,7 @@ export default function Index() {
           <HomeSection title="Recently Added" icon={Clock}>
             <TranslationsGrid
               translations={recentTranslations}
-              onDelete={() => {}}
+              onDelete={handleRecentDelete}
               isLoading={recentLoading}
               error={recentError}
             />
@@ -121,7 +142,7 @@ export default function Index() {
           <HomeSection title="Most Popular" icon={Eye}>
             <TranslationsGrid
               translations={popularTranslations}
-              onDelete={() => {}}
+              onDelete={handlePopularDelete}
               isLoading={popularLoading}
               error={popularError}
             />
@@ -132,7 +153,7 @@ export default function Index() {
       {(searchQuery || selectedTags.length > 0 || activeFilters.length > 0) && (
         <TranslationsGrid
           translations={searchResults}
-          onDelete={() => {}}
+          onDelete={handleSearchDelete}
           isLoading={isSearching}
           searchQuery={searchQuery}
         />
