@@ -3,4 +3,9 @@ export interface TranslationQueryOptions {
   sortBy?: string;
   limit?: number;
   categoryId?: string;
+  searchQuery?: string;
+}
+
+export interface SectionQueryOptions extends TranslationQueryOptions {
+  sectionType: 'featured' | 'recent' | 'popular';
 }

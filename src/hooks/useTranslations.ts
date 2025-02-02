@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 import { groupTranslations } from "@/utils/translationUtils";
-import { TranslationQueryOptions } from "@/types/queryOptions";
+import { TranslationQueryOptions, SectionQueryOptions } from "@/types/queryOptions";
 
 export const useTranslations = () => {
   const [translations, setTranslations] = useState<GroupedTranslation[]>([]);
@@ -22,6 +22,7 @@ export const useTranslations = () => {
         .from('translations')
         .select('*');
 
+      // Apply filters based on options
       if (options.featured !== undefined) {
         console.log('Filtering by featured:', options.featured);
         query = query.eq('featured', options.featured);
@@ -31,12 +32,18 @@ export const useTranslations = () => {
         query = query.eq('category_id', options.categoryId);
       }
 
+      if (options.searchQuery) {
+        query = query.textSearch('search_vector', options.searchQuery);
+      }
+
+      // Apply sorting
       if (options.sortBy) {
         const [field, direction] = options.sortBy.split(':');
         console.log('Sorting by:', field, direction);
         query = query.order(field, { ascending: direction === 'asc' });
       }
 
+      // Apply limit
       if (options.limit) {
         console.log('Limiting results to:', options.limit);
         query = query.limit(options.limit);
@@ -62,39 +69,10 @@ export const useTranslations = () => {
     }
   }, [toast]);
 
-  const handleDelete = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('translations')
-        .delete()
-        .eq('id', id)
-        .single();
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: "Success",
-        description: "Translation deleted successfully",
-      });
-
-      fetchTranslations();
-    } catch (error: any) {
-      console.error('Error deleting translation:', error);
-      toast({
-        variant: "destructive",
-        title: "Error deleting translation",
-        description: error.message
-      });
-    }
-  };
-
   return {
     translations,
     loading,
     error,
-    fetchTranslations,
-    handleDelete
+    fetchTranslations
   };
 };
