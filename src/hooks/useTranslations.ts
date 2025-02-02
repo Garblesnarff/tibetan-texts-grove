@@ -1,9 +1,12 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 import { groupTranslations } from "@/utils/translationUtils";
+
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
 
 export interface TranslationQueryOptions {
   featured?: boolean;
@@ -17,18 +20,22 @@ export const useTranslations = (options: TranslationQueryOptions = {}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
+  const retryCount = useRef(0);
+  const mounted = useRef(true);
 
-  const fetchTranslations = useCallback(async () => {
+  const fetchWithRetry = async (attempt: number = 0) => {
     try {
-      console.log('Fetching translations with options:', options);
-      setLoading(true);
-      setError(null);
+      console.log(`Attempting to fetch translations (attempt ${attempt + 1}/${MAX_RETRIES})`);
+      console.log('Fetch options:', options);
+
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
+      }
 
       let query = supabase
         .from('translations')
         .select('*');
 
-      // Apply category filter if specified
       if (options.category_id) {
         console.log('Filtering by category:', options.category_id);
         query = query.eq('category_id', options.category_id);
@@ -37,17 +44,14 @@ export const useTranslations = (options: TranslationQueryOptions = {}) => {
         query = query.is('category_id', null);
       }
 
-      // Apply featured filter
       if (options.featured) {
         query = query.eq('featured', true);
       }
 
-      // Apply ordering
       if (options.orderBy) {
         query = query.order(options.orderBy, { ascending: false });
       }
 
-      // Apply limit
       if (options.limit) {
         query = query.limit(options.limit);
       }
@@ -58,28 +62,54 @@ export const useTranslations = (options: TranslationQueryOptions = {}) => {
         console.error('Error fetching translations:', fetchError);
         throw fetchError;
       }
+
+      if (!mounted.current) return;
       
       console.log('Fetched translations:', data);
       const groupedData = groupTranslations(data as Translation[]);
       setTranslations(groupedData);
       setError(null);
-    } catch (err: any) {
-      console.error('Error in fetchTranslations:', err);
-      setError(err);
-      toast({
-        variant: "destructive",
-        title: "Error fetching translations",
-        description: err.message
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [options, toast]);
+      retryCount.current = 0;
 
-  // Fetch translations on mount and when options change
+    } catch (err: any) {
+      console.error(`Fetch attempt ${attempt + 1} failed:`, err);
+
+      if (!mounted.current) return;
+
+      if (attempt < MAX_RETRIES - 1) {
+        console.log(`Retrying in ${RETRY_DELAY}ms...`);
+        setTimeout(() => {
+          retryCount.current = attempt + 1;
+          fetchWithRetry(attempt + 1);
+        }, RETRY_DELAY);
+      } else {
+        setError(err);
+        toast({
+          variant: "destructive",
+          title: "Error fetching translations",
+          description: err.message
+        });
+      }
+    } finally {
+      if (mounted.current) {
+        setLoading(false);
+      }
+    }
+  };
+
+  const fetchTranslations = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    await fetchWithRetry();
+  }, [toast, options]);
+
   useEffect(() => {
     console.log('useTranslations effect triggered with options:', options);
     fetchTranslations();
+
+    return () => {
+      mounted.current = false;
+    };
   }, [fetchTranslations]);
 
   const handleDelete = async (id: string) => {
