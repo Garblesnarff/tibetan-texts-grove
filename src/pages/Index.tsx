@@ -4,66 +4,172 @@ import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 import { SearchInput } from "@/components/search/SearchInput";
 import { SortingControls } from "@/components/sorting/SortingControls";
 import { TagFilter } from "@/components/filtering/TagFilter";
-import { QuickFilters } from "@/components/filtering/QuickFilters";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Translation } from "@/types/translation";
+import { GroupedTranslation } from "@/types/groupedTranslation";
 import { SortConfig } from "@/types/sorting";
-import { HomeSection } from "@/components/index/HomeSection";
-import { Star, Clock, Eye } from "lucide-react";
+import { groupTranslations } from "@/utils/translationUtils";
+
+interface TagCount {
+  tag: string;
+  count: number;
+}
 
 export default function Index() {
-  // Featured translations
-  const { 
-    translations: featuredTranslations,
-    loading: featuredLoading,
-    error: featuredError,
-    fetchTranslations: fetchFeatured
-  } = useTranslations();
-
-  // Recent translations
-  const {
-    translations: recentTranslations,
-    loading: recentLoading,
-    error: recentError,
-    fetchTranslations: fetchRecent
-  } = useTranslations();
-
-  // Popular translations
-  const {
-    translations: popularTranslations,
-    loading: popularLoading,
-    error: popularError,
-    fetchTranslations: fetchPopular
-  } = useTranslations();
-
-  // Search states
+  const { translations, loading: initialLoading, fetchTranslations, handleDelete } = useTranslations();
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<GroupedTranslation[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [currentSort, setCurrentSort] = useState<string>("created_at:desc");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [availableTags, setAvailableTags] = useState<{ tag: string; count: number; }[]>([]);
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [availableTags, setAvailableTags] = useState<TagCount[]>([]);
+  const { toast } = useToast();
 
-  // Fetch data for each section on mount
+  // Fetch available tags and their counts
   useEffect(() => {
-    console.log('Fetching initial data for sections');
-    fetchFeatured({ featured: true, limit: 4 });
-    fetchRecent({ sortBy: 'created_at:desc', limit: 4 });
-    fetchPopular({ sortBy: 'view_count:desc', limit: 4 });
-  }, [fetchFeatured, fetchRecent, fetchPopular]);
+    const fetchTags = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('translations')
+          .select('tags')
+          .not('tags', 'eq', '{}');
 
-  // Handle sort change
-  const handleSortChange = (config: SortConfig) => {
-    setCurrentSort(`${config.field}:${config.direction}`);
+        if (error) throw error;
+
+        const tagCounts: { [key: string]: number } = {};
+        data.forEach(translation => {
+          if (translation.tags) {
+            translation.tags.forEach((tag: string) => {
+              tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+            });
+          }
+        });
+
+        const formattedTags: TagCount[] = Object.entries(tagCounts).map(([tag, count]) => ({
+          tag,
+          count
+        }));
+
+        setAvailableTags(formattedTags);
+      } catch (error: any) {
+        console.error('Error fetching tags:', error);
+      }
+    };
+
+    fetchTags();
+  }, [translations]);
+
+  const handleSortChange = async (sortConfig: SortConfig) => {
+    setIsSearching(true);
+    try {
+      let query = supabase
+        .from('translations')
+        .select('*')
+        .is('category_id', null);
+
+      if (searchQuery) {
+        query = query.textSearch('search_vector', searchQuery);
+      }
+
+      if (selectedTags.length > 0) {
+        query = query.contains('tags', selectedTags);
+      }
+
+      const { data, error } = await query
+        .order(sortConfig.field, { ascending: sortConfig.direction === 'asc' });
+
+      if (error) throw error;
+      
+      const groupedResults = groupTranslations(data as Translation[]);
+      setSearchResults(groupedResults);
+      setCurrentSort(`${sortConfig.field}:${sortConfig.direction}`);
+    } catch (error: any) {
+      console.error('Sort error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error sorting translations",
+        description: error.message
+      });
+    } finally {
+      setIsSearching(false);
+    }
   };
 
+  // Handle search with tag filtering
+  useEffect(() => {
+    const searchTranslations = async () => {
+      if (!searchQuery.trim() && selectedTags.length === 0) {
+        setSearchResults([]);
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const [field, direction] = currentSort.split(':');
+        
+        let query = supabase
+          .from('translations')
+          .select('*')
+          .is('category_id', null);
+
+        if (searchQuery) {
+          query = query.textSearch('search_vector', searchQuery);
+        }
+
+        if (selectedTags.length > 0) {
+          query = query.contains('tags', selectedTags);
+        }
+
+        const { data, error } = await query
+          .order(field, { ascending: direction === 'asc' });
+
+        if (error) throw error;
+
+        const groupedResults = groupTranslations(data as Translation[]);
+        setSearchResults(groupedResults);
+      } catch (error: any) {
+        console.error('Search error:', error);
+        toast({
+          variant: "destructive",
+          title: "Search failed",
+          description: "Failed to search translations. Please try again."
+        });
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const debounceTimeout = setTimeout(searchTranslations, 300);
+    return () => clearTimeout(debounceTimeout);
+  }, [searchQuery, selectedTags, currentSort, toast]);
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
+  const handleTagSelect = (tag: string) => {
+    if (!selectedTags.includes(tag)) {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
+
+  const handleTagRemove = (tag: string) => {
+    setSelectedTags(selectedTags.filter(t => t !== tag));
+  };
+
+  const displayedTranslations = searchQuery || selectedTags.length > 0 ? searchResults : translations;
+  const isLoading = initialLoading || isSearching;
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
-            onClear={() => setSearchQuery("")}
+            onClear={handleClearSearch}
           />
           <SortingControls
             onSortChange={handleSortChange}
@@ -73,58 +179,16 @@ export default function Index() {
         <TagFilter
           availableTags={availableTags}
           selectedTags={selectedTags}
-          onTagSelect={(tag) => setSelectedTags([...selectedTags, tag])}
-          onTagRemove={(tag) => setSelectedTags(selectedTags.filter(t => t !== tag))}
-        />
-        <QuickFilters
-          onFilterChange={(filterId) => {
-            setActiveFilters(prev =>
-              prev.includes(filterId)
-                ? prev.filter(f => f !== filterId)
-                : [...prev, filterId]
-            );
-          }}
-          activeFilters={activeFilters}
+          onTagSelect={handleTagSelect}
+          onTagRemove={handleTagRemove}
         />
       </div>
-
-      {/* Search Results */}
-      {searchQuery && (
-        <TranslationsGrid
-          translations={searchResults}
-          onDelete={async () => {}}
-          isLoading={isSearching}
-          searchQuery={searchQuery}
-        />
-      )}
-
-      {/* Main Sections */}
-      <HomeSection title="Featured Translations" icon={Star}>
-        <TranslationsGrid
-          translations={featuredTranslations}
-          onDelete={async () => {}}
-          isLoading={featuredLoading}
-          error={featuredError}
-        />
-      </HomeSection>
-
-      <HomeSection title="Recently Added" icon={Clock}>
-        <TranslationsGrid
-          translations={recentTranslations}
-          onDelete={async () => {}}
-          isLoading={recentLoading}
-          error={recentError}
-        />
-      </HomeSection>
-
-      <HomeSection title="Most Popular" icon={Eye}>
-        <TranslationsGrid
-          translations={popularTranslations}
-          onDelete={async () => {}}
-          isLoading={popularLoading}
-          error={popularError}
-        />
-      </HomeSection>
+      <TranslationsGrid
+        translations={displayedTranslations}
+        onDelete={handleDelete}
+        isLoading={isLoading}
+        searchQuery={searchQuery}
+      />
     </div>
   );
 }
