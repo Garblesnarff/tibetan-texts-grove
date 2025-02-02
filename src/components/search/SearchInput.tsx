@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, KeyboardEvent } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,11 @@ interface SearchInputProps {
   value: string;
   onChange: (value: string) => void;
   onClear: () => void;
+  onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void;
   selectedCategory?: string | null;
 }
 
-export function SearchInput({ value, onChange, onClear, selectedCategory }: SearchInputProps) {
+export function SearchInput({ value, onChange, onClear, onKeyDown, selectedCategory }: SearchInputProps) {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -45,6 +46,7 @@ export function SearchInput({ value, onChange, onClear, selectedCategory }: Sear
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
+          onKeyDown={onKeyDown}
           className="pl-10 pr-10"
           placeholder="Search translations..."
         />

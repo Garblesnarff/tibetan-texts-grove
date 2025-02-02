@@ -1,4 +1,4 @@
-import React from "react";
+import React, { KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/index/Header";
 import { SearchInput } from "@/components/search/SearchInput";
@@ -13,6 +13,12 @@ export default function Home() {
     }
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      handleSearch(searchQuery);
+    }
+  };
+
   const handleClear = () => {
     setSearchQuery("");
   };
@@ -23,10 +29,8 @@ export default function Home() {
       <div className="mt-8">
         <SearchInput
           value={searchQuery}
-          onChange={(value) => {
-            setSearchQuery(value);
-            handleSearch(value);
-          }}
+          onChange={setSearchQuery}
+          onKeyDown={handleKeyDown}
           onClear={handleClear}
         />
       </div>
