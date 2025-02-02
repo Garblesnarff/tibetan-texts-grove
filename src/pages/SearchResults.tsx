@@ -7,6 +7,7 @@ import { ActiveFilters } from "@/components/filtering/ActiveFilters";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useSearchResults } from "@/hooks/useSearchResults";
 import { SortConfig } from "@/types/sorting";
+import { Header } from "@/components/index/Header";
 
 export default function SearchResults() {
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ export default function SearchResults() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Header />
       <div className="space-y-4">
         <div className="flex flex-col gap-4">
           <SearchInput
