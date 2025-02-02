@@ -19,8 +19,7 @@ export default function Home() {
     translations: featuredTranslations,
     loading: featuredLoading,
     error: featuredError,
-    handleDelete: handleFeaturedDelete,
-    fetchTranslations: fetchFeatured
+    handleDelete: handleFeaturedDelete
   } = useTranslations({
     filters: { featured: true },
     limit: 4,
@@ -31,8 +30,7 @@ export default function Home() {
     translations: recentTranslations,
     loading: recentLoading,
     error: recentError,
-    handleDelete: handleRecentDelete,
-    fetchTranslations: fetchRecent
+    handleDelete: handleRecentDelete
   } = useTranslations({
     limit: 6,
     orderBy: { column: 'created_at', order: 'desc' }
@@ -42,8 +40,7 @@ export default function Home() {
     translations: popularTranslations,
     loading: popularLoading,
     error: popularError,
-    handleDelete: handlePopularDelete,
-    fetchTranslations: fetchPopular
+    handleDelete: handlePopularDelete
   } = useTranslations({
     limit: 6,
     orderBy: { column: 'view_count', order: 'desc' }
