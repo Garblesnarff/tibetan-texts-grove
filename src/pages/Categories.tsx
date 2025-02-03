@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCategories } from "@/hooks/useCategories";
 import { CategoryCard } from "@/components/categories/CategoryCard";
 import { Button } from "@/components/ui/button";
@@ -17,9 +17,19 @@ import { AlertTriangle, ArrowUpDown } from "lucide-react";
 type SortOption = "name" | "count" | "updated";
 
 export default function Categories() {
-  const { categories, loading, error } = useCategories();
+  const { categories, loading, error, fetchCategories } = useCategories();
   const [sortBy, setSortBy] = useState<SortOption>("name");
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchCategories().catch((err) => {
+      toast({
+        variant: "destructive",
+        title: "Error loading categories",
+        description: err.message
+      });
+    });
+  }, [fetchCategories, toast]);
 
   const sortedCategories = [...(categories || [])].sort((a, b) => {
     switch (sortBy) {
@@ -50,7 +60,7 @@ export default function Categories() {
           There was an error loading the categories. Please try again.
         </p>
         <Button 
-          onClick={() => window.location.reload()}
+          onClick={() => fetchCategories()}
           variant="outline"
         >
           Retry
