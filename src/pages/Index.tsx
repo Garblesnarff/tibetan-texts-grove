@@ -10,6 +10,7 @@ import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 import { SortConfig } from "@/types/sorting";
 import { groupTranslations } from "@/utils/translationUtils";
+import { RecentTranslations } from "@/components/index/RecentTranslations";
 
 interface TagCount {
   tag: string;
@@ -183,12 +184,17 @@ export default function Index() {
           onTagRemove={handleTagRemove}
         />
       </div>
-      <TranslationsGrid
-        translations={displayedTranslations}
-        onDelete={handleDelete}
-        isLoading={isLoading}
-        searchQuery={searchQuery}
-      />
+      
+      {/* Show search results if searching, otherwise show recent translations */}
+      {(searchQuery || selectedTags.length > 0) ? (
+        <TranslationsGrid
+          translations={displayedTranslations}
+          onDelete={handleDelete}
+          isLoading={isLoading}
+        />
+      ) : (
+        <RecentTranslations />
+      )}
     </div>
   );
 }
