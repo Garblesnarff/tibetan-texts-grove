@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -37,10 +38,13 @@ export function CategorySidebar() {
     <>
       <Sidebar className="border-r border-tibetan-brown/20">
         <SidebarHeader className="p-4 flex items-center justify-between">
-          <span className="font-tibetan text-lg text-tibetan-maroon flex items-center">
+          <Link 
+            to="/categories" 
+            className="font-tibetan text-lg text-tibetan-maroon flex items-center hover:text-tibetan-maroon/80 transition-colors"
+          >
             <ChevronRight className="h-4 w-4 mr-2" />
             Translation Categories
-          </span>
+          </Link>
           <SidebarTrigger>
             <PanelLeftClose className="h-4 w-4" />
           </SidebarTrigger>

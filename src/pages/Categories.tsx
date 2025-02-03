@@ -10,9 +10,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Category } from "@/types/category";
+import { AlertTriangle, ArrowUpDown, ChevronRight, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { AlertTriangle, ArrowUpDown } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Link } from "react-router-dom";
 
 type SortOption = "name" | "count" | "updated";
 
@@ -43,7 +51,7 @@ export default function Categories() {
     return () => {
       mounted = false;
     };
-  }, []); // Removed fetchCategories from dependencies
+  }, []);
 
   const sortedCategories = [...(categories || [])].sort((a, b) => {
     switch (sortBy) {
@@ -85,6 +93,25 @@ export default function Categories() {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/" className="flex items-center hover:text-tibetan-maroon">
+                <Home className="h-4 w-4 mr-1" />
+                Home
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight className="h-4 w-4" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Categories</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <header className="space-y-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
