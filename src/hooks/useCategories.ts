@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Category } from "@/types/category";
@@ -10,7 +10,7 @@ export const useCategories = () => {
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -58,14 +58,14 @@ export const useCategories = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]); // Only depend on toast since it's stable
 
-  const checkAdminStatus = async () => {
+  const checkAdminStatus = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setIsAdmin(user?.email === 'wonky.coin@gmail.com');
-  };
+  }, []);
 
-  const handleDelete = async (category: Category) => {
+  const handleDelete = useCallback(async (category: Category) => {
     try {
       const { error: deleteError } = await supabase
         .from('categories')
@@ -87,7 +87,7 @@ export const useCategories = () => {
         description: err.message
       });
     }
-  };
+  }, [fetchCategories, toast]);
 
   return {
     categories,

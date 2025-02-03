@@ -22,14 +22,28 @@ export default function Categories() {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchCategories().catch((err) => {
-      toast({
-        variant: "destructive",
-        title: "Error loading categories",
-        description: err.message
-      });
-    });
-  }, [fetchCategories, toast]);
+    let mounted = true;
+
+    const loadCategories = async () => {
+      try {
+        await fetchCategories();
+      } catch (err: any) {
+        if (mounted) {
+          toast({
+            variant: "destructive",
+            title: "Error loading categories",
+            description: err.message
+          });
+        }
+      }
+    };
+
+    loadCategories();
+
+    return () => {
+      mounted = false;
+    };
+  }, []); // Removed fetchCategories from dependencies
 
   const sortedCategories = [...(categories || [])].sort((a, b) => {
     switch (sortBy) {
