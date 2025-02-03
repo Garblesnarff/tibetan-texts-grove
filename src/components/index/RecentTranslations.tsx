@@ -12,6 +12,8 @@ export function RecentTranslations() {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log("RecentTranslations component mounted");
+    
     const fetchRecentTranslations = async () => {
       try {
         const { data, error } = await supabase
@@ -22,8 +24,12 @@ export function RecentTranslations() {
 
         if (error) throw error;
 
+        console.log("Fetched translations data:", data);
+
         // Parse each translation to ensure proper typing
         const parsedTranslations = (data || []).map(parseTranslation);
+        console.log("Parsed translations:", parsedTranslations);
+        
         setRecentTranslations(parsedTranslations);
       } catch (err: any) {
         console.error('Error fetching recent translations:', err);
@@ -42,6 +48,7 @@ export function RecentTranslations() {
   }, [toast]);
 
   const groupedTranslations = groupTranslations(recentTranslations);
+  console.log("Grouped translations before render:", groupedTranslations);
 
   const handleDelete = async (id: string) => {
     try {

@@ -27,6 +27,13 @@ export default function Index() {
   const [availableTags, setAvailableTags] = useState<TagCount[]>([]);
   const { toast } = useToast();
 
+  console.log("Index component state:", {
+    searchQuery,
+    selectedTags,
+    isSearching,
+    hasSearchResults: searchResults.length > 0
+  });
+
   // Fetch available tags and their counts
   useEffect(() => {
     const fetchTags = async () => {
@@ -160,8 +167,8 @@ export default function Index() {
     setSelectedTags(selectedTags.filter(t => t !== tag));
   };
 
-  const displayedTranslations = searchQuery || selectedTags.length > 0 ? searchResults : translations;
-  const isLoading = initialLoading || isSearching;
+  const isSearchActive = searchQuery.trim() !== '' || selectedTags.length > 0;
+  console.log("Search active status:", isSearchActive);
 
   return (
     <div className="space-y-4">
@@ -170,7 +177,10 @@ export default function Index() {
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
-            onClear={handleClearSearch}
+            onClear={() => {
+              setSearchQuery("");
+              setSearchResults([]);
+            }}
           />
           <SortingControls
             onSortChange={handleSortChange}
@@ -185,12 +195,12 @@ export default function Index() {
         />
       </div>
       
-      {/* Show search results if searching, otherwise show recent translations */}
-      {(searchQuery || selectedTags.length > 0) ? (
+      {isSearchActive ? (
         <TranslationsGrid
-          translations={displayedTranslations}
+          translations={searchResults}
           onDelete={handleDelete}
-          isLoading={isLoading}
+          isLoading={isSearching}
+          searchQuery={searchQuery}
         />
       ) : (
         <RecentTranslations />
