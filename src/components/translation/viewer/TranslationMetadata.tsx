@@ -1,72 +1,116 @@
-import { Translation } from "@/types/translation";
+import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, EyeIcon, StarIcon, TrendingUpIcon } from "lucide-react";
-import { format } from "date-fns";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Star, Eye, Clock, Tag } from "lucide-react";
+import { RelevanceScore } from "@/types/sorting";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TranslationMetadataProps {
-  translation: Translation;
+  translation: {
+    view_count: number;
+    featured: boolean;
+    created_at: string;
+    tags?: string[];
+  };
   showRelevance?: boolean;
+  relevanceScore?: RelevanceScore;
 }
 
-export const TranslationMetadata = ({ 
+export const TranslationMetadata = ({
   translation,
-  showRelevance = false
+  showRelevance = false,
+  relevanceScore,
 }: TranslationMetadataProps) => {
-  const { view_count, featured, created_at, updated_at, tags = [] } = translation;
+  const { view_count, featured, created_at, tags = [] } = translation;
+  const formattedDate = new Date(created_at).toLocaleDateString();
+  const visibleTags = tags.slice(0, 5);
+  const remainingTags = tags.slice(5);
+  const hasMoreTags = remainingTags.length > 0;
 
   return (
-    <div className="flex flex-wrap gap-2 mb-4 items-center text-sm text-muted-foreground">
-      {showRelevance && translation.relevance_score && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <TrendingUpIcon className="w-3 h-3" />
-                Score: {translation.relevance_score.toFixed(2)}
-              </Badge>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Relevance score based on:</p>
-              <ul className="text-xs mt-1">
-                <li>• Title match</li>
-                <li>• Tag relevance</li>
-                <li>• Content recency</li>
-                <li>• View count</li>
-                <li>• Featured status</li>
-              </ul>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+    <div className="flex flex-wrap gap-2 items-center text-sm text-muted-foreground">
+      {showRelevance && relevanceScore && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant="secondary" className="flex items-center gap-1">
+              <Star className="h-3 w-3 fill-current" />
+              {relevanceScore.total.toFixed(2)}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent className="w-64">
+            <div className="space-y-1">
+              <p>Relevance Score Breakdown:</p>
+              <div className="text-xs">
+                <div>Title Match: {relevanceScore.titleMatch.toFixed(2)}</div>
+                <div>Tag Match: {relevanceScore.tagMatch.toFixed(2)}</div>
+                <div>Recency: {relevanceScore.recency.toFixed(2)}</div>
+                <div>Views: {relevanceScore.viewCount.toFixed(2)}</div>
+                <div>Featured: {relevanceScore.featured.toFixed(2)}</div>
+                <div>Category: {relevanceScore.categoryMatch.toFixed(2)}</div>
+              </div>
+            </div>
+          </TooltipContent>
+        </Tooltip>
       )}
-      
-      <Badge variant="secondary" className="flex items-center gap-1">
-        <EyeIcon className="w-3 h-3" />
+
+      <div className="flex items-center">
+        <Eye className="h-4 w-4 mr-1" />
         {view_count} views
-      </Badge>
-      
+      </div>
+
+      <div className="flex items-center">
+        <Clock className="h-4 w-4 mr-1" />
+        {formattedDate}
+      </div>
+
       {featured && (
-        <Badge variant="secondary" className="flex items-center gap-1">
-          <StarIcon className="w-3 h-3" />
+        <Badge variant="secondary" className="flex items-center">
+          <Star className="h-3 w-3 mr-1 fill-current" />
           Featured
         </Badge>
       )}
-      
-      <Badge variant="secondary" className="flex items-center gap-1">
-        <CalendarIcon className="w-3 h-3" />
-        {format(new Date(created_at), 'MMM d, yyyy')}
-      </Badge>
-      
-      {tags.map((tag) => (
-        <Badge key={tag} variant="outline">
-          {tag}
-        </Badge>
-      ))}
+
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {visibleTags.map((tag) => (
+            <Badge
+              key={tag}
+              variant="outline"
+              className="flex items-center gap-1 bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20"
+            >
+              <Tag className="h-3 w-3" />
+              {tag}
+            </Badge>
+          ))}
+          {hasMoreTags && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge
+                  variant="outline"
+                  className="flex items-center gap-1 cursor-help bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20"
+                >
+                  +{remainingTags.length} more
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent className="w-64">
+                <div className="space-y-1">
+                  <p className="font-medium">Additional tags:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {remainingTags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="outline"
+                        className="bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+      )}
     </div>
   );
 };

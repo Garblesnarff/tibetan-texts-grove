@@ -25,10 +25,6 @@ export const CardViewMode = ({
   tibetanTitle,
   originalTibetanFileName,
   searchQuery,
-  viewCount = 0,
-  featured = false,
-  updatedAt = new Date().toISOString(),
-  createdAt = new Date().toISOString(),
   tags = [],
 }: CardViewModeProps) => {
   const visibleTags = tags.slice(0, 5);
@@ -69,7 +65,7 @@ export const CardViewMode = ({
             <Badge
               key={tag}
               variant="outline"
-              className="flex items-center gap-1 text-xs"
+              className="flex items-center gap-1 text-xs bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20"
             >
               <Tag className="h-3 w-3" />
               {tag}
@@ -80,22 +76,25 @@ export const CardViewMode = ({
               <TooltipTrigger asChild>
                 <Badge
                   variant="outline"
-                  className="flex items-center gap-1 text-xs cursor-help"
+                  className="flex items-center gap-1 text-xs cursor-help bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20"
                 >
                   +{remainingTags.length} more
                 </Badge>
               </TooltipTrigger>
-              <TooltipContent className="max-w-[200px]">
-                <div className="flex flex-wrap gap-1">
-                  {remainingTags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="outline"
-                      className="text-xs"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
+              <TooltipContent className="w-64">
+                <div className="space-y-1">
+                  <p className="font-medium">Additional tags:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {remainingTags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="outline"
+                        className="text-xs bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </TooltipContent>
             </Tooltip>
