@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface TranslationHeaderProps {
-  translation: Translation;
+  translation?: Translation;
   isLoading?: boolean;
 }
 
@@ -20,10 +20,11 @@ const TranslationHeader: React.FC<TranslationHeaderProps> = ({
   translation,
   isLoading = false 
 }) => {
-  console.log('Translation title:', translation.title);
-  console.log('Translation tibetan title:', translation.tibetan_title);
+  console.log('Translation:', translation);
+  console.log('Translation title:', translation?.title);
+  console.log('Translation tibetan title:', translation?.tibetan_title);
 
-  if (isLoading) {
+  if (isLoading || !translation) {
     return (
       <div className="space-y-4 mb-6">
         <Skeleton className="h-8 w-3/4" />
