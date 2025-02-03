@@ -6,10 +6,12 @@ import { Category } from "@/types/category";
 export const useCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   const fetchCategories = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('categories')
         .select(`
@@ -37,6 +39,8 @@ export const useCategories = () => {
         title: "Error fetching categories",
         description: error.message
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,6 +76,7 @@ export const useCategories = () => {
   return {
     categories,
     isAdmin,
+    loading,
     fetchCategories,
     checkAdminStatus,
     handleDelete
