@@ -24,7 +24,19 @@ export const useCategories = () => {
 
       if (supabaseError) throw supabaseError;
 
-      const transformedData = data.map(category => ({
+      // Explicitly type the database response
+      type DbCategory = {
+        id: string;
+        title: string;
+        tibetan_title: string | null;
+        description: string | null;
+        created_at: string | null;
+        updated_at: string | null;
+        created_by: string | null;
+        translation_count: { count: number }[];
+      };
+
+      const transformedData = (data as DbCategory[]).map(category => ({
         id: category.id,
         title: category.title,
         tibetan_title: category.tibetan_title,
