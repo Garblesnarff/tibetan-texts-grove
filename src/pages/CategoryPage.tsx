@@ -7,6 +7,7 @@ import { useState, useCallback } from "react";
 import { useCategories } from "@/hooks/useCategories";
 import { HorizontalCategoryList } from "@/components/navigation/category/HorizontalCategoryList";
 import { useCategoryTranslations } from "@/hooks/useCategoryTranslations";
+import { Header } from "@/components/index/Header";
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
@@ -69,6 +70,7 @@ const CategoryPage = () => {
 
   return (
     <div className="space-y-6">
+      <Header />
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm pb-4 border-b">
         <HorizontalCategoryList
           categories={categories}
