@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { SearchInput } from "@/components/search/SearchInput";
 import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 import { QuickFilters } from "@/components/filtering/QuickFilters";
+import { Header } from "@/components/index/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { Translation, parseTranslation } from "@/types/translation";
 import { groupTranslations } from "@/utils/translationUtils";
@@ -14,12 +15,6 @@ export default function Home() {
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-
-  const handleSearch = (query: string) => {
-    if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query)}`);
-    }
-  };
 
   const handleFilterChange = (filterId: string) => {
     console.log('Filter changed:', filterId);
@@ -93,6 +88,8 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
+      <Header />
+      
       <div className="max-w-2xl mx-auto w-full">
         <SearchInput
           value={searchQuery}
