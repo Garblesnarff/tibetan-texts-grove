@@ -7,12 +7,14 @@ export const useCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
 
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      setError(null);
+      const { data, error: supabaseError } = await supabase
         .from('categories')
         .select(`
           *,
@@ -20,11 +22,12 @@ export const useCategories = () => {
         `)
         .order('title');
 
-      if (error) throw error;
+      if (supabaseError) throw supabaseError;
 
       const transformedData = data.map(category => ({
         id: category.id,
         title: category.title,
+        tibetan_title: category.tibetan_title,
         description: category.description,
         created_at: category.created_at,
         updated_at: category.updated_at,
@@ -33,11 +36,12 @@ export const useCategories = () => {
       }));
 
       setCategories(transformedData);
-    } catch (error: any) {
+    } catch (err: any) {
+      setError(err);
       toast({
         variant: "destructive",
         title: "Error fetching categories",
-        description: error.message
+        description: err.message
       });
     } finally {
       setLoading(false);
@@ -51,12 +55,12 @@ export const useCategories = () => {
 
   const handleDelete = async (category: Category) => {
     try {
-      const { error } = await supabase
+      const { error: deleteError } = await supabase
         .from('categories')
         .delete()
         .eq('id', category.id);
 
-      if (error) throw error;
+      if (deleteError) throw deleteError;
 
       toast({
         title: "Success",
@@ -64,11 +68,11 @@ export const useCategories = () => {
       });
       
       fetchCategories();
-    } catch (error: any) {
+    } catch (err: any) {
       toast({
         variant: "destructive",
         title: "Error deleting category",
-        description: error.message
+        description: err.message
       });
     }
   };
@@ -77,6 +81,7 @@ export const useCategories = () => {
     categories,
     isAdmin,
     loading,
+    error,
     fetchCategories,
     checkAdminStatus,
     handleDelete
