@@ -96,6 +96,15 @@ const TranslationViewer = ({
     }
   };
 
+  // Ensure all required properties are present with defaults
+  const translationWithDefaults = {
+    ...currentTranslation,
+    view_count: currentTranslation.view_count || 0,
+    featured: currentTranslation.featured || false,
+    created_at: currentTranslation.created_at || new Date().toISOString(),
+    tags: currentTranslation.tags || []
+  };
+
   return (
     <ViewerContainer onClick={handleClick}>
       <TranslationActions
@@ -105,7 +114,7 @@ const TranslationViewer = ({
         onEditingChange={setIsEditing}
       />
       <div className="pt-10">
-        <TranslationMetadata translation={currentTranslation} showRelevance={showRelevance} />
+        <TranslationMetadata translation={translationWithDefaults} showRelevance={showRelevance} />
         <TranslationCard
           code={currentTranslation.title.split(' ')[0]}
           englishTitle={currentTranslation.title}
