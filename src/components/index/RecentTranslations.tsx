@@ -4,6 +4,7 @@ import { Translation } from "@/types/translation";
 import { groupTranslations } from "@/utils/translationUtils";
 import { TranslationsGrid } from "./TranslationsGrid";
 import { useToast } from "@/hooks/use-toast";
+import { parseTranslation } from "@/types/translation";
 
 export function RecentTranslations() {
   const [recentTranslations, setRecentTranslations] = useState<Translation[]>([]);
@@ -21,7 +22,8 @@ export function RecentTranslations() {
 
       if (error) throw error;
 
-      setRecentTranslations(data || []);
+      const parsedTranslations = (data || []).map(parseTranslation);
+      setRecentTranslations(parsedTranslations);
     } catch (err: any) {
       console.error('Error fetching recent translations:', err);
       setError(err);

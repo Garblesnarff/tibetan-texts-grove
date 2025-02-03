@@ -15,11 +15,14 @@ export default function Index() {
   const { toast } = useToast();
   
   const {
-    results: searchResults,
-    isLoading: isSearching,
-    error: searchError,
-    handleSearch,
-    handleSort
+    searchResults,
+    isSearching,
+    currentSort: searchSort,
+    setCurrentSort: setSearchSort,
+    selectedTags: searchTags,
+    setSelectedTags: setSearchTags,
+    searchQuery: searchTerm,
+    setSearchQuery: setSearchTerm
   } = useSearchResults();
 
   const handleDelete = async (id: string) => {
@@ -37,7 +40,8 @@ export default function Index() {
       });
 
       if (searchQuery || selectedTags.length > 0) {
-        handleSearch(searchQuery, selectedTags, currentSort);
+        // Refresh search results if needed
+        setSearchQuery(searchQuery);
       }
     } catch (err: any) {
       console.error('Error deleting translation:', err);
@@ -52,29 +56,28 @@ export default function Index() {
   const handleSortChange = async (sortConfig: { field: string; direction: 'asc' | 'desc' }) => {
     const sortString = `${sortConfig.field}:${sortConfig.direction}`;
     setCurrentSort(sortString);
-    
-    if (searchQuery || selectedTags.length > 0) {
-      await handleSort(sortConfig);
-    }
+    setSearchSort(sortString);
   };
 
   const handleClearSearch = () => {
     setSearchQuery("");
     setSelectedTags([]);
+    setSearchTerm("");
+    setSearchTags([]);
   };
 
   const handleTagSelect = (tag: string) => {
     if (!selectedTags.includes(tag)) {
       const newTags = [...selectedTags, tag];
       setSelectedTags(newTags);
-      handleSearch(searchQuery, newTags, currentSort);
+      setSearchTags(newTags);
     }
   };
 
   const handleTagRemove = (tag: string) => {
     const newTags = selectedTags.filter(t => t !== tag);
     setSelectedTags(newTags);
-    handleSearch(searchQuery, newTags, currentSort);
+    setSearchTags(newTags);
   };
 
   const isSearchActive = searchQuery.trim().length > 0 || selectedTags.length > 0;
@@ -87,7 +90,7 @@ export default function Index() {
             value={searchQuery}
             onChange={(value) => {
               setSearchQuery(value);
-              handleSearch(value, selectedTags, currentSort);
+              setSearchTerm(value);
             }}
             onClear={handleClearSearch}
           />
@@ -109,7 +112,6 @@ export default function Index() {
           translations={searchResults}
           onDelete={handleDelete}
           isLoading={isSearching}
-          error={searchError}
           searchQuery={searchQuery}
         />
       ) : (
