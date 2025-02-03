@@ -2,6 +2,7 @@ import React from "react";
 import { Translation } from "@/types/translation";
 import TranslationCard from "../TranslationCard";
 import { VersionHistory } from "./VersionHistory";
+import { TranslationMetadata } from "./TranslationMetadata";
 
 interface ViewerContentProps {
   currentTranslation: Translation;
