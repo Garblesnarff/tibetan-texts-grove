@@ -14,6 +14,7 @@ export function RecentTranslations() {
 
   const fetchRecentTranslations = async () => {
     try {
+      console.log('Fetching recent translations...');
       const { data, error } = await supabase
         .from('translations')
         .select('*')
@@ -22,7 +23,9 @@ export function RecentTranslations() {
 
       if (error) throw error;
 
+      console.log('Raw translations data:', data);
       const parsedTranslations = (data || []).map(parseTranslation);
+      console.log('Parsed translations:', parsedTranslations);
       setRecentTranslations(parsedTranslations);
     } catch (err: any) {
       console.error('Error fetching recent translations:', err);
@@ -67,6 +70,7 @@ export function RecentTranslations() {
   }, []);
 
   const groupedTranslations = groupTranslations(recentTranslations);
+  console.log('Grouped translations:', groupedTranslations);
 
   return (
     <div className="mt-12">

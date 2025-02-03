@@ -82,6 +82,10 @@ export default function Index() {
 
   const isSearchActive = searchQuery.trim().length > 0 || selectedTags.length > 0;
 
+  console.log('Search active:', isSearchActive);
+  console.log('Search query:', searchQuery);
+  console.log('Selected tags:', selectedTags);
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4">
