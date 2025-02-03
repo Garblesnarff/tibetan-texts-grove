@@ -8,13 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
-import { SortConfig } from "@/types/sorting";
 import { groupTranslations } from "@/utils/translationUtils";
-
-interface TagCount {
-  tag: string;
-  count: number;
-}
+import { SortConfig } from "@/types/sorting";
+import { RecentTranslations } from "@/components/index/RecentTranslations";
 
 export default function Index() {
   const { translations, loading: initialLoading, fetchTranslations, handleDelete } = useTranslations();
@@ -23,8 +19,16 @@ export default function Index() {
   const [isSearching, setIsSearching] = useState(false);
   const [currentSort, setCurrentSort] = useState<string>("created_at:desc");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [availableTags, setAvailableTags] = useState<TagCount[]>([]);
+  const [availableTags, setAvailableTags] = useState<{ tag: string; count: number }[]>([]);
   const { toast } = useToast();
+
+  // Add debug logs for search state
+  useEffect(() => {
+    const isSearchActive = searchQuery.trim().length > 0 || selectedTags.length > 0;
+    console.log('Search active:', isSearchActive);
+    console.log('Search query:', searchQuery);
+    console.log('Selected tags:', selectedTags);
+  }, [searchQuery, selectedTags]);
 
   // Fetch available tags and their counts
   useEffect(() => {
@@ -46,7 +50,7 @@ export default function Index() {
           }
         });
 
-        const formattedTags: TagCount[] = Object.entries(tagCounts).map(([tag, count]) => ({
+        const formattedTags: { tag: string; count: number }[] = Object.entries(tagCounts).map(([tag, count]) => ({
           tag,
           count
         }));
@@ -96,54 +100,6 @@ export default function Index() {
     }
   };
 
-  // Handle search with tag filtering
-  useEffect(() => {
-    const searchTranslations = async () => {
-      if (!searchQuery.trim() && selectedTags.length === 0) {
-        setSearchResults([]);
-        return;
-      }
-
-      setIsSearching(true);
-      try {
-        const [field, direction] = currentSort.split(':');
-        
-        let query = supabase
-          .from('translations')
-          .select('*')
-          .is('category_id', null);
-
-        if (searchQuery) {
-          query = query.textSearch('search_vector', searchQuery);
-        }
-
-        if (selectedTags.length > 0) {
-          query = query.contains('tags', selectedTags);
-        }
-
-        const { data, error } = await query
-          .order(field, { ascending: direction === 'asc' });
-
-        if (error) throw error;
-
-        const groupedResults = groupTranslations(data as Translation[]);
-        setSearchResults(groupedResults);
-      } catch (error: any) {
-        console.error('Search error:', error);
-        toast({
-          variant: "destructive",
-          title: "Search failed",
-          description: "Failed to search translations. Please try again."
-        });
-      } finally {
-        setIsSearching(false);
-      }
-    };
-
-    const debounceTimeout = setTimeout(searchTranslations, 300);
-    return () => clearTimeout(debounceTimeout);
-  }, [searchQuery, selectedTags, currentSort, toast]);
-
   const handleClearSearch = () => {
     setSearchQuery("");
     setSearchResults([]);
@@ -159,7 +115,8 @@ export default function Index() {
     setSelectedTags(selectedTags.filter(t => t !== tag));
   };
 
-  const displayedTranslations = searchQuery || selectedTags.length > 0 ? searchResults : translations;
+  const isSearchActive = searchQuery.trim().length > 0 || selectedTags.length > 0;
+  const displayedTranslations = isSearchActive ? searchResults : translations;
   const isLoading = initialLoading || isSearching;
 
   return (
@@ -183,12 +140,16 @@ export default function Index() {
           onTagRemove={handleTagRemove}
         />
       </div>
-      <TranslationsGrid
-        translations={displayedTranslations}
-        onDelete={handleDelete}
-        isLoading={isLoading}
-        searchQuery={searchQuery}
-      />
+      {isSearchActive ? (
+        <TranslationsGrid
+          translations={displayedTranslations}
+          onDelete={handleDelete}
+          isLoading={isLoading}
+          searchQuery={searchQuery}
+        />
+      ) : (
+        <RecentTranslations />
+      )}
     </div>
   );
 }
