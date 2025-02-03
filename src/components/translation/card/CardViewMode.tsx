@@ -13,10 +13,6 @@ interface CardViewModeProps {
   tibetanTitle?: string;
   originalTibetanFileName?: string;
   searchQuery?: string;
-  viewCount?: number;
-  featured?: boolean;
-  updatedAt?: string;
-  createdAt?: string;
   tags?: string[];
 }
 
@@ -65,7 +61,7 @@ export const CardViewMode = ({
             <Badge
               key={tag}
               variant="outline"
-              className="flex items-center gap-1 text-xs bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20"
+              className="flex items-center gap-1 text-xs bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20 transition-colors duration-200"
             >
               <Tag className="h-3 w-3" />
               {tag}
@@ -76,7 +72,7 @@ export const CardViewMode = ({
               <TooltipTrigger asChild>
                 <Badge
                   variant="outline"
-                  className="flex items-center gap-1 text-xs cursor-help bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20"
+                  className="flex items-center gap-1 text-xs cursor-help bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20 transition-colors duration-200"
                 >
                   +{remainingTags.length} more
                 </Badge>

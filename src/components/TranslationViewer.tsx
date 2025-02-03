@@ -114,7 +114,12 @@ const TranslationViewer = ({
         onEditingChange={setIsEditing}
       />
       <div className="pt-10">
-        <TranslationMetadata translation={translationWithDefaults} showRelevance={showRelevance} />
+        <TranslationMetadata 
+          viewCount={translationWithDefaults.view_count}
+          featured={translationWithDefaults.featured}
+          createdAt={translationWithDefaults.created_at}
+          showRelevance={showRelevance}
+        />
         <TranslationCard
           code={currentTranslation.title.split(' ')[0]}
           englishTitle={currentTranslation.title}
@@ -132,6 +137,7 @@ const TranslationViewer = ({
           isEditing={isEditing}
           onEditingChange={setIsEditing}
           searchQuery={searchQuery}
+          tags={translationWithDefaults.tags}
         />
         {!isEditing && (
           <div className="mt-6">

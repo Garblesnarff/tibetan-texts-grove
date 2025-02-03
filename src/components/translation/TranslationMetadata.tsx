@@ -1,6 +1,6 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { Star, Eye, Clock, Tag, Folder } from "lucide-react";
+import { Star, Eye, Clock } from "lucide-react";
 import { RelevanceScore } from "@/types/sorting";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -9,7 +9,6 @@ interface TranslationMetadataProps {
   featured: boolean;
   updatedAt: string;
   createdAt: string;
-  tags?: string[];
   relevanceScore?: RelevanceScore;
   showRelevance?: boolean;
 }
@@ -17,7 +16,6 @@ interface TranslationMetadataProps {
 export const TranslationMetadata = ({
   viewCount,
   featured,
-  tags = [],
   createdAt,
   relevanceScore,
   showRelevance = false,
@@ -65,17 +63,6 @@ export const TranslationMetadata = ({
           <Star className="h-3 w-3 mr-1 fill-current" />
           Featured
         </Badge>
-      )}
-      
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {tags.map((tag) => (
-            <Badge key={tag} variant="outline" className="flex items-center gap-1">
-              <Tag className="h-3 w-3" />
-              {tag}
-            </Badge>
-          ))}
-        </div>
       )}
     </div>
   );
