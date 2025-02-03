@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useCallback } from "react";
 import { useCategories } from "@/hooks/useCategories";
 import { HorizontalCategoryList } from "@/components/navigation/category/HorizontalCategoryList";
+import { useCategoryTranslations } from "@/hooks/useCategoryTranslations";
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
@@ -15,10 +16,16 @@ const CategoryPage = () => {
   
   const { 
     categories, 
-    loading,
-    error,
-    handleDelete 
+    loading: categoriesLoading,
+    handleDelete: handleCategoryDelete 
   } = useCategories();
+
+  const {
+    translations,
+    loading: translationsLoading,
+    error: translationsError,
+    handleDelete: handleTranslationDelete
+  } = useCategoryTranslations(categoryId);
 
   const handleCategorySelect = useCallback((selectedCategoryId: string | null) => {
     if (selectedCategoryId) {
@@ -36,6 +43,30 @@ const CategoryPage = () => {
     );
   }, []);
 
+  // Filter translations based on active quick filters
+  const filteredTranslations = translations.filter(group => {
+    if (activeFilters.length === 0) return true;
+    
+    return activeFilters.some(filter => {
+      switch (filter) {
+        case 'featured':
+          return group.translations.some(t => t.featured === true);
+        case 'recent':
+          return group.translations.some(t => {
+            const createdAt = t.created_at || '';
+            return new Date(createdAt).getTime() > Date.now() - (7 * 24 * 60 * 60 * 1000);
+          });
+        case 'most-viewed':
+          return group.translations.some(t => {
+            const viewCount = t.view_count || 0;
+            return viewCount > 100;
+          });
+        default:
+          return true;
+      }
+    });
+  });
+
   return (
     <div className="space-y-6">
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm pb-4 border-b">
@@ -43,7 +74,7 @@ const CategoryPage = () => {
           categories={categories}
           selectedCategory={categoryId || null}
           onCategorySelect={handleCategorySelect}
-          isLoading={loading}
+          isLoading={categoriesLoading}
         />
       </div>
       <CategoryBreadcrumb />
@@ -52,9 +83,10 @@ const CategoryPage = () => {
         activeFilters={activeFilters}
       />
       <TranslationsGrid 
-        translations={[]} // ... keep existing code (translations data handling)
-        onDelete={handleDelete}
-        isLoading={loading}
+        translations={filteredTranslations}
+        onDelete={handleTranslationDelete}
+        isLoading={translationsLoading}
+        error={translationsError}
         activeCategory={categoryId}
       />
     </div>
