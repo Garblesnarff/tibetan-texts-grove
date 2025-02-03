@@ -3,13 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Translation } from "@/types/translation";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import TranslationCard from "./translation/TranslationCard";
-import TranslationActions from "./translation/TranslationActions";
 import { ViewerContainer } from "./translation/viewer/ViewerContainer";
-import { TranslationMetadata } from "./translation/viewer/TranslationMetadata";
+import { ViewerActions } from "./translation/viewer/ViewerActions";
+import { ViewerContent } from "./translation/viewer/ViewerContent";
 import { useTranslationState } from "./translation/viewer/useTranslationState";
 import { useTranslationViews } from "@/hooks/useTranslationViews";
-import { VersionHistory } from "./translation/viewer/VersionHistory";
 
 interface TranslationViewerProps {
   translations: Translation[];
@@ -37,7 +35,7 @@ const TranslationViewer = ({
     handleVersionSelect
   } = useTranslationState(translations[0]);
 
-  // Use the new hook for view tracking
+  // Use the hook for view tracking
   useTranslationViews(translations[0].id, async (newCount) => {
     await handleUpdate();
   });
@@ -96,59 +94,24 @@ const TranslationViewer = ({
     }
   };
 
-  // Ensure all required properties are present with defaults
-  const translationWithDefaults = {
-    ...currentTranslation,
-    view_count: currentTranslation.view_count || 0,
-    featured: currentTranslation.featured || false,
-    created_at: currentTranslation.created_at || new Date().toISOString(),
-    tags: currentTranslation.tags || []
-  };
-
   return (
     <ViewerContainer onClick={handleClick}>
-      <TranslationActions
+      <ViewerActions
         categories={categories}
         onCategoryChange={handleCategoryChange}
         onDelete={() => onDelete(translations[0].id)}
         onEditingChange={setIsEditing}
       />
-      <div className="pt-10">
-        <TranslationMetadata 
-          view_count={translationWithDefaults.view_count}
-          featured={translationWithDefaults.featured}
-          created_at={translationWithDefaults.created_at}
-          showRelevance={showRelevance}
-        />
-        <TranslationCard
-          code={currentTranslation.title.split(' ')[0]}
-          englishTitle={currentTranslation.title}
-          tibetanTitle={currentTranslation.tibetan_title}
-          originalTibetanFileName={
-            currentTranslation.metadata && 
-            typeof currentTranslation.metadata === 'object' && 
-            'originalTibetanFileName' in currentTranslation.metadata
-              ? (currentTranslation.metadata as { originalTibetanFileName?: string }).originalTibetanFileName
-              : undefined
-          }
-          description={currentTranslation.description}
-          translationId={translations[0].id}
-          onUpdate={handleUpdate}
-          isEditing={isEditing}
-          onEditingChange={setIsEditing}
-          searchQuery={searchQuery}
-          tags={translationWithDefaults.tags}
-        />
-        {!isEditing && (
-          <div className="mt-6">
-            <VersionHistory
-              translationId={translations[0].id}
-              currentVersion={currentVersion}
-              onVersionSelect={handleVersionSelect}
-            />
-          </div>
-        )}
-      </div>
+      <ViewerContent
+        currentTranslation={currentTranslation}
+        translationId={translations[0].id}
+        isEditing={isEditing}
+        onEditingChange={setIsEditing}
+        searchQuery={searchQuery}
+        onUpdate={handleUpdate}
+        currentVersion={currentVersion}
+        onVersionSelect={handleVersionSelect}
+      />
     </ViewerContainer>
   );
 };
