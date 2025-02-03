@@ -19,14 +19,39 @@ export const PDFCanvas: React.FC<PDFCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentPageObj, setCurrentPageObj] = useState<PDFPageProxy | null>(null);
+  const renderTaskRef = useRef<any>(null);
+
+  // Cleanup function for render operations
+  const cleanupRenderOperation = () => {
+    if (renderTaskRef.current) {
+      renderTaskRef.current.cancel();
+      renderTaskRef.current = null;
+    }
+
+    if (canvasRef.current) {
+      const context = canvasRef.current.getContext('2d');
+      if (context) {
+        context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      }
+    }
+  };
 
   useEffect(() => {
     const renderPage = async () => {
       if (!pdf || !canvasRef.current || !containerRef.current) return;
 
       try {
+        // Cleanup previous render operation
+        cleanupRenderOperation();
+
         // Get the page
         const page = await pdf.getPage(currentPage);
+        console.log('PDF Page metadata:', {
+          rotation: page.rotate,
+          pageNumber: page.pageNumber,
+          view: page.view,
+        });
+
         setCurrentPageObj(page);
 
         const canvas = canvasRef.current;
@@ -44,10 +69,13 @@ export const PDFCanvas: React.FC<PDFCanvasProps> = ({
           scale = (containerWidth - padding) / viewport.width;
         }
 
-        // Create new viewport with the calculated scale and explicit rotation
+        // Get natural rotation from PDF metadata and create viewport
+        const naturalRotation = page.rotate || 0;
+        console.log('Using natural rotation:', naturalRotation);
+        
         const scaledViewport = page.getViewport({ 
           scale,
-          rotation: 0 // Ensure correct orientation
+          rotation: naturalRotation // Use PDF's natural rotation
         });
 
         // Set canvas dimensions
@@ -57,12 +85,22 @@ export const PDFCanvas: React.FC<PDFCanvasProps> = ({
         // Reset any existing transformations
         context.setTransform(1, 0, 0, 1, 0, 0);
 
-        // Render the page with explicit transform matrix
-        await page.render({
+        // Render the page
+        const renderContext = {
           canvasContext: context,
           viewport: scaledViewport,
-          transform: [1, 0, 0, 1, 0, 0] // Identity matrix to maintain orientation
-        }).promise;
+          enableWebGL: true,
+          renderInteractiveForms: true
+        };
+
+        try {
+          renderTaskRef.current = page.render(renderContext);
+          await renderTaskRef.current.promise;
+          console.log('Page rendered successfully with rotation:', naturalRotation);
+        } catch (renderError) {
+          console.error('Error during render:', renderError);
+          onError('Failed to render page. Please try again.');
+        }
 
       } catch (err) {
         console.error('Error rendering page:', err);
@@ -72,8 +110,9 @@ export const PDFCanvas: React.FC<PDFCanvasProps> = ({
 
     renderPage();
 
-    // Cleanup
+    // Cleanup function
     return () => {
+      cleanupRenderOperation();
       if (currentPageObj) {
         currentPageObj.cleanup();
       }
