@@ -10,7 +10,6 @@ import { Translation } from "@/types/translation";
 import { GroupedTranslation } from "@/types/groupedTranslation";
 import { SortConfig } from "@/types/sorting";
 import { groupTranslations } from "@/utils/translationUtils";
-import { RecentTranslations } from "@/components/index/RecentTranslations";
 
 interface TagCount {
   tag: string;
@@ -26,13 +25,6 @@ export default function Index() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<TagCount[]>([]);
   const { toast } = useToast();
-
-  console.log("Index component state:", {
-    searchQuery,
-    selectedTags,
-    isSearching,
-    hasSearchResults: searchResults.length > 0
-  });
 
   // Fetch available tags and their counts
   useEffect(() => {
@@ -167,8 +159,8 @@ export default function Index() {
     setSelectedTags(selectedTags.filter(t => t !== tag));
   };
 
-  const isSearchActive = searchQuery.trim() !== '' || selectedTags.length > 0;
-  console.log("Search active status:", isSearchActive);
+  const displayedTranslations = searchQuery || selectedTags.length > 0 ? searchResults : translations;
+  const isLoading = initialLoading || isSearching;
 
   return (
     <div className="space-y-4">
@@ -177,10 +169,7 @@ export default function Index() {
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
-            onClear={() => {
-              setSearchQuery("");
-              setSearchResults([]);
-            }}
+            onClear={handleClearSearch}
           />
           <SortingControls
             onSortChange={handleSortChange}
@@ -194,17 +183,12 @@ export default function Index() {
           onTagRemove={handleTagRemove}
         />
       </div>
-      
-      {isSearchActive ? (
-        <TranslationsGrid
-          translations={searchResults}
-          onDelete={handleDelete}
-          isLoading={isSearching}
-          searchQuery={searchQuery}
-        />
-      ) : (
-        <RecentTranslations />
-      )}
+      <TranslationsGrid
+        translations={displayedTranslations}
+        onDelete={handleDelete}
+        isLoading={isLoading}
+        searchQuery={searchQuery}
+      />
     </div>
   );
 }
