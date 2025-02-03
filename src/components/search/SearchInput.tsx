@@ -34,6 +34,15 @@ export function SearchInput({ value, onChange, onClear, onKeyDown, selectedCateg
 
   useOnClickOutside(containerRef, () => setIsFocused(false));
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && value.trim()) {
+      navigate(`/search?q=${encodeURIComponent(value)}`);
+      addToHistory(value);
+      setIsFocused(false);
+    }
+    onKeyDown?.(e);
+  };
+
   const handleSelect = (term: string) => {
     onChange(term);
     addToHistory(term);
@@ -49,7 +58,7 @@ export function SearchInput({ value, onChange, onClear, onKeyDown, selectedCateg
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
-          onKeyDown={onKeyDown}
+          onKeyDown={handleKeyDown}
           className="pl-10 pr-10"
           placeholder="Search translations..."
         />

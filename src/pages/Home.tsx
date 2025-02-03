@@ -4,7 +4,7 @@ import { SearchInput } from "@/components/search/SearchInput";
 import { TranslationsGrid } from "@/components/index/TranslationsGrid";
 import { QuickFilters } from "@/components/filtering/QuickFilters";
 import { supabase } from "@/integrations/supabase/client";
-import { Translation } from "@/types/translation";
+import { Translation, parseTranslation } from "@/types/translation";
 import { groupTranslations } from "@/utils/translationUtils";
 
 export default function Home() {
@@ -61,7 +61,7 @@ export default function Home() {
       if (error) throw error;
 
       console.log('Translations fetched:', data);
-      setTranslations(data || []);
+      setTranslations(data ? data.map(parseTranslation) : []);
     } catch (err) {
       console.error('Error fetching translations:', err);
       setError(err instanceof Error ? err : new Error('Failed to fetch translations'));
@@ -97,7 +97,7 @@ export default function Home() {
         <SearchInput
           value={searchQuery}
           onChange={setSearchQuery}
-          onSearch={handleSearch}
+          onClear={() => setSearchQuery("")}
         />
       </div>
 
