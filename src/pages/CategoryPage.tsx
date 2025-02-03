@@ -86,7 +86,7 @@ const CategoryPage = () => {
         translations={filteredTranslations}
         onDelete={handleTranslationDelete}
         isLoading={translationsLoading}
-        error={translationsError}
+        error={translationsError ? new Error(translationsError) : undefined}
         activeCategory={categoryId}
       />
     </div>
