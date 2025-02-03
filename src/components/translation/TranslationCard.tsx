@@ -17,10 +17,10 @@ interface TranslationCardProps {
   isEditing: boolean;
   onEditingChange: (isEditing: boolean) => void;
   searchQuery?: string;
-  viewCount?: number;
+  view_count?: number;
   featured?: boolean;
-  updatedAt?: string;
-  createdAt?: string;
+  updated_at?: string;
+  created_at?: string;
   tags?: string[];
 }
 
@@ -35,10 +35,10 @@ const TranslationCard = ({
   isEditing,
   onEditingChange,
   searchQuery,
-  viewCount = 0,
+  view_count = 0,
   featured = false,
-  updatedAt = new Date().toISOString(),
-  createdAt = new Date().toISOString(),
+  updated_at = new Date().toISOString(),
+  created_at = new Date().toISOString(),
   tags = [],
 }: TranslationCardProps) => {
   const {
@@ -88,10 +88,10 @@ const TranslationCard = ({
           tibetanTitle={tibetanTitle}
           originalTibetanFileName={originalTibetanFileName}
           searchQuery={searchQuery}
-          viewCount={viewCount}
+          view_count={view_count}
           featured={featured}
-          updatedAt={updatedAt}
-          createdAt={createdAt}
+          updated_at={updated_at}
+          created_at={created_at}
           tags={tags}
         />
       )}
@@ -113,7 +113,7 @@ const TranslationCard = ({
         translationId={translationId}
         featured={featured}
         tags={tags}
-        viewCount={viewCount}
+        viewCount={view_count}
         onUpdate={onUpdate}
       />
     </div>
