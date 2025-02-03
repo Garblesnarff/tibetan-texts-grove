@@ -20,6 +20,9 @@ const TranslationHeader: React.FC<TranslationHeaderProps> = ({
   translation,
   isLoading = false 
 }) => {
+  console.log('Translation title:', translation.title);
+  console.log('Translation tibetan title:', translation.tibetan_title);
+
   if (isLoading) {
     return (
       <div className="space-y-4 mb-6">
@@ -30,12 +33,10 @@ const TranslationHeader: React.FC<TranslationHeaderProps> = ({
     );
   }
 
-  const code = translation.title.split(' ')[0];
-
   return (
     <div className="mb-6 space-y-4">
       <div>
-        <h1 className="text-2xl font-bold mb-2">{code} Translation</h1>
+        <h1 className="text-2xl font-bold mb-2">{translation.title}</h1>
         {translation.tibetan_title && (
           <p className="text-tibetan-maroon font-tibetan text-xl mb-2">
             {translation.tibetan_title}
