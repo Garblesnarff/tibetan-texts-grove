@@ -5,6 +5,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+import Categories from "./pages/Categories";
 import CategoryPage from "./pages/CategoryPage";
 import TranslationDetail from "./pages/TranslationDetail";
 import SearchResults from "./pages/SearchResults";
@@ -19,6 +20,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/search" element={<SearchResults />} />
+            <Route path="/categories" element={<Categories />} />
             <Route path="/category/:categoryId" element={<CategoryPage />} />
             <Route path="/translation/:id" element={<TranslationDetail />} />
             <Route path="*" element={<NotFound />} />
