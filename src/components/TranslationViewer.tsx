@@ -115,9 +115,9 @@ const TranslationViewer = ({
       />
       <div className="pt-10">
         <TranslationMetadata 
-          viewCount={translationWithDefaults.view_count}
+          view_count={translationWithDefaults.view_count}
           featured={translationWithDefaults.featured}
-          createdAt={translationWithDefaults.created_at}
+          created_at={translationWithDefaults.created_at}
           showRelevance={showRelevance}
         />
         <TranslationCard

@@ -14,6 +14,10 @@ interface CardViewModeProps {
   originalTibetanFileName?: string;
   searchQuery?: string;
   tags?: string[];
+  view_count?: number;
+  featured?: boolean;
+  updated_at?: string;
+  created_at?: string;
 }
 
 export const CardViewMode = ({

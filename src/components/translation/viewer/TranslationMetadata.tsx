@@ -5,21 +5,21 @@ import { RelevanceScore } from "@/types/sorting";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TranslationMetadataProps {
-  viewCount: number;
+  view_count: number;
   featured: boolean;
-  createdAt: string;
+  created_at: string;
   relevanceScore?: RelevanceScore;
   showRelevance?: boolean;
 }
 
 export const TranslationMetadata = ({
-  viewCount,
+  view_count,
   featured,
-  createdAt,
+  created_at,
   relevanceScore,
   showRelevance = false,
 }: TranslationMetadataProps) => {
-  const formattedDate = new Date(createdAt).toLocaleDateString();
+  const formattedDate = new Date(created_at).toLocaleDateString();
   
   return (
     <div className="flex flex-wrap gap-2 items-center text-sm text-muted-foreground">
@@ -49,7 +49,7 @@ export const TranslationMetadata = ({
       
       <div className="flex items-center">
         <Eye className="h-4 w-4 mr-1" />
-        {viewCount} views
+        {view_count} views
       </div>
       
       <div className="flex items-center">
