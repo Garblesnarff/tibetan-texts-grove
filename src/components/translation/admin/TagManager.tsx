@@ -20,6 +20,7 @@ export const TagManager = ({ translationId, tags = [], onUpdate }: TagManagerPro
 
   const handleAddTag = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!newTag.trim()) return;
 
     try {
@@ -51,7 +52,8 @@ export const TagManager = ({ translationId, tags = [], onUpdate }: TagManagerPro
     }
   };
 
-  const handleRemoveTag = async (tagToRemove: string) => {
+  const handleRemoveTag = async (e: React.MouseEvent, tagToRemove: string) => {
+    e.stopPropagation();
     try {
       setIsUpdating(true);
       const updatedTags = tags.filter(tag => tag !== tagToRemove);
@@ -80,12 +82,17 @@ export const TagManager = ({ translationId, tags = [], onUpdate }: TagManagerPro
     }
   };
 
+  const handleInputClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
       <form onSubmit={handleAddTag} className="flex gap-2">
         <Input
           value={newTag}
           onChange={(e) => setNewTag(e.target.value)}
+          onClick={handleInputClick}
           placeholder="Add a tag..."
           className="flex-1"
         />
@@ -104,7 +111,7 @@ export const TagManager = ({ translationId, tags = [], onUpdate }: TagManagerPro
               >
                 {tag}
                 <button
-                  onClick={() => handleRemoveTag(tag)}
+                  onClick={(e) => handleRemoveTag(e, tag)}
                   className="ml-1 hover:text-destructive"
                   disabled={isUpdating}
                 >

@@ -15,20 +15,20 @@ import {
 import { RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Translation } from "@/types/translation";
 
-interface AdminControlsProps {
+interface ViewCountManagerProps {
   translationId: string;
   viewCount: number;
   onUpdate: () => Promise<void>;
 }
 
-export const ViewCountManager = ({ translationId, viewCount, onUpdate }: AdminControlsProps) => {
+export const ViewCountManager = ({ translationId, viewCount, onUpdate }: ViewCountManagerProps) => {
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = React.useState(false);
   const [newViewCount, setNewViewCount] = React.useState(viewCount.toString());
 
-  const handleUpdateViewCount = async () => {
+  const handleUpdateViewCount = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
       setIsUpdating(true);
       const newCount = parseInt(newViewCount);
@@ -44,7 +44,6 @@ export const ViewCountManager = ({ translationId, viewCount, onUpdate }: AdminCo
         .eq('id', translationId)
         .single();
 
-      // Ensure metadata is properly typed as a Record
       const currentMetadata: Record<string, any> = translation?.metadata as Record<string, any> || {};
       const updatedMetadata: Record<string, any> = {
         ...currentMetadata,
@@ -79,7 +78,8 @@ export const ViewCountManager = ({ translationId, viewCount, onUpdate }: AdminCo
     }
   };
 
-  const handleResetViewCount = async () => {
+  const handleResetViewCount = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
       setIsUpdating(true);
       const { error } = await supabase
@@ -107,13 +107,18 @@ export const ViewCountManager = ({ translationId, viewCount, onUpdate }: AdminCo
     }
   };
 
+  const handleInputClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-center gap-2">
         <Input
           type="number"
           value={newViewCount}
           onChange={(e) => setNewViewCount(e.target.value)}
+          onClick={handleInputClick}
           className="w-32"
           min="0"
         />
@@ -125,11 +130,11 @@ export const ViewCountManager = ({ translationId, viewCount, onUpdate }: AdminCo
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" size="icon" disabled={isUpdating}>
+            <Button variant="outline" size="icon" disabled={isUpdating} onClick={(e) => e.stopPropagation()}>
               <RefreshCw className="h-4 w-4" />
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
             <AlertDialogHeader>
               <AlertDialogTitle>Manual View Count Correction</AlertDialogTitle>
               <AlertDialogDescription>
@@ -138,7 +143,7 @@ export const ViewCountManager = ({ translationId, viewCount, onUpdate }: AdminCo
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
               <AlertDialogAction onClick={handleResetViewCount}>
                 Reset
               </AlertDialogAction>

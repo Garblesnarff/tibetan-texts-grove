@@ -14,7 +14,8 @@ export const FeaturedToggle = ({ translationId, featured, onUpdate }: FeaturedTo
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = React.useState(false);
 
-  const handleToggleFeatured = async () => {
+  const handleToggleFeatured = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
       setIsUpdating(true);
       const { error } = await supabase
