@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Translation } from "@/types/translation";
+import { Translation, parseTranslation } from "@/types/translation";
 import { TranslationsGrid } from "./TranslationsGrid";
 import { groupTranslations } from "@/utils/translationUtils";
 
@@ -22,7 +22,9 @@ export function RecentTranslations() {
 
         if (error) throw error;
 
-        setRecentTranslations(data || []);
+        // Parse each translation to ensure proper typing
+        const parsedTranslations = (data || []).map(parseTranslation);
+        setRecentTranslations(parsedTranslations);
       } catch (err: any) {
         console.error('Error fetching recent translations:', err);
         setError(err);
