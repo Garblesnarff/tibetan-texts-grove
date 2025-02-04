@@ -6,7 +6,6 @@ import { QuickFilters } from "@/components/filtering/QuickFilters";
 import { Header } from "@/components/index/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { Translation, parseTranslation } from "@/types/translation";
-import { groupTranslations } from "@/utils/translationUtils";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -17,19 +16,15 @@ export default function Home() {
   const [error, setError] = useState<Error | null>(null);
 
   const handleFilterChange = (filterId: string) => {
-    console.log('Filter changed:', filterId);
-    setActiveFilters(prev => {
-      const newFilters = prev.includes(filterId)
+    setActiveFilters(prev => 
+      prev.includes(filterId) 
         ? prev.filter(f => f !== filterId)
-        : [...prev, filterId];
-      console.log('Active filters changed:', newFilters);
-      return newFilters;
-    });
+        : [...prev, filterId]
+    );
   };
 
   const fetchTranslations = async () => {
     try {
-      console.log('Fetching translations with filters...', activeFilters);
       setIsLoading(true);
       setError(null);
 
@@ -55,7 +50,6 @@ export default function Home() {
 
       if (error) throw error;
 
-      console.log('Translations fetched:', data);
       setTranslations(data ? data.map(parseTranslation) : []);
     } catch (err) {
       console.error('Error fetching translations:', err);
@@ -84,8 +78,6 @@ export default function Home() {
     }
   };
 
-  const groupedTranslations = groupTranslations(translations);
-
   return (
     <div className="space-y-6">
       <Header />
@@ -104,7 +96,7 @@ export default function Home() {
       />
 
       <TranslationsGrid
-        translations={groupedTranslations}
+        translations={translations}
         onDelete={handleDelete}
         isLoading={isLoading}
         error={error}
