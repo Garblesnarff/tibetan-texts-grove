@@ -2,31 +2,12 @@ import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Translation, parseTranslation } from "@/types/translation";
-import { GroupedTranslation } from "@/types/groupedTranslation";
 
 export const useCategoryTranslations = (categoryId: string | undefined) => {
-  const [translations, setTranslations] = useState<GroupedTranslation[]>([]);
+  const [translations, setTranslations] = useState<Translation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-
-  const groupTranslations = (translationsData: Translation[]): GroupedTranslation[] => {
-    return translationsData.reduce((acc: GroupedTranslation[], translation: Translation) => {
-      const code = translation.title.split(' ')[0];
-      const existingGroup = acc.find(group => group.code === code);
-      
-      if (existingGroup) {
-        existingGroup.translations.push(translation);
-      } else {
-        acc.push({
-          code,
-          translations: [translation]
-        });
-      }
-      
-      return acc;
-    }, []);
-  };
 
   const fetchCategoryTranslations = useCallback(async () => {
     if (!categoryId) {
@@ -43,13 +24,13 @@ export const useCategoryTranslations = (categoryId: string | undefined) => {
         .from('translations')
         .select('*')
         .eq('category_id', categoryId)
+        .order('created_at', { ascending: false })
         .abortSignal(new AbortController().signal);
 
       if (translationsError) throw translationsError;
       
       const parsedTranslations = translationsData.map(parseTranslation);
-      const groupedData = groupTranslations(parsedTranslations);
-      setTranslations(groupedData);
+      setTranslations(parsedTranslations);
     } catch (error: any) {
       console.error('Error in fetchCategoryTranslations:', error);
       setError(error.message);

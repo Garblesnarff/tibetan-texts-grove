@@ -16,7 +16,7 @@ export const useSearchResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [searchResults, setSearchResults] = useState<GroupedTranslation[]>([]);
+  const [searchResults, setSearchResults] = useState<Translation[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [currentSort, setCurrentSort] = useState<string>(searchParams.get("sort") || "created_at:desc");
   const [selectedTags, setSelectedTags] = useState<string[]>(searchParams.get("tags")?.split(",").filter(Boolean) || []);
@@ -91,10 +91,9 @@ export const useSearchResults = () => {
 
         if (error) throw error;
 
-        const groupedResults = groupTranslations(data as Translation[]);
         const endTime = performance.now();
         
-        setSearchResults(groupedResults);
+        setSearchResults(data as Translation[]);
         setSearchStats({
           count: data.length,
           time: Math.round(endTime - startTime) / 1000
