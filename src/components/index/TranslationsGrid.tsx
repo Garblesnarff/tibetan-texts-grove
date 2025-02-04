@@ -1,4 +1,4 @@
-import { GroupedTranslation } from "@/types/groupedTranslation";
+import { Translation } from "@/types/translation";
 import TranslationViewer from "@/components/TranslationViewer";
 import { LoadingState } from "./LoadingState";
 import { EmptyState } from "./EmptyState";
@@ -8,7 +8,7 @@ import { AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface TranslationsGridProps {
-  translations: GroupedTranslation[];
+  translations: Translation[];
   onDelete: (id: string) => Promise<void>;
   isLoading: boolean;
   searchQuery?: string;
@@ -61,9 +61,9 @@ export const TranslationsGrid = memo(({
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
       >
-        {translations.map((group) => (
+        {translations.map((translation) => (
           <motion.div
-            key={group.code}
+            key={translation.id}
             layout
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -71,7 +71,7 @@ export const TranslationsGrid = memo(({
             transition={{ duration: 0.2 }}
           >
             <TranslationViewer 
-              translations={group.translations}
+              translations={[translation]}
               onDelete={onDelete}
               searchQuery={searchQuery}
               showRelevance={showRelevance}

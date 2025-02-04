@@ -26,6 +26,9 @@ const TranslationViewer = ({
   const { toast } = useToast();
   const [categories, setCategories] = React.useState<Array<{ id: string; title: string }>>([]);
   
+  // We now expect only one translation
+  const translation = translations[0];
+  
   const {
     currentTranslation,
     currentVersion,
@@ -33,10 +36,10 @@ const TranslationViewer = ({
     setIsEditing,
     handleUpdate,
     handleVersionSelect
-  } = useTranslationState(translations[0]);
+  } = useTranslationState(translation);
 
   // Use the hook for view tracking
-  useTranslationViews(translations[0].id, async (newCount) => {
+  useTranslationViews(translation.id, async (newCount) => {
     await handleUpdate();
   });
 
@@ -64,9 +67,7 @@ const TranslationViewer = ({
       e.stopPropagation();
       return;
     }
-    if (translations.length > 0) {
-      navigate(`/translation/${translations[0].id}`);
-    }
+    navigate(`/translation/${translation.id}`);
   };
 
   const handleCategoryChange = async (categoryId: string) => {
@@ -74,7 +75,7 @@ const TranslationViewer = ({
       const { error } = await supabase
         .from('translations')
         .update({ category_id: categoryId })
-        .eq('id', translations[0].id);
+        .eq('id', translation.id);
 
       if (error) throw error;
 
@@ -99,12 +100,12 @@ const TranslationViewer = ({
       <ViewerActions
         categories={categories}
         onCategoryChange={handleCategoryChange}
-        onDelete={() => onDelete(translations[0].id)}
+        onDelete={() => onDelete(translation.id)}
         onEditingChange={setIsEditing}
       />
       <ViewerContent
         currentTranslation={currentTranslation}
-        translationId={translations[0].id}
+        translationId={translation.id}
         isEditing={isEditing}
         onEditingChange={setIsEditing}
         searchQuery={searchQuery}
