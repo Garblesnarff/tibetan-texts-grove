@@ -32,10 +32,10 @@ export const CardViewMode = ({
   const hasMoreTags = remainingTags.length > 0;
 
   return (
-    <div className="space-y-2">
-      <div>
+    <div className="space-y-2 w-full">
+      <div className="min-w-0 flex-1">
         {englishTitle && (
-          <h3 className="text-lg font-semibold leading-tight">
+          <h3 className="text-lg font-semibold leading-tight break-words">
             {searchQuery ? (
               <span
                 dangerouslySetInnerHTML={{
@@ -48,27 +48,27 @@ export const CardViewMode = ({
           </h3>
         )}
         {tibetanTitle && (
-          <p className="tibetan-text mt-1 text-muted-foreground">
+          <p className="tibetan-text mt-1 text-muted-foreground break-words">
             {tibetanTitle}
           </p>
         )}
         {originalTibetanFileName && (
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1 break-words">
             {originalTibetanFileName}
           </p>
         )}
       </div>
 
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 min-w-0 w-full">
           {visibleTags.map((tag) => (
             <Badge
               key={tag}
               variant="outline"
-              className="flex items-center gap-1 text-xs bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20 transition-colors duration-200"
+              className="inline-flex items-center gap-1 text-xs px-2 py-1 whitespace-nowrap bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20 transition-colors duration-200"
             >
-              <Tag className="h-3 w-3" />
-              {tag}
+              <Tag className="h-3 w-3 shrink-0" />
+              <span className="truncate max-w-[150px]">{tag}</span>
             </Badge>
           ))}
           {hasMoreTags && (
@@ -76,12 +76,12 @@ export const CardViewMode = ({
               <TooltipTrigger asChild>
                 <Badge
                   variant="outline"
-                  className="flex items-center gap-1 text-xs cursor-help bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20 transition-colors duration-200"
+                  className="inline-flex items-center gap-1 text-xs px-2 py-1 cursor-help bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20 transition-colors duration-200"
                 >
                   +{remainingTags.length} more
                 </Badge>
               </TooltipTrigger>
-              <TooltipContent className="w-64">
+              <TooltipContent className="w-64 p-2">
                 <div className="space-y-1">
                   <p className="font-medium">Additional tags:</p>
                   <div className="flex flex-wrap gap-1">
