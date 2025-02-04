@@ -2,11 +2,11 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Translation } from "@/types/translation";
 import { supabase } from "@/integrations/supabase/client";
-import { ViewerContainer } from "./translation/viewer/ViewerContainer";
-import { ViewerActions } from "./translation/viewer/ViewerActions";
-import { ViewerContent } from "./translation/viewer/ViewerContent";
-import { ViewerHeader } from "./translation/viewer/ViewerHeader";
-import { useTranslationState } from "./translation/viewer/useTranslationState";
+import { ViewerContainer } from "./viewer/ViewerContainer";
+import { ViewerActions } from "./viewer/ViewerActions";
+import { ViewerContent } from "./viewer/ViewerContent";
+import { ViewerHeader } from "./viewer/ViewerHeader";
+import { useTranslationState } from "./viewer/useTranslationState";
 import { useTranslationViews } from "@/hooks/useTranslationViews";
 
 interface TranslationViewerProps {
