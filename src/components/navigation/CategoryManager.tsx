@@ -20,15 +20,6 @@ interface CategoryManagerProps {
   onCategoryChange: () => void;
 }
 
-/**
- * CategoryManager Component
- * Manages the creation, editing, and deletion of categories
- * Only visible to admin users
- * 
- * @component
- * @param {Object} props - Component properties
- * @param {Function} props.onCategoryChange - Callback function to refresh the category list
- */
 export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
   const { isAdmin } = useAuth();
   const [editingCategory, setEditingCategory] = useState<EditingCategory | null>(null);
@@ -37,12 +28,10 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
 
   // If user is not admin, don't render anything
   if (!isAdmin) {
+    console.log('User is not admin, hiding category management controls');
     return null;
   }
 
-  /**
-   * Initializes the form for adding a new category
-   */
   const handleAdd = () => {
     setEditingCategory({
       id: "",
@@ -52,10 +41,6 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
     });
   };
 
-  /**
-   * Handles the saving of a new or edited category
-   * Shows success/error toast messages and triggers category list refresh
-   */
   const handleSave = async () => {
     if (!editingCategory) return;
 
@@ -102,9 +87,6 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
     }
   };
 
-  /**
-   * Handles the actual deletion of a category after confirmation
-   */
   const confirmDelete = async () => {
     if (!categoryToDelete) return;
 

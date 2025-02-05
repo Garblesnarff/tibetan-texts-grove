@@ -15,6 +15,8 @@ export const CategoryListItem = ({
   isAdmin,
   onDelete
 }: CategoryListItemProps) => {
+  console.log('CategoryListItem isAdmin:', isAdmin); // Debug log
+
   return (
     <SidebarMenuItem className="group relative">
       <SidebarMenuButton asChild>
