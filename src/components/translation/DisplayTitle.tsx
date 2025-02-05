@@ -15,31 +15,15 @@ const DisplayTitle = ({
   searchQuery = ''
 }: DisplayTitleProps) => {
   return (
-    <div className="space-y-4">
+    <div className="break-words">
       {englishTitle && (
-        <h3 className="text-2xl font-semibold leading-tight text-tibetan-maroon group-hover:text-tibetan-maroon/80 transition-colors duration-200 drop-shadow-sm">
-          {searchQuery ? (
-            <span
-              dangerouslySetInnerHTML={{
-                __html: highlightText(englishTitle, searchQuery),
-              }}
-            />
-          ) : (
-            englishTitle
-          )}
+        <h3 className="text-lg md:text-xl lg:text-2xl font-semibold mb-2 md:mb-3 whitespace-normal break-words text-tibetan-brown">
+          {highlightText(englishTitle, searchQuery)}
         </h3>
       )}
       {(originalTibetanFileName || tibetanTitle) && (
-        <p className="text-xl text-tibetan-brown font-tibetan leading-relaxed group-hover:text-tibetan-brown/80 transition-colors duration-200">
-          {searchQuery ? (
-            <span
-              dangerouslySetInnerHTML={{
-                __html: highlightText(originalTibetanFileName || tibetanTitle || '', searchQuery),
-              }}
-            />
-          ) : (
-            originalTibetanFileName || tibetanTitle
-          )}
+        <p className="text-lg md:text-xl text-tibetan-maroon font-tibetan whitespace-normal break-words mt-1 md:mt-2">
+          {highlightText(originalTibetanFileName || tibetanTitle || '', searchQuery)}
         </p>
       )}
     </div>

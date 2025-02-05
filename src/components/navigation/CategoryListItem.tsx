@@ -15,12 +15,6 @@ export const CategoryListItem = ({
   isAdmin,
   onDelete
 }: CategoryListItemProps) => {
-  console.log('[CategoryListItem] Rendering with:', { 
-    categoryId: category.id,
-    categoryTitle: category.title,
-    isAdmin 
-  });
-
   return (
     <SidebarMenuItem className="group relative">
       <SidebarMenuButton asChild>
@@ -41,7 +35,7 @@ export const CategoryListItem = ({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 delete-button"
+          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();

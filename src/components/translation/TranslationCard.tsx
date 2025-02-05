@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTitleEditor } from "@/hooks/useTitleEditor";
 import { useTranslationSave } from "@/hooks/useTranslationSave";
 import { AdminControls } from "./AdminControls";
 import { CardEditMode } from "./card/CardEditMode";
 import { CardViewMode } from "./card/CardViewMode";
 import CardDescription from "./card/CardDescription";
-import { useToast } from "@/hooks/use-toast";
 
 interface TranslationCardProps {
   code: string;
@@ -23,7 +22,6 @@ interface TranslationCardProps {
   updated_at?: string;
   created_at?: string;
   tags?: string[];
-  isUpdating?: boolean;
 }
 
 const TranslationCard = ({
@@ -42,25 +40,16 @@ const TranslationCard = ({
   updated_at = new Date().toISOString(),
   created_at = new Date().toISOString(),
   tags = [],
-  isUpdating = false,
 }: TranslationCardProps) => {
-  const { toast } = useToast();
-  const [optimisticData, setOptimisticData] = useState({
-    englishTitle,
-    tibetanTitle,
-    description,
-    tags
-  });
-
   const {
     editedEnglishTitle,
     editedTibetanTitle,
     setEditedEnglishTitle,
     setEditedTibetanTitle,
     resetTitles
-  } = useTitleEditor(optimisticData.englishTitle || '', optimisticData.tibetanTitle || '');
+  } = useTitleEditor(englishTitle || '', tibetanTitle || '');
 
-  const [editedDescription, setEditedDescription] = React.useState(optimisticData.description || '');
+  const [editedDescription, setEditedDescription] = React.useState(description || '');
   const [isEditingDescription, setIsEditingDescription] = React.useState(false);
 
   const { handleSave } = useTranslationSave({
@@ -70,38 +59,8 @@ const TranslationCard = ({
   });
 
   const handleSaveClick = async () => {
-    try {
-      // Optimistic update
-      setOptimisticData({
-        englishTitle: editedEnglishTitle,
-        tibetanTitle: editedTibetanTitle,
-        description: editedDescription,
-        tags
-      });
-
-      await handleSave(editedEnglishTitle, editedTibetanTitle, editedDescription);
-      setIsEditingDescription(false);
-      
-      toast({
-        title: "Success",
-        description: "Changes saved successfully",
-      });
-    } catch (error) {
-      console.error('Error saving changes:', error);
-      // Revert optimistic update
-      setOptimisticData({
-        englishTitle,
-        tibetanTitle,
-        description,
-        tags
-      });
-      
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save changes",
-      });
-    }
+    await handleSave(editedEnglishTitle, editedTibetanTitle, editedDescription);
+    setIsEditingDescription(false);
   };
 
   const handleCancel = () => {
@@ -122,11 +81,10 @@ const TranslationCard = ({
           setEditedTibetanTitle={setEditedTibetanTitle}
           handleSaveClick={handleSaveClick}
           handleCancel={handleCancel}
-          isUpdating={isUpdating}
         />
       ) : (
         <CardViewMode
-          englishTitle={optimisticData.englishTitle || englishTitle}
+          englishTitle={editedEnglishTitle || englishTitle}
           tibetanTitle={tibetanTitle}
           originalTibetanFileName={originalTibetanFileName}
           searchQuery={searchQuery}
@@ -135,21 +93,19 @@ const TranslationCard = ({
           updated_at={updated_at}
           created_at={created_at}
           tags={tags}
-          isUpdating={isUpdating}
         />
       )}
 
       <div className="mt-4">
         <CardDescription
           translationId={translationId}
-          description={optimisticData.description || description}
+          description={description}
           isEditing={isEditingDescription}
           editedDescription={editedDescription}
           setEditedDescription={setEditedDescription}
           setIsEditingDescription={setIsEditingDescription}
           searchQuery={searchQuery}
           onUpdate={onUpdate}
-          isUpdating={isUpdating}
         />
       </div>
 

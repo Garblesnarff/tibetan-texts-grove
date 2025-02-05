@@ -2,11 +2,10 @@ import { Translation } from "@/types/translation";
 import TranslationViewer from "@/components/TranslationViewer";
 import { LoadingState } from "./LoadingState";
 import { EmptyState } from "./EmptyState";
-import { memo, useCallback, useState, useEffect } from "react";
+import { memo } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
 
 interface TranslationsGridProps {
   translations: Translation[];
@@ -19,7 +18,7 @@ interface TranslationsGridProps {
 }
 
 export const TranslationsGrid = memo(({ 
-  translations: initialTranslations, 
+  translations, 
   onDelete, 
   isLoading,
   searchQuery,
@@ -27,33 +26,6 @@ export const TranslationsGrid = memo(({
   error,
   showRelevance = false
 }: TranslationsGridProps) => {
-  const [translations, setTranslations] = useState<Translation[]>(initialTranslations);
-  const { toast } = useToast();
-
-  // Sync local state with incoming props
-  useEffect(() => {
-    console.log("TranslationsGrid: Updating translations from props", initialTranslations);
-    setTranslations(initialTranslations);
-  }, [initialTranslations]);
-
-  const handleTranslationUpdate = useCallback(async (updatedTranslation: Translation): Promise<void> => {
-    try {
-      console.log("TranslationsGrid: Handling translation update", updatedTranslation);
-      setTranslations(prevTranslations => 
-        prevTranslations.map(t => 
-          t.id === updatedTranslation.id ? updatedTranslation : t
-        )
-      );
-    } catch (error) {
-      console.error('Error updating translation:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update translation in grid",
-      });
-    }
-  }, [toast]);
-
   if (error) {
     return (
       <Alert variant="destructive" className="mx-auto max-w-2xl my-8">
@@ -83,7 +55,7 @@ export const TranslationsGrid = memo(({
   return (
     <AnimatePresence mode="wait">
       <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
@@ -97,14 +69,12 @@ export const TranslationsGrid = memo(({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            className="group"
           >
             <TranslationViewer 
               translations={[translation]}
               onDelete={onDelete}
               searchQuery={searchQuery}
               showRelevance={showRelevance}
-              onUpdate={handleTranslationUpdate}
             />
           </motion.div>
         ))}
