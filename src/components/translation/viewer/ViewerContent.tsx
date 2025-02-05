@@ -4,6 +4,7 @@ import TranslationCard from "../TranslationCard";
 import { VersionHistory } from "./VersionHistory";
 import { TranslationMetadata } from "./TranslationMetadata";
 import { useAuth } from "@/hooks/useAuth";
+import { Loader2 } from "lucide-react";
 
 interface ViewerContentProps {
   currentTranslation: Translation;
@@ -14,6 +15,7 @@ interface ViewerContentProps {
   onUpdate: () => Promise<void>;
   currentVersion: any;
   onVersionSelect: (version: any) => void;
+  isUpdating?: boolean;
 }
 
 export const ViewerContent = ({
@@ -25,6 +27,7 @@ export const ViewerContent = ({
   onUpdate,
   currentVersion,
   onVersionSelect,
+  isUpdating = false,
 }: ViewerContentProps) => {
   const { isAdmin } = useAuth();
   
@@ -34,7 +37,13 @@ export const ViewerContent = ({
     : '';
 
   return (
-    <div className="pt-10">
+    <div className="pt-10 relative">
+      {isUpdating && (
+        <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-50">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      )}
+      
       <TranslationMetadata 
         view_count={currentTranslation?.view_count || 0}
         featured={currentTranslation?.featured || false}
@@ -62,6 +71,7 @@ export const ViewerContent = ({
         featured={currentTranslation?.featured}
         updated_at={currentTranslation?.updated_at}
         created_at={currentTranslation?.created_at}
+        isUpdating={isUpdating}
       />
       {!isEditing && isAdmin && (
         <div className="mt-6">

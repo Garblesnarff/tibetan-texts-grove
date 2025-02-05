@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Translation } from "@/types/translation";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,16 +14,19 @@ interface TranslationViewerProps {
   onDelete: (id: string) => Promise<void>;
   searchQuery?: string;
   showRelevance?: boolean;
+  onUpdate?: (updatedTranslation: Translation) => Promise<void>;
 }
 
 const TranslationViewer = ({ 
   translations, 
   onDelete, 
   searchQuery,
-  showRelevance = false 
+  showRelevance = false,
+  onUpdate
 }: TranslationViewerProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isUpdating, setIsUpdating] = useState(false);
   const [categories, setCategories] = React.useState<Array<{ id: string; title: string }>>([]);
   
   // We now expect only one translation
@@ -34,7 +37,7 @@ const TranslationViewer = ({
     currentVersion,
     isEditing,
     setIsEditing,
-    handleUpdate,
+    handleUpdate: handleStateUpdate,
     handleVersionSelect
   } = useTranslationState(translation);
 
@@ -52,6 +55,11 @@ const TranslationViewer = ({
       
       if (error) {
         console.error('Error fetching categories:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch categories",
+        });
         return;
       }
       
@@ -59,7 +67,32 @@ const TranslationViewer = ({
     };
 
     fetchCategories();
-  }, []);
+  }, [toast]);
+
+  const handleUpdate = async () => {
+    try {
+      setIsUpdating(true);
+      await handleStateUpdate();
+      
+      if (onUpdate) {
+        await onUpdate(currentTranslation);
+      }
+
+      toast({
+        title: "Success",
+        description: "Translation updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating translation:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update translation",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const handleClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -72,6 +105,7 @@ const TranslationViewer = ({
 
   const handleCategoryChange = async (categoryId: string) => {
     try {
+      setIsUpdating(true);
       const { error } = await supabase
         .from('translations')
         .update({ category_id: categoryId })
@@ -92,6 +126,8 @@ const TranslationViewer = ({
         title: "Error",
         description: "Failed to move translation to new category",
       });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -112,6 +148,7 @@ const TranslationViewer = ({
         onUpdate={handleUpdate}
         currentVersion={currentVersion}
         onVersionSelect={handleVersionSelect}
+        isUpdating={isUpdating}
       />
     </ViewerContainer>
   );

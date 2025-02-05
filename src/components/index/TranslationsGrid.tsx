@@ -2,7 +2,7 @@ import { Translation } from "@/types/translation";
 import TranslationViewer from "@/components/TranslationViewer";
 import { LoadingState } from "./LoadingState";
 import { EmptyState } from "./EmptyState";
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -26,6 +26,16 @@ export const TranslationsGrid = memo(({
   error,
   showRelevance = false
 }: TranslationsGridProps) => {
+  const handleTranslationUpdate = useCallback(async (updatedTranslation: Translation) => {
+    // Find and update the translation in the local state
+    const updatedTranslations = translations.map(t => 
+      t.id === updatedTranslation.id ? updatedTranslation : t
+    );
+    
+    // Trigger a re-render with the updated translations
+    return updatedTranslations;
+  }, [translations]);
+
   if (error) {
     return (
       <Alert variant="destructive" className="mx-auto max-w-2xl my-8">
@@ -76,6 +86,7 @@ export const TranslationsGrid = memo(({
               onDelete={onDelete}
               searchQuery={searchQuery}
               showRelevance={showRelevance}
+              onUpdate={handleTranslationUpdate}
             />
           </motion.div>
         ))}

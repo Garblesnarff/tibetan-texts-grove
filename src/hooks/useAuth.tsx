@@ -12,23 +12,26 @@ export const useAuth = () => {
       return;
     }
 
-    // If not in development, check for admin email
-    const { data: { user } } = await supabase.auth.getUser();
-    const isAdminEmail = user?.email === 'wonky.coin@gmail.com';
-    
-    console.log('[useAuth] Checking admin status:', { 
-      email: user?.email,
-      isAdminEmail,
-      isDevelopment: process.env.NODE_ENV === 'development'
-    });
-    
-    setIsAdmin(isAdminEmail);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const isAdminEmail = user?.email === 'wonky.coin@gmail.com';
+      
+      console.log('[useAuth] Checking admin status:', { 
+        email: user?.email,
+        isAdminEmail,
+        isDevelopment: process.env.NODE_ENV === 'development'
+      });
+      
+      setIsAdmin(isAdminEmail);
+    } catch (error) {
+      console.error('[useAuth] Error checking admin status:', error);
+      setIsAdmin(false);
+    }
   }, []);
 
   useEffect(() => {
     checkAdminStatus();
     
-    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
       checkAdminStatus();
     });
