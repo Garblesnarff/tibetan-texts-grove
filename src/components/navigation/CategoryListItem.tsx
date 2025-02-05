@@ -41,7 +41,7 @@ export const CategoryListItem = ({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 delete-button"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();

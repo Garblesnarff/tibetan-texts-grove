@@ -5,14 +5,14 @@ export const useAuth = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const checkAdminStatus = useCallback(async () => {
-    // First check if we're in development mode
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[useAuth] Development mode detected - granting admin access');
-      setIsAdmin(true);
-      return;
-    }
-
     try {
+      // First check if we're in development mode
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[useAuth] Development mode detected - granting admin access');
+        setIsAdmin(true);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       const isAdminEmail = user?.email === 'wonky.coin@gmail.com';
       

@@ -2,10 +2,11 @@ import { Translation } from "@/types/translation";
 import TranslationViewer from "@/components/TranslationViewer";
 import { LoadingState } from "./LoadingState";
 import { EmptyState } from "./EmptyState";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 interface TranslationsGridProps {
   translations: Translation[];
@@ -18,7 +19,7 @@ interface TranslationsGridProps {
 }
 
 export const TranslationsGrid = memo(({ 
-  translations, 
+  translations: initialTranslations, 
   onDelete, 
   isLoading,
   searchQuery,
@@ -26,12 +27,25 @@ export const TranslationsGrid = memo(({
   error,
   showRelevance = false
 }: TranslationsGridProps) => {
+  const [translations, setTranslations] = useState(initialTranslations);
+  const { toast } = useToast();
+
   const handleTranslationUpdate = useCallback(async (updatedTranslation: Translation): Promise<void> => {
-    // Update the translation in the local state
-    translations.map(t => 
-      t.id === updatedTranslation.id ? updatedTranslation : t
-    );
-  }, [translations]);
+    try {
+      setTranslations(prevTranslations => 
+        prevTranslations.map(t => 
+          t.id === updatedTranslation.id ? updatedTranslation : t
+        )
+      );
+    } catch (error) {
+      console.error('Error updating translation:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update translation in grid",
+      });
+    }
+  }, [toast]);
 
   if (error) {
     return (

@@ -42,28 +42,28 @@ const TranslationViewer = ({
   } = useTranslationState(translation);
 
   // Use the hook for view tracking
-  useTranslationViews(translation.id, async (newCount) => {
+  useTranslationViews(translation.id, async () => {
     await handleUpdate();
   });
 
   React.useEffect(() => {
     const fetchCategories = async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('id, title')
-        .order('title');
-      
-      if (error) {
+      try {
+        const { data, error } = await supabase
+          .from('categories')
+          .select('id, title')
+          .order('title');
+        
+        if (error) throw error;
+        setCategories(data || []);
+      } catch (error: any) {
         console.error('Error fetching categories:', error);
         toast({
           variant: "destructive",
           title: "Error",
           description: "Failed to fetch categories",
         });
-        return;
       }
-      
-      setCategories(data || []);
     };
 
     fetchCategories();
@@ -91,6 +91,7 @@ const TranslationViewer = ({
       });
     } finally {
       setIsUpdating(false);
+      setIsEditing(false);
     }
   };
 
