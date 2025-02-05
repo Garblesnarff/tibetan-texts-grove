@@ -26,13 +26,16 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
   const { toast } = useToast();
 
+  console.log('[CategoryManager] Rendering with isAdmin:', isAdmin);
+
   // If user is not admin, don't render anything
   if (!isAdmin) {
-    console.log('User is not admin, hiding category management controls');
+    console.log('[CategoryManager] User is not admin, hiding category management controls');
     return null;
   }
 
   const handleAdd = () => {
+    console.log('[CategoryManager] Adding new category');
     setEditingCategory({
       id: "",
       title: "",
