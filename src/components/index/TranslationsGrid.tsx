@@ -2,7 +2,7 @@ import { Translation } from "@/types/translation";
 import TranslationViewer from "@/components/TranslationViewer";
 import { LoadingState } from "./LoadingState";
 import { EmptyState } from "./EmptyState";
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useState, useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,11 +27,18 @@ export const TranslationsGrid = memo(({
   error,
   showRelevance = false
 }: TranslationsGridProps) => {
-  const [translations, setTranslations] = useState(initialTranslations);
+  const [translations, setTranslations] = useState<Translation[]>(initialTranslations);
   const { toast } = useToast();
+
+  // Sync local state with incoming props
+  useEffect(() => {
+    console.log("TranslationsGrid: Updating translations from props", initialTranslations);
+    setTranslations(initialTranslations);
+  }, [initialTranslations]);
 
   const handleTranslationUpdate = useCallback(async (updatedTranslation: Translation): Promise<void> => {
     try {
+      console.log("TranslationsGrid: Handling translation update", updatedTranslation);
       setTranslations(prevTranslations => 
         prevTranslations.map(t => 
           t.id === updatedTranslation.id ? updatedTranslation : t
