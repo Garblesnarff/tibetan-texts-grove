@@ -1,7 +1,7 @@
 import React from "react";
 import CardTitleEditForm from "../CardTitleEditForm";
 
-interface CardEditModeProps {
+export interface CardEditModeProps {
   editedEnglishTitle: string;
   editedTibetanTitle: string;
   editedDescription: string;
@@ -9,6 +9,7 @@ interface CardEditModeProps {
   setEditedTibetanTitle: (value: string) => void;
   handleSaveClick: () => void;
   handleCancel: () => void;
+  isUpdating?: boolean;
 }
 
 export const CardEditMode = ({
@@ -19,6 +20,7 @@ export const CardEditMode = ({
   setEditedTibetanTitle,
   handleSaveClick,
   handleCancel,
+  isUpdating = false,
 }: CardEditModeProps) => {
   return (
     <div className="relative z-50">

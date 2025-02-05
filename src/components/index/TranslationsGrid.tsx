@@ -27,13 +27,13 @@ export const TranslationsGrid = memo(({
   showRelevance = false
 }: TranslationsGridProps) => {
   const handleTranslationUpdate = useCallback(async (updatedTranslation: Translation) => {
-    // Find and update the translation in the local state
-    const updatedTranslations = translations.map(t => 
+    // Just update the translation without returning anything
+    translations.map(t => 
       t.id === updatedTranslation.id ? updatedTranslation : t
     );
     
-    // Trigger a re-render with the updated translations
-    return updatedTranslations;
+    // Return void to match the expected type
+    return Promise.resolve();
   }, [translations]);
 
   if (error) {
