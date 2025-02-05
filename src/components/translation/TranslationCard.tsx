@@ -71,7 +71,7 @@ const TranslationCard = ({
   };
 
   return (
-    <div className={`mb-6 relative ${isEditing ? 'bg-background p-4 rounded-lg border shadow-sm' : ''}`}>
+    <div className={`mb-8 relative ${isEditing ? 'bg-background p-6 rounded-lg border shadow-sm' : ''}`}>
       {isEditing ? (
         <CardEditMode
           editedEnglishTitle={editedEnglishTitle}
@@ -96,7 +96,7 @@ const TranslationCard = ({
         />
       )}
 
-      <div className="mt-4">
+      <div className="mt-6">
         <CardDescription
           translationId={translationId}
           description={description}
