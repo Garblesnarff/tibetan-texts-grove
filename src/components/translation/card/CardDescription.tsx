@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-interface CardDescriptionProps {
+export interface CardDescriptionProps {
   translationId: string;
   description?: string;
   isEditing: boolean;

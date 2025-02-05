@@ -26,14 +26,11 @@ export const TranslationsGrid = memo(({
   error,
   showRelevance = false
 }: TranslationsGridProps) => {
-  const handleTranslationUpdate = useCallback(async (updatedTranslation: Translation) => {
-    // Just update the translation without returning anything
+  const handleTranslationUpdate = useCallback(async (updatedTranslation: Translation): Promise<void> => {
+    // Update the translation in the local state
     translations.map(t => 
       t.id === updatedTranslation.id ? updatedTranslation : t
     );
-    
-    // Return void to match the expected type
-    return Promise.resolve();
   }, [translations]);
 
   if (error) {
