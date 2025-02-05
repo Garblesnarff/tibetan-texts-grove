@@ -10,9 +10,16 @@ interface CategoryManagerProps {
   onCategoryChange: () => void;
 }
 
+interface EditingCategory {
+  id: string;
+  title: string;
+  description: string;
+  isNew?: boolean;
+}
+
 export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
   const { isAdmin } = useAuth();
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingCategory, setEditingCategory] = useState<EditingCategory | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
   console.log('[CategoryManager] Rendering with isAdmin:', isAdmin);
@@ -30,7 +37,7 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
       title: "",
       description: "",
       isNew: true
-    } as Category);
+    });
   };
 
   return (
@@ -46,12 +53,15 @@ export function CategoryManager({ onCategoryChange }: CategoryManagerProps) {
                 onSave={() => {
                   handleSave({
                     title: editingCategory.title,
-                    description: editingCategory.description
+                    description: editingCategory.description,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                    created_by: null
                   });
                   setEditingCategory(null);
                 }}
                 onCancel={() => setEditingCategory(null)}
-                onChange={setEditingCategory}
+                onChange={(updated: EditingCategory) => setEditingCategory(updated)}
               />
             )}
 

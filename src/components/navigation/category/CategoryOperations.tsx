@@ -18,10 +18,7 @@ export function CategoryOperations({ onSuccess, children }: CategoryOperationsPr
     try {
       const { error } = await supabase
         .from('categories')
-        .insert([{
-          title: category.title,
-          description: category.description
-        }]);
+        .insert([category]);
 
       if (error) throw error;
 
