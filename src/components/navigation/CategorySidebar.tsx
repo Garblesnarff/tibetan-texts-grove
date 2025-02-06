@@ -5,6 +5,7 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarTrigger,
   useSidebar,
@@ -29,7 +30,6 @@ export function CategorySidebar() {
   const isCollapsed = state === "collapsed";
 
   useEffect(() => {
-    console.log('[CategorySidebar] Mounting with isAdmin:', isAdmin);
     fetchCategories();
     checkAdminStatus();
   }, []);

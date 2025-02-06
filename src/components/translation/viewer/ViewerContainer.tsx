@@ -12,12 +12,11 @@ export const ViewerContainer = ({ children, onClick, className }: ViewerContaine
     <div
       onClick={onClick}
       className={cn(
-        "relative p-8 rounded-lg border border-tibetan-brown/20",
+        "relative p-6 rounded-lg border border-tibetan-brown/20",
         "bg-gradient-to-br from-white to-tibetan-gold/5",
-        "shadow-sm hover:shadow-lg transition-all duration-300",
+        "shadow-sm hover:shadow-md transition-all duration-300",
         "group hover:scale-[1.02] cursor-pointer",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tibetan-maroon",
-        "hover:border-tibetan-gold/30 hover:bg-gradient-to-br hover:from-white hover:to-tibetan-gold/10",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tibetan-maroon/50",
         className
       )}
     >

@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export interface CardViewModeProps {
+interface CardViewModeProps {
   englishTitle?: string;
   tibetanTitle?: string;
   originalTibetanFileName?: string;
@@ -18,7 +18,6 @@ export interface CardViewModeProps {
   featured?: boolean;
   updated_at?: string;
   created_at?: string;
-  isUpdating?: boolean;
 }
 
 export const CardViewMode = ({
@@ -27,7 +26,6 @@ export const CardViewMode = ({
   originalTibetanFileName,
   searchQuery,
   tags = [],
-  isUpdating = false,
 }: CardViewModeProps) => {
   const visibleTags = tags.slice(0, 5);
   const remainingTags = tags.slice(5);

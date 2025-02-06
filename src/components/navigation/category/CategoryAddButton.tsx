@@ -5,6 +5,14 @@ interface CategoryAddButtonProps {
   onClick: () => void;
 }
 
+/**
+ * CategoryAddButton Component
+ * Renders a button to add a new category
+ * 
+ * @component
+ * @param {Object} props - Component properties
+ * @param {Function} props.onClick - Callback when the button is clicked
+ */
 export function CategoryAddButton({ onClick }: CategoryAddButtonProps) {
   return (
     <Button 

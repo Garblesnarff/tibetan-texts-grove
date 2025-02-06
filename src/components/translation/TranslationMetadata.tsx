@@ -23,20 +23,17 @@ export const TranslationMetadata = ({
   const formattedDate = new Date(createdAt).toLocaleDateString();
   
   return (
-    <div className="flex flex-wrap gap-3 items-center text-sm text-tibetan-brown/80 mt-6 pt-4 border-t border-tibetan-brown/10">
+    <div className="flex flex-wrap gap-3 items-center text-sm text-tibetan-brown/80 mt-4 pt-4 border-t border-tibetan-brown/10">
       {showRelevance && relevanceScore && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <Badge 
-              variant="secondary" 
-              className="group-hover:bg-tibetan-gold/20 transition-colors duration-200 rounded-full flex items-center gap-1.5 px-3"
-            >
+            <Badge variant="secondary" className="group-hover:bg-tibetan-gold/20 transition-colors duration-200 flex items-center gap-1">
               <Star className="h-3 w-3 fill-tibetan-gold" />
               {relevanceScore.total.toFixed(2)}
             </Badge>
           </TooltipTrigger>
           <TooltipContent className="w-64">
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <p className="font-medium text-tibetan-maroon">Relevance Score Breakdown:</p>
               <div className="text-xs space-y-1 text-tibetan-brown">
                 <div>Title Match: {relevanceScore.titleMatch.toFixed(2)}</div>
@@ -51,22 +48,22 @@ export const TranslationMetadata = ({
         </Tooltip>
       )}
       
-      <div className="flex items-center gap-1.5 group-hover:text-tibetan-maroon transition-colors duration-200">
-        <Eye className="h-4 w-4" />
+      <div className="flex items-center group-hover:text-tibetan-maroon transition-colors duration-200">
+        <Eye className="h-4 w-4 mr-1.5" />
         {viewCount} views
       </div>
       
-      <div className="flex items-center gap-1.5 group-hover:text-tibetan-maroon transition-colors duration-200">
-        <Clock className="h-4 w-4" />
+      <div className="flex items-center group-hover:text-tibetan-maroon transition-colors duration-200">
+        <Clock className="h-4 w-4 mr-1.5" />
         {formattedDate}
       </div>
       
       {featured && (
         <Badge 
           variant="secondary" 
-          className="group-hover:bg-tibetan-gold/20 transition-colors duration-200 rounded-full flex items-center gap-1.5 px-3 animate-pulse"
+          className="group-hover:bg-tibetan-gold/20 transition-colors duration-200 flex items-center"
         >
-          <Star className="h-3 w-3 fill-tibetan-gold" />
+          <Star className="h-3 w-3 mr-1 fill-tibetan-gold" />
           Featured
         </Badge>
       )}
