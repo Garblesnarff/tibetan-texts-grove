@@ -29,12 +29,6 @@ const TranslationViewer = ({
   // We now expect only one translation
   const translation = translations[0];
   
-  // Add error handling for missing translation
-  if (!translation) {
-    console.error('No translation provided to TranslationViewer');
-    return null;
-  }
-  
   const {
     currentTranslation,
     currentVersion,
@@ -100,9 +94,6 @@ const TranslationViewer = ({
       });
     }
   };
-
-  // Ensure we have a valid title to display
-  const displayTitle = currentTranslation?.title || 'Untitled Translation';
 
   return (
     <ViewerContainer onClick={handleClick}>
