@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTitleEditor } from "@/hooks/useTitleEditor";
 import { useTranslationSave } from "@/hooks/useTranslationSave";
 import { AdminControls } from "./AdminControls";
 import { CardEditMode } from "./card/CardEditMode";
 import { CardViewMode } from "./card/CardViewMode";
 import CardDescription from "./card/CardDescription";
+import { useToast } from "@/hooks/use-toast";
 
 interface TranslationCardProps {
   code: string;
@@ -22,6 +23,7 @@ interface TranslationCardProps {
   updated_at?: string;
   created_at?: string;
   tags?: string[];
+  isUpdating?: boolean;
 }
 
 const TranslationCard = ({
@@ -40,16 +42,25 @@ const TranslationCard = ({
   updated_at = new Date().toISOString(),
   created_at = new Date().toISOString(),
   tags = [],
+  isUpdating = false,
 }: TranslationCardProps) => {
+  const { toast } = useToast();
+  const [optimisticData, setOptimisticData] = useState({
+    englishTitle,
+    tibetanTitle,
+    description,
+    tags
+  });
+
   const {
     editedEnglishTitle,
     editedTibetanTitle,
     setEditedEnglishTitle,
     setEditedTibetanTitle,
     resetTitles
-  } = useTitleEditor(englishTitle || '', tibetanTitle || '');
+  } = useTitleEditor(optimisticData.englishTitle || '', optimisticData.tibetanTitle || '');
 
-  const [editedDescription, setEditedDescription] = React.useState(description || '');
+  const [editedDescription, setEditedDescription] = React.useState(optimisticData.description || '');
   const [isEditingDescription, setIsEditingDescription] = React.useState(false);
 
   const { handleSave } = useTranslationSave({
@@ -59,8 +70,38 @@ const TranslationCard = ({
   });
 
   const handleSaveClick = async () => {
-    await handleSave(editedEnglishTitle, editedTibetanTitle, editedDescription);
-    setIsEditingDescription(false);
+    try {
+      // Optimistic update
+      setOptimisticData({
+        englishTitle: editedEnglishTitle,
+        tibetanTitle: editedTibetanTitle,
+        description: editedDescription,
+        tags
+      });
+
+      await handleSave(editedEnglishTitle, editedTibetanTitle, editedDescription);
+      setIsEditingDescription(false);
+      
+      toast({
+        title: "Success",
+        description: "Changes saved successfully",
+      });
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      // Revert optimistic update
+      setOptimisticData({
+        englishTitle,
+        tibetanTitle,
+        description,
+        tags
+      });
+      
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save changes",
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -71,7 +112,7 @@ const TranslationCard = ({
   };
 
   return (
-    <div className={`mb-8 relative ${isEditing ? 'bg-background p-6 rounded-lg border shadow-sm' : ''}`}>
+    <div className={`mb-6 relative ${isEditing ? 'bg-background p-4 rounded-lg border shadow-sm' : ''}`}>
       {isEditing ? (
         <CardEditMode
           editedEnglishTitle={editedEnglishTitle}
@@ -81,10 +122,11 @@ const TranslationCard = ({
           setEditedTibetanTitle={setEditedTibetanTitle}
           handleSaveClick={handleSaveClick}
           handleCancel={handleCancel}
+          isUpdating={isUpdating}
         />
       ) : (
         <CardViewMode
-          englishTitle={editedEnglishTitle || englishTitle}
+          englishTitle={optimisticData.englishTitle || englishTitle}
           tibetanTitle={tibetanTitle}
           originalTibetanFileName={originalTibetanFileName}
           searchQuery={searchQuery}
@@ -93,19 +135,21 @@ const TranslationCard = ({
           updated_at={updated_at}
           created_at={created_at}
           tags={tags}
+          isUpdating={isUpdating}
         />
       )}
 
-      <div className="mt-6">
+      <div className="mt-4">
         <CardDescription
           translationId={translationId}
-          description={description}
+          description={optimisticData.description || description}
           isEditing={isEditingDescription}
           editedDescription={editedDescription}
           setEditedDescription={setEditedDescription}
           setIsEditingDescription={setIsEditingDescription}
           searchQuery={searchQuery}
           onUpdate={onUpdate}
+          isUpdating={isUpdating}
         />
       </div>
 

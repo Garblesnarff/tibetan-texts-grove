@@ -5,7 +5,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarTrigger,
   useSidebar,
@@ -30,14 +29,15 @@ export function CategorySidebar() {
   const isCollapsed = state === "collapsed";
 
   useEffect(() => {
+    console.log('[CategorySidebar] Mounting with isAdmin:', isAdmin);
     fetchCategories();
     checkAdminStatus();
   }, []);
 
   return (
     <>
-      <Sidebar className="border-r border-tibetan-brown/10 bg-gradient-to-br from-white to-tibetan-gold/5">
-        <SidebarHeader className="p-4 flex items-center justify-between border-b border-tibetan-brown/10">
+      <Sidebar className="border-r border-tibetan-brown/20">
+        <SidebarHeader className="p-4 flex items-center justify-between">
           <Link 
             to="/categories" 
             className="font-tibetan text-lg text-tibetan-maroon flex items-center hover:text-tibetan-maroon/80 transition-colors"
@@ -69,9 +69,9 @@ export function CategorySidebar() {
         size="icon"
         className={cn(
           "fixed left-0 top-1/2 -translate-y-1/2 z-50",
-          "transition-all duration-300 ease-in-out",
-          "bg-background/80 backdrop-blur-sm hover:bg-tibetan-gold/5",
-          "border border-tibetan-brown/10 rounded-r-md rounded-l-none",
+          "transition-all duration-200 ease-in-out",
+          "bg-background/80 backdrop-blur-sm hover:bg-accent",
+          "border border-border rounded-r-md rounded-l-none",
           "opacity-0 translate-x-full",
           isCollapsed && "opacity-100 translate-x-0"
         )}

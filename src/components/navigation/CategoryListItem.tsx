@@ -15,18 +15,24 @@ export const CategoryListItem = ({
   isAdmin,
   onDelete
 }: CategoryListItemProps) => {
+  console.log('[CategoryListItem] Rendering with:', { 
+    categoryId: category.id,
+    categoryTitle: category.title,
+    isAdmin 
+  });
+
   return (
     <SidebarMenuItem className="group relative">
       <SidebarMenuButton asChild>
         <Link 
           to={`/category/${category.id}`} 
-          className="flex justify-between items-center transition-all duration-300 hover:scale-[1.02] hover:bg-tibetan-gold/5"
+          className="flex justify-between items-center transition-all duration-200 hover:scale-[1.02]"
         >
           <span className="flex items-center">
-            <Folder className="h-4 w-4 mr-2 shrink-0 text-tibetan-maroon/70" />
-            <span className="truncate font-medium">{category.title}</span>
+            <Folder className="h-4 w-4 mr-2 shrink-0" />
+            <span className="truncate">{category.title}</span>
           </span>
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-tibetan-maroon/10 text-tibetan-maroon ml-2 shrink-0">
+          <span className="text-muted-foreground text-sm ml-2 shrink-0">
             {category.translation_count}
           </span>
         </Link>
@@ -35,7 +41,7 @@ export const CategoryListItem = ({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 delete-button"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
