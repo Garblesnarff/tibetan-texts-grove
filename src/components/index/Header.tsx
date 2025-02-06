@@ -1,6 +1,6 @@
 import { AdminUpload } from "@/components/AdminUpload";
 import { Link } from "react-router-dom";
-import { Home, Settings, Folder } from "lucide-react";
+import { Home, Settings, Folder, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -20,6 +20,12 @@ export function Header() {
           <Button variant="ghost" size="icon" className="hover:bg-tibetan-brown/10">
             <Folder className="h-5 w-5 text-tibetan-brown" />
             <span className="sr-only">Browse Categories</span>
+          </Button>
+        </Link>
+        <Link to="/search">
+          <Button variant="ghost" size="icon" className="hover:bg-tibetan-brown/10">
+            <Search className="h-5 w-5 text-tibetan-brown" />
+            <span className="sr-only">Search Translations</span>
           </Button>
         </Link>
         {isAdmin && (
