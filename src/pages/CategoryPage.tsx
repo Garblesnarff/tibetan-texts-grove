@@ -8,6 +8,7 @@ import { useCategories } from "@/hooks/useCategories";
 import { HorizontalCategoryList } from "@/components/navigation/category/HorizontalCategoryList";
 import { useCategoryTranslations } from "@/hooks/useCategoryTranslations";
 import { Header } from "@/components/index/Header";
+import { Translation } from "@/types/translation";
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
@@ -45,23 +46,17 @@ const CategoryPage = () => {
   }, []);
 
   // Filter translations based on active quick filters
-  const filteredTranslations = translations.filter(group => {
+  const filteredTranslations = translations.filter(translation => {
     if (activeFilters.length === 0) return true;
     
     return activeFilters.some(filter => {
       switch (filter) {
         case 'featured':
-          return group.translations.some(t => t.featured === true);
+          return translation.featured === true;
         case 'recent':
-          return group.translations.some(t => {
-            const createdAt = t.created_at || '';
-            return new Date(createdAt).getTime() > Date.now() - (7 * 24 * 60 * 60 * 1000);
-          });
+          return new Date(translation.created_at || '').getTime() > Date.now() - (7 * 24 * 60 * 60 * 1000);
         case 'most-viewed':
-          return group.translations.some(t => {
-            const viewCount = t.view_count || 0;
-            return viewCount > 100;
-          });
+          return (translation.view_count || 0) > 100;
         default:
           return true;
       }
