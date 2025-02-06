@@ -32,7 +32,7 @@ export const CardViewMode = ({
   const hasMoreTags = remainingTags.length > 0;
 
   return (
-    <div className="space-y-2 w-full">
+    <div className="space-y-4 w-full">
       <div className="min-w-0 flex-1">
         {englishTitle && (
           <h3 className="text-lg font-semibold leading-tight break-words">
@@ -48,12 +48,12 @@ export const CardViewMode = ({
           </h3>
         )}
         {tibetanTitle && (
-          <p className="tibetan-text mt-1 text-muted-foreground break-words">
+          <p className="tibetan-text mt-3 text-tibetan-maroon break-words">
             {tibetanTitle}
           </p>
         )}
         {originalTibetanFileName && (
-          <p className="text-sm text-muted-foreground mt-1 break-words">
+          <p className="text-sm text-muted-foreground mt-2 break-words">
             {originalTibetanFileName}
           </p>
         )}
@@ -65,7 +65,7 @@ export const CardViewMode = ({
             <Badge
               key={tag}
               variant="outline"
-              className="inline-flex items-center gap-1 text-xs px-2 py-1 whitespace-nowrap bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20 transition-colors duration-200"
+              className="inline-flex items-center gap-1 text-xs px-2 py-1 whitespace-nowrap bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20 transition-colors duration-200 hover:scale-105 transform"
             >
               <Tag className="h-3 w-3 shrink-0" />
               <span className="truncate max-w-[150px]">{tag}</span>
@@ -76,7 +76,7 @@ export const CardViewMode = ({
               <TooltipTrigger asChild>
                 <Badge
                   variant="outline"
-                  className="inline-flex items-center gap-1 text-xs px-2 py-1 cursor-help bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20 transition-colors duration-200"
+                  className="inline-flex items-center gap-1 text-xs px-2 py-1 cursor-help bg-tibetan-maroon/10 text-tibetan-maroon border-tibetan-maroon/20 hover:bg-tibetan-maroon/20 transition-colors duration-200 hover:scale-105 transform"
                 >
                   +{remainingTags.length} more
                 </Badge>

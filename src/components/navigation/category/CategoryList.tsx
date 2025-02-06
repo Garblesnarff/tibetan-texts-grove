@@ -15,8 +15,8 @@ export const CategoryList = ({
   onDelete 
 }: CategoryListProps) => {
   return (
-    <ScrollArea className="h-[calc(100vh-10rem)]">
-      <SidebarMenu>
+    <ScrollArea className="h-[calc(100vh-10rem)] px-2">
+      <SidebarMenu className="space-y-1">
         {categories.map((category) => (
           <CategoryListItem
             key={category.id}
