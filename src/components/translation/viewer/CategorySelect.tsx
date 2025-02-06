@@ -1,56 +1,46 @@
 import React from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { FolderDown } from "lucide-react";
 
 interface CategorySelectProps {
-  translationId: string;
-  onUpdate: () => Promise<void>;
   categories: Array<{ id: string; title: string }>;
+  onCategoryChange: (categoryId: string) => Promise<void>;
 }
 
-export const CategorySelect = ({
-  translationId,
-  onUpdate,
-  categories,
-}: CategorySelectProps) => {
-  const { toast } = useToast();
-
-  const handleCategoryChange = async (categoryId: string) => {
-    try {
-      const { error } = await supabase
-        .from('translations')
-        .update({ category_id: categoryId })
-        .eq('id', translationId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Translation moved to new category",
-      });
-
-      await onUpdate();
-    } catch (error: any) {
-      console.error('Error in handleCategoryChange:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to move translation to new category",
-      });
-    }
-  };
-
+const CategorySelect = ({ categories, onCategoryChange }: CategorySelectProps) => {
   return (
-    <div className="category-select">
-      {categories.map((category) => (
-        <button
-          key={category.id}
-          onClick={() => handleCategoryChange(category.id)}
-          className="category-button"
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 category-button bg-[#0EA5E9] hover:bg-[#0EA5E9]/80"
         >
-          {category.title}
-        </button>
-      ))}
-    </div>
+          <FolderDown className="h-4 w-4 text-white" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent 
+        align="end" 
+        className="w-48 z-[100] bg-background border border-tibetan-brown/20 shadow-lg"
+      >
+        {categories.map((category) => (
+          <DropdownMenuItem
+            key={category.id}
+            onClick={() => onCategoryChange(category.id)}
+            className="cursor-pointer hover:bg-tibetan-brown/10 focus:bg-tibetan-brown/20"
+          >
+            {category.title}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
+
+export default CategorySelect;

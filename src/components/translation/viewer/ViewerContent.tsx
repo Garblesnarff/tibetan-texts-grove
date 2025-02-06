@@ -25,9 +25,6 @@ export const ViewerContent = ({
   currentVersion,
   onVersionSelect,
 }: ViewerContentProps) => {
-  // Safely extract code from title
-  const code = currentTranslation.title ? currentTranslation.title.split(' ')[0] : '';
-
   return (
     <div className="pt-10">
       <TranslationMetadata 
@@ -36,7 +33,7 @@ export const ViewerContent = ({
         created_at={currentTranslation.created_at || new Date().toISOString()}
       />
       <TranslationCard
-        code={code}
+        code={currentTranslation.title.split(' ')[0]}
         englishTitle={currentTranslation.title}
         tibetanTitle={currentTranslation.tibetan_title}
         originalTibetanFileName={
