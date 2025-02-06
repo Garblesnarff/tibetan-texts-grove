@@ -3,7 +3,6 @@ import { Translation } from "@/types/translation";
 import TranslationCard from "../TranslationCard";
 import { VersionHistory } from "./VersionHistory";
 import { TranslationMetadata } from "./TranslationMetadata";
-import { useAuth } from "@/hooks/useAuth";
 
 interface ViewerContentProps {
   currentTranslation: Translation;
@@ -26,8 +25,6 @@ export const ViewerContent = ({
   currentVersion,
   onVersionSelect,
 }: ViewerContentProps) => {
-  const { isAdmin } = useAuth();
-  
   // Safely extract code from title
   const code = currentTranslation.title ? currentTranslation.title.split(' ')[0] : '';
 
@@ -61,7 +58,7 @@ export const ViewerContent = ({
         updated_at={currentTranslation.updated_at}
         created_at={currentTranslation.created_at}
       />
-      {!isEditing && isAdmin && (
+      {!isEditing && (
         <div className="mt-6">
           <VersionHistory
             translationId={translationId}
