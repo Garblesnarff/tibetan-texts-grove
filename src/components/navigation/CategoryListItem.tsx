@@ -16,8 +16,8 @@ export const CategoryListItem = ({
   onDelete
 }: CategoryListItemProps) => {
   return (
-    <SidebarMenuItem className="group relative">
-      <SidebarMenuButton asChild>
+    <SidebarMenuItem className="relative flex items-center">
+      <SidebarMenuButton asChild className="flex-1">
         <Link 
           to={`/category/${category.id}`} 
           className="flex justify-between items-center transition-all duration-300 hover:scale-[1.02] hover:bg-tibetan-gold/5"
@@ -32,19 +32,21 @@ export const CategoryListItem = ({
         </Link>
       </SidebarMenuButton>
       {isAdmin && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onDelete(category);
-          }}
-        >
-          <Trash2 className="h-4 w-4" />
-          <span className="sr-only">Delete category</span>
-        </Button>
+        <div className="flex items-center ml-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 transition-colors hover:bg-destructive/10 hover:text-destructive"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDelete(category);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+            <span className="sr-only">Delete category</span>
+          </Button>
+        </div>
       )}
     </SidebarMenuItem>
   );
