@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          achievement_category: string
+          category: string
+          description: string
+          icon: string | null
+          id: string
+          is_hidden: boolean
+          name: string
+          requirements: Json | null
+          tier: string
+          xp_reward: number
+        }
+        Insert: {
+          achievement_category?: string
+          category: string
+          description: string
+          icon?: string | null
+          id?: string
+          is_hidden?: boolean
+          name: string
+          requirements?: Json | null
+          tier?: string
+          xp_reward?: number
+        }
+        Update: {
+          achievement_category?: string
+          category?: string
+          description?: string
+          icon?: string | null
+          id?: string
+          is_hidden?: boolean
+          name?: string
+          requirements?: Json | null
+          tier?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       agent_communications: {
         Row: {
           content: Json
@@ -84,6 +123,182 @@ export type Database = {
           last_active?: string | null
           status?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      badges: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          icon: string | null
+          id: string
+          is_seasonal: boolean | null
+          name: string
+          requirements: Json | null
+          subcategory: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          icon?: string | null
+          id?: string
+          is_seasonal?: boolean | null
+          name: string
+          requirements?: Json | null
+          subcategory?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          icon?: string | null
+          id?: string
+          is_seasonal?: boolean | null
+          name?: string
+          requirements?: Json | null
+          subcategory?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      birds: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          scientific_name: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          scientific_name?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          scientific_name?: string | null
+        }
+        Relationships: []
+      }
+      book_pages: {
+        Row: {
+          background_color: string | null
+          book_id: string
+          created_at: string
+          font_color: string | null
+          font_family: string | null
+          font_size: number | null
+          id: string
+          image_settings: Json | null
+          image_style: string | null
+          image_url: string | null
+          is_bold: boolean | null
+          is_italic: boolean | null
+          layout: string
+          narration_url: string | null
+          page_number: number
+          text: string | null
+          updated_at: string
+        }
+        Insert: {
+          background_color?: string | null
+          book_id: string
+          created_at?: string
+          font_color?: string | null
+          font_family?: string | null
+          font_size?: number | null
+          id?: string
+          image_settings?: Json | null
+          image_style?: string | null
+          image_url?: string | null
+          is_bold?: boolean | null
+          is_italic?: boolean | null
+          layout?: string
+          narration_url?: string | null
+          page_number: number
+          text?: string | null
+          updated_at?: string
+        }
+        Update: {
+          background_color?: string | null
+          book_id?: string
+          created_at?: string
+          font_color?: string | null
+          font_family?: string | null
+          font_size?: number | null
+          id?: string
+          image_settings?: Json | null
+          image_style?: string | null
+          image_url?: string | null
+          is_bold?: boolean | null
+          is_italic?: boolean | null
+          layout?: string
+          narration_url?: string | null
+          page_number?: number
+          text?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_pages_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      books: {
+        Row: {
+          author: string
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          height: number
+          id: string
+          orientation: string
+          title: string
+          updated_at: string
+          user_id: string | null
+          width: number
+        }
+        Insert: {
+          author?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          height?: number
+          id?: string
+          orientation?: string
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+          width?: number
+        }
+        Update: {
+          author?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          height?: number
+          id?: string
+          orientation?: string
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+          width?: number
         }
         Relationships: []
       }
@@ -325,12 +540,124 @@ export type Database = {
         }
         Relationships: []
       }
+      combat_actions: {
+        Row: {
+          action_data: Json
+          action_type: string
+          created_at: string | null
+          dice_rolls: Json | null
+          encounter_id: string | null
+          id: string
+          participant_id: string | null
+          result: Json | null
+          round_number: number
+          target_participant_id: string | null
+          turn_order: number
+        }
+        Insert: {
+          action_data?: Json
+          action_type: string
+          created_at?: string | null
+          dice_rolls?: Json | null
+          encounter_id?: string | null
+          id?: string
+          participant_id?: string | null
+          result?: Json | null
+          round_number?: number
+          target_participant_id?: string | null
+          turn_order?: number
+        }
+        Update: {
+          action_data?: Json
+          action_type?: string
+          created_at?: string | null
+          dice_rolls?: Json | null
+          encounter_id?: string | null
+          id?: string
+          participant_id?: string | null
+          result?: Json | null
+          round_number?: number
+          target_participant_id?: string | null
+          turn_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "combat_actions_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "combat_encounters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "combat_actions_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "combat_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "combat_actions_target_participant_id_fkey"
+            columns: ["target_participant_id"]
+            isOneToOne: false
+            referencedRelation: "combat_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      combat_conditions: {
+        Row: {
+          condition_data: Json | null
+          condition_name: string
+          created_at: string | null
+          duration_rounds: number | null
+          expires_at_round: number | null
+          id: string
+          participant_id: string | null
+          save_ability: string | null
+          save_dc: number | null
+        }
+        Insert: {
+          condition_data?: Json | null
+          condition_name: string
+          created_at?: string | null
+          duration_rounds?: number | null
+          expires_at_round?: number | null
+          id?: string
+          participant_id?: string | null
+          save_ability?: string | null
+          save_dc?: number | null
+        }
+        Update: {
+          condition_data?: Json | null
+          condition_name?: string
+          created_at?: string | null
+          duration_rounds?: number | null
+          expires_at_round?: number | null
+          id?: string
+          participant_id?: string | null
+          save_ability?: string | null
+          save_dc?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "combat_conditions_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "combat_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       combat_encounters: {
         Row: {
           combat_log: Json | null
           created_at: string | null
+          current_participant_id: string | null
+          current_round: number | null
+          current_turn: number | null
           description: string | null
           difficulty: string | null
+          encounter_type: string | null
           id: string
           initiative_order: Json | null
           location_id: string | null
@@ -341,8 +668,12 @@ export type Database = {
         Insert: {
           combat_log?: Json | null
           created_at?: string | null
+          current_participant_id?: string | null
+          current_round?: number | null
+          current_turn?: number | null
           description?: string | null
           difficulty?: string | null
+          encounter_type?: string | null
           id?: string
           initiative_order?: Json | null
           location_id?: string | null
@@ -353,8 +684,12 @@ export type Database = {
         Update: {
           combat_log?: Json | null
           created_at?: string | null
+          current_participant_id?: string | null
+          current_round?: number | null
+          current_turn?: number | null
           description?: string | null
           difficulty?: string | null
+          encounter_type?: string | null
           id?: string
           initiative_order?: Json | null
           location_id?: string | null
@@ -363,6 +698,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "combat_encounters_current_participant_id_fkey"
+            columns: ["current_participant_id"]
+            isOneToOne: false
+            referencedRelation: "combat_participants"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "combat_encounters_location_id_fkey"
             columns: ["location_id"]
@@ -378,6 +720,242 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      combat_participants: {
+        Row: {
+          armor_class: number
+          conditions: Json | null
+          created_at: string | null
+          current_hp: number
+          encounter_id: string | null
+          id: string
+          initiative: number
+          initiative_modifier: number
+          is_active: boolean | null
+          max_hp: number
+          participant_id: string
+          participant_type: string
+          position_x: number | null
+          position_y: number | null
+          temporary_hp: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          armor_class?: number
+          conditions?: Json | null
+          created_at?: string | null
+          current_hp: number
+          encounter_id?: string | null
+          id?: string
+          initiative?: number
+          initiative_modifier?: number
+          is_active?: boolean | null
+          max_hp: number
+          participant_id: string
+          participant_type: string
+          position_x?: number | null
+          position_y?: number | null
+          temporary_hp?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          armor_class?: number
+          conditions?: Json | null
+          created_at?: string | null
+          current_hp?: number
+          encounter_id?: string | null
+          id?: string
+          initiative?: number
+          initiative_modifier?: number
+          is_active?: boolean | null
+          max_hp?: number
+          participant_id?: string
+          participant_type?: string
+          position_x?: number | null
+          position_y?: number | null
+          temporary_hp?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "combat_participants_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "combat_encounters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      completed_problems: {
+        Row: {
+          attempt_count: number | null
+          completed_at: string
+          completion_time_seconds: number | null
+          course_id: string | null
+          difficulty: string
+          id: string
+          problem_id: string
+          topic_id: string | null
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          attempt_count?: number | null
+          completed_at?: string
+          completion_time_seconds?: number | null
+          course_id?: string | null
+          difficulty: string
+          id?: string
+          problem_id: string
+          topic_id?: string | null
+          user_id: string
+          xp_earned: number
+        }
+        Update: {
+          attempt_count?: number | null
+          completed_at?: string
+          completion_time_seconds?: number | null
+          course_id?: string | null
+          difficulty?: string
+          id?: string
+          problem_id?: string
+          topic_id?: string | null
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "completed_problems_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "completed_problems_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "completed_problems_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_progress: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          id: string
+          is_completed: boolean | null
+          last_accessed_timestamp: string | null
+          problems_completed: number | null
+          total_problems: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          last_accessed_timestamp?: string | null
+          problems_completed?: number | null
+          total_problems?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          last_accessed_timestamp?: string | null
+          problems_completed?: number | null
+          total_problems?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string | null
+          description: string
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          learning_objectives: string[] | null
+          prerequisite_course_ids: string[] | null
+          sequence_number: number
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          learning_objectives?: string[] | null
+          prerequisite_course_ids?: string[] | null
+          sequence_number: number
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          learning_objectives?: string[] | null
+          prerequisite_course_ids?: string[] | null
+          sequence_number?: number
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      daily_challenges: {
+        Row: {
+          bonus_xp: number
+          challenge_date: string
+          created_at: string
+          difficulty: string
+          id: string
+          problem_id: string
+        }
+        Insert: {
+          bonus_xp?: number
+          challenge_date?: string
+          created_at?: string
+          difficulty: string
+          id?: string
+          problem_id: string
+        }
+        Update: {
+          bonus_xp?: number
+          challenge_date?: string
+          created_at?: string
+          difficulty?: string
+          id?: string
+          problem_id?: string
+        }
+        Relationships: []
       }
       dialogue_history: {
         Row: {
@@ -564,6 +1142,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      learning_paths: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          difficulty: string
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          prerequisite_paths: string[] | null
+          sequence_number: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          difficulty: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          prerequisite_paths?: string[] | null
+          sequence_number?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          difficulty?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          prerequisite_paths?: string[] | null
+          sequence_number?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       locations: {
         Row: {
@@ -832,6 +1452,86 @@ export type Database = {
         Update: {
           created_at?: string
           id?: number
+        }
+        Relationships: []
+      }
+      path_nodes: {
+        Row: {
+          content_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          node_type: string
+          path_id: string
+          prerequisite_nodes: string[] | null
+          sequence_number: number
+          title: string
+          updated_at: string
+          xp_reward: number
+        }
+        Insert: {
+          content_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          node_type: string
+          path_id: string
+          prerequisite_nodes?: string[] | null
+          sequence_number?: number
+          title: string
+          updated_at?: string
+          xp_reward?: number
+        }
+        Update: {
+          content_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          node_type?: string
+          path_id?: string
+          prerequisite_nodes?: string[] | null
+          sequence_number?: number
+          title?: string
+          updated_at?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "path_nodes_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prompts: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          prompt: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          prompt: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          prompt?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1172,6 +1872,44 @@ export type Database = {
           },
         ]
       }
+      topics: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          sequence_number: number
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          sequence_number: number
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          sequence_number?: number
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topics_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       translation_versions: {
         Row: {
           created_at: string | null
@@ -1326,6 +2064,268 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          showcased: boolean | null
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          showcased?: boolean | null
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          showcased?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_birds: {
+        Row: {
+          bird_id: string
+          captured_at: string | null
+          created_at: string | null
+          id: string
+          location: Json | null
+          photo_url: string | null
+          user_id: string
+        }
+        Insert: {
+          bird_id: string
+          captured_at?: string | null
+          created_at?: string | null
+          id?: string
+          location?: Json | null
+          photo_url?: string | null
+          user_id: string
+        }
+        Update: {
+          bird_id?: string
+          captured_at?: string | null
+          created_at?: string | null
+          id?: string
+          location?: Json | null
+          photo_url?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_birds_bird_id_fkey"
+            columns: ["bird_id"]
+            isOneToOne: false
+            referencedRelation: "birds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_daily_challenges: {
+        Row: {
+          challenge_id: string
+          completed_at: string
+          id: string
+          time_taken_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string
+          id?: string
+          time_taken_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string
+          id?: string
+          time_taken_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_daily_challenges_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "daily_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_path_node_progress: {
+        Row: {
+          attempts: number | null
+          completed_at: string
+          id: string
+          node_id: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number | null
+          completed_at?: string
+          id?: string
+          node_id: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number | null
+          completed_at?: string
+          id?: string
+          node_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_path_node_progress_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "path_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_path_progress: {
+        Row: {
+          created_at: string
+          id: string
+          is_completed: boolean | null
+          last_accessed: string | null
+          nodes_completed: string[] | null
+          path_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_completed?: boolean | null
+          last_accessed?: string | null
+          nodes_completed?: string[] | null
+          path_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_completed?: boolean | null
+          last_accessed?: string | null
+          nodes_completed?: string[] | null
+          path_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_path_progress_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_profiles: {
+        Row: {
+          best_challenge_streak: number | null
+          created_at: string
+          daily_challenge_streak: number | null
+          id: string
+          last_active_date: string | null
+          last_daily_challenge_date: string | null
+          level: number
+          streak_days: number
+          total_badges_earned: number | null
+          total_paths_completed: number | null
+          updated_at: string
+          username: string | null
+          xp: number
+          xp_to_next_level: number
+        }
+        Insert: {
+          best_challenge_streak?: number | null
+          created_at?: string
+          daily_challenge_streak?: number | null
+          id: string
+          last_active_date?: string | null
+          last_daily_challenge_date?: string | null
+          level?: number
+          streak_days?: number
+          total_badges_earned?: number | null
+          total_paths_completed?: number | null
+          updated_at?: string
+          username?: string | null
+          xp?: number
+          xp_to_next_level?: number
+        }
+        Update: {
+          best_challenge_streak?: number | null
+          created_at?: string
+          daily_challenge_streak?: number | null
+          id?: string
+          last_active_date?: string | null
+          last_daily_challenge_date?: string | null
+          level?: number
+          streak_days?: number
+          total_badges_earned?: number | null
+          total_paths_completed?: number | null
+          updated_at?: string
+          username?: string | null
+          xp?: number
+          xp_to_next_level?: number
+        }
+        Relationships: []
       }
       world_factions: {
         Row: {
@@ -1483,19 +2483,10 @@ export type Database = {
       }
     }
     Functions: {
-      binary_quantize:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
+      binary_quantize: {
+        Args: { "": string } | { "": unknown }
+        Returns: unknown
+      }
       calculate_relevance_score: {
         Args: {
           title_match_score: number
@@ -1523,162 +2514,91 @@ export type Database = {
         Returns: undefined
       }
       halfvec_avg: {
-        Args: {
-          "": number[]
-        }
+        Args: { "": number[] }
         Returns: unknown
       }
       halfvec_out: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       halfvec_send: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       halfvec_typmod_in: {
-        Args: {
-          "": unknown[]
-        }
+        Args: { "": unknown[] }
         Returns: number
       }
       hnsw_bit_support: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       hnsw_halfvec_support: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       hnsw_sparsevec_support: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       hnswhandler: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       ivfflat_bit_support: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       ivfflat_halfvec_support: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       ivfflathandler: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
-      l2_norm:
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: number
-          }
-      l2_normalize:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
+      l2_norm: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: number
+      }
+      l2_normalize: {
+        Args: { "": string } | { "": unknown } | { "": unknown }
+        Returns: unknown
+      }
       sparsevec_out: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       sparsevec_send: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       sparsevec_typmod_in: {
-        Args: {
-          "": unknown[]
-        }
+        Args: { "": unknown[] }
         Returns: number
       }
       vector_avg: {
-        Args: {
-          "": number[]
-        }
+        Args: { "": number[] }
         Returns: string
       }
-      vector_dims:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: number
-          }
+      vector_dims: {
+        Args: { "": string } | { "": unknown }
+        Returns: number
+      }
       vector_norm: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: number
       }
       vector_out: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       vector_send: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: string
       }
       vector_typmod_in: {
-        Args: {
-          "": unknown[]
-        }
+        Args: { "": unknown[] }
         Returns: number
       }
     }
@@ -1710,27 +2630,29 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1738,20 +2660,22 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1759,20 +2683,22 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1780,21 +2706,23 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
@@ -1803,6 +2731,35 @@ export type CompositeTypes<
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
   ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      media_type: ["Newspaper", "Document", "Photo", "Video", "Audio"],
+      memory_subcategory: [
+        "current_location",
+        "previous_location",
+        "npc",
+        "player",
+        "player_action",
+        "npc_action",
+        "dialogue",
+        "description",
+        "environment",
+        "item",
+        "general",
+      ],
+      timeline_category: [
+        "Technology",
+        "Political",
+        "Cultural",
+        "Economic",
+        "Military",
+        "Scientific",
+      ],
+    },
+  },
+} as const
